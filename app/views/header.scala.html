@@ -1,0 +1,66 @@
+@import tool.VarTool
+@()(implicit request: RequestHeader)
+
+<style>
+		.navbar-nav {
+			margin-bottom: -60px;
+		}
+
+		.navbar-nav > li > a {
+			margin-top: 5px;
+			margin-bottom: 5px;
+		}
+
+</style>
+
+<div class="cbioportal-frontend">
+	<div class="pageTopContainer"><div class="contentWidth"><header><div id="leftHeaderContent">
+		<span id="cbioportal-logo" style="font-size: 23px;">
+			瑞金分子病理
+		</span>
+
+		<nav id="main-nav" class="collapse navbar-collapse">
+			<ul class="nav navbar-nav">
+
+				<li class="dropdown">
+					<a href="#">数据 <span class="fa fa-caret-down"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="@userC.routes.DataController.viewBefore()">浏览</a></li>
+						<li><a href="@userC.routes.DataController.searchBefore()">搜索</a></li>
+					</ul>
+				</li>
+
+				<li><a href="@routes.CaseController.searchBefore()";id="case">病例</a></li>
+				<li><a href="@routes.DBController.db()" id="db">数据库</a> </li>
+				<li><a href="@routes.MaintainController.maintainBefore" id="maintain">维护</a></li>
+				<li><a href="@routes.DatumController.datumBefore()" id="datum" >资料</a></li>
+
+				@if(request.session.get(VarTool.userStr).isDefined) {
+					<li class="dropdown" style="float: right;
+						position: absolute;
+						right: 25px" align="right">
+						<a href="#"><span class="fa fa-user"></span>
+							@request.session.get(VarTool.userStr)&nbsp;<span class="fa fa-caret-down"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="@routes.UserController.logout()" id="loginA"> 退出登录</a>
+							</li>
+						</ul>
+					</li>
+				} else {
+					<li style="float: right;
+						position: absolute;
+						right: 25px" align="right">
+						<a href="@routes.AppController.loginBefore()" id="loginA"><span class="fa fa-user"></span> 登录</a>
+					</li>
+				}
+
+			</ul>
+		</nav>
+
+	</div>
+
+	</header>
+	</div>
+	</div>
+</div>

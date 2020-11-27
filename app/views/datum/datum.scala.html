@@ -1,0 +1,123 @@
+@()(implicit request: play.api.mvc.RequestHeader)
+@main("资料") {
+
+	<style>
+			.myModal .form-group {
+				margin-bottom: 0px;
+			}
+
+			.borders {
+				height: 265px;
+				border: 1px solid #333333;
+				border-radius: 10px 10px 10px 10px;
+				margin: 30px 15px 30px 15px;
+				float: left;
+				width: 100%;
+			}
+			.platformP{
+				margin-top: 20px;
+			}
+			.contentP{
+				height: 80px;
+			}
+
+	</style>
+
+	<div class="row">
+		<div class="form-group col-sm-12">
+			<h2 class="page-heading"
+			style="text-align: left;
+				border-bottom: 5px solid #e9f3f4">资料</h2>
+		</div>
+	</div>
+
+	<div class="row" style="margin-top: 60px">
+
+		<div class="col-sm-4">
+			<div class="borders">
+				<div style="margin-left: 2em">
+					<div class="title">
+						<h3 class="name"><a href="#" > 技术平台</a>
+						</h3>
+						<h3 class="name name1"></h3>
+					</div>
+					<p class="platformP">
+						说明：
+					</p>
+					<p class="contentP"> </p>
+					<a class="btn btn-primary " href="#" >查看</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-sm-4">
+			<div class="borders">
+				<div style="margin-left: 2em">
+					<div class="title">
+						<h3 class="name"><a href="#" > 工具</a>
+						</h3>
+						<h3 class="name name1"></h3>
+					</div>
+					<p class="platformP">
+						说明：
+					</p>
+					<p class="contentP"> </p>
+					<a class="btn btn-primary " href="#" >查看</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-sm-4">
+			<div class="borders">
+				<div style="margin-left: 2em">
+					<div class="title">
+						<h3 class="name"><a href="#" > 规范、指南</a>
+						</h3>
+						<h3 class="name name1"></h3>
+					</div>
+					<p class="platformP">
+						说明：
+					</p>
+					<p class="contentP"> </p>
+					<a class="btn btn-primary " href="#" >查看</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-sm-4">
+			<div class="borders">
+				<div style="margin-left: 2em">
+					<div class="title">
+						<h3 class="name"><a href="#" > 常用检测</a>
+						</h3>
+						<h3 class="name name1"></h3>
+					</div>
+					<p class="platformP">
+						说明：
+					</p>
+					<p class="contentP"> </p>
+					<a class="btn btn-primary " href="#" >查看</a>
+				</div>
+			</div>
+		</div>
+
+
+	</div>
+
+
+	</div>
+
+
+	</div>
+
+
+	<script>
+			$(function () {
+				App.selected("datum")
+
+
+			})
+
+	</script>
+
+}

@@ -1,0 +1,83 @@
+@(barcode: String)(implicit request: play.api.mvc.RequestHeader)
+@main("数据详细信息") {
+	<div class="container">
+		<div class="row">
+			<div class="form-group col-sm-12">
+				<h2 class="page-heading"
+				style="text-align: left;
+					border-bottom: 5px solid #e9f3f4">数据详细信息</h2>
+			</div>
+		</div>
+
+		<form id="form" class="form" accept-charset="UTF-8" method="post">
+
+			<div class="form-body form-horizontal">
+
+				<h4 >基本信息</h4>
+
+				<div id="basicInfo">
+
+					<div class="form-group">
+						<label class="control-label col-sm-2">Tumor_Sample_Barcode：</label>
+						<div class="col-sm-2">
+							<p class="form-control-static" id="barcode">
+							@barcode
+							</p>
+						</div>
+						<label class="control-label col-sm-2">Tumor_Sample_Name：</label>
+						<div class="col-sm-2">
+							<p class="form-control-static" id="sampleName">
+							</p>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="control-label col-sm-2">OncoTree_Code：</label>
+						<div class="col-sm-6">
+							<p class="form-control-static" id="treeCode">
+							</p>
+						</div>
+					</div>
+
+				</div>
+
+				<h4 >数据信息</h4>
+
+				<label>请选择要显示的列:</label>
+				<div id="checkbox" class="checkbox">
+
+				</div>
+
+
+				<div class="" style="" id="toolbar">
+					<span class="control-label " style="font-weight: bold">
+						Gene.refGene:</span>
+					<select name="refGene" id="sampleNames" style="float: left"
+					class="checkbox form-control refGene" onchange="DataDetail.geneChange(this)"></select>
+				</div>
+
+				<div class="table-responsive" id="tableContent">
+					<table class="display table table-bordered" id="table" data-pagination="true" data-search="true"
+					data-toolbar="#toolbar" data-page-list="[10, 25, 50, 100, all]" data-multiple-search="true">
+
+					</table>
+				</div>
+
+
+			</div>
+
+		</form>
+
+
+	</div>
+
+	<script>
+
+			var barcode = "@barcode"
+
+			$(function () {
+				DataDetail.init
+			})
+
+	</script>
+}

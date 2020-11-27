@@ -1,0 +1,131 @@
+@()(implicit request: play.api.mvc.RequestHeader)
+@main("搜索") {
+
+	<style>
+
+			.radio, .checkbox {
+				position: relative;
+				display: block;
+				margin-top: 5px;
+				margin-bottom: 10px;
+			}
+
+			.form-group {
+				margin-top: 20px;
+			}
+
+	</style>
+
+	<div class="row">
+		<div class="form-group col-sm-12">
+			<h2 class="page-heading"
+			style="text-align: left;
+				border-bottom: 5px solid #e9f3f4">搜索</h2>
+		</div>
+	</div>
+
+	<div class="row">
+
+		<div class="col-sm-3">
+			<div class="bs-docs-sidebar" role="complementary">
+				<ul class="nav bs-docs-sidenav">
+					<li class="active"><a href="#barcode" data-toggle="tab">Tumor_Sample_Barcode搜索</a></li>
+					<li class=""><a href="#sampleName" data-toggle="tab">Tumor_Sample_Name搜索</a></li>
+					<li class=""><a href="#refGene" data-toggle="tab">Gene.refGene搜索</a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="col-sm-8 tab-content myform" >
+
+			<div class="tab-pane active" id="barcode">
+
+				<form class="form-horizontal" method="get" id="keywordForm">
+					<div class="form-group">
+						<label class="control-label col-sm-3">Tumor_Sample_Barcode:</label>
+						<div class="col-sm-4">
+							<select name="barcode" id="sampleNames" style=""
+							class="checkbox form-control refGene"></select>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="actions col-sm-offset-3 col-sm-3">
+							<button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="DataSearch.barcodeSearch">
+								搜索</button>
+						</div>
+					</div>
+				</form>
+
+			</div>
+
+			<div class="tab-pane " id="sampleName">
+
+				<form class="form-horizontal" method="get" id="keywordForm">
+					<div class="form-group">
+						<label class="control-label col-sm-3">Tumor_Sample_Name:</label>
+						<div class="col-sm-4">
+							<select name="sampleName" id="sampleNames" style="width: 100%"
+							class="checkbox form-control refGene"></select>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="actions col-sm-offset-3 col-sm-3">
+							<button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="DataSearch.sampleNameSearch">
+								搜索</button>
+						</div>
+					</div>
+				</form>
+
+			</div>
+
+			<div class="tab-pane " id="refGene">
+
+				<form class="form-horizontal" method="get" id="keywordForm">
+					<div class="form-group">
+						<label class="control-label col-sm-3">Gene.refGene:</label>
+						<div class="col-sm-4">
+							<select name="refGene" id="sampleNames" style="width: 100%"
+							class="checkbox form-control refGene"></select>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="actions col-sm-offset-3 col-sm-3">
+							<button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="DataSearch.refGeneSearch">
+								搜索</button>
+						</div>
+					</div>
+				</form>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<div id="result" style="display: none" >
+
+		<hr>
+
+		<label>请选择要显示的列:</label>
+		<div id="checkbox" class="checkbox">
+
+		</div>
+
+		<div class="table-responsive" id="tableContent">
+			<table class="display table table-bordered" id="table" data-pagination="true" data-search="true"
+			data-toolbar="#toolbar" data-page-list="[10, 25, 50, 100, all]" data-multiple-search="true">
+
+			</table>
+		</div>
+
+	</div>
+
+
+	<script>
+			$(function () {
+				DataSearch.init
+			})
+	</script>
+
+
+}

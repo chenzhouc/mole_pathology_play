@@ -1,0 +1,53 @@
+
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# An example controller showing a sample home page
+
+GET     /                                controllers.AppController.toIndex
+
+
+
+GET     /db                              controllers.DBController.db
+
+GET     /loginbefore                           controllers.AppController.loginBefore
+
+POST     /login                                  controllers.AppController.login
+
+GET     /pathology/admin/changePasswordBefore                     controllers.AdminController.changePasswordBefore
+
+GET           /pathology/admin/userManageBefore                         controllers.AdminController.userManageBefore
+
+POST          /pathology/admin/changePassword                           controllers.AdminController.changePassword
+
+GET           /pathology/admin/data/addByFileBefore                     controllers.adminC.DataController.addByFileBefore
+
+GET           /pathology/admin/data/manageBefore                        controllers.adminC.DataController.manageBefore
+
+GET           /pathology/tool/downloadExampleFile                       controllers.ToolController.downloadExampleFile
+
+GET           /pathology/case/searchBefore                              controllers.CaseController.searchBefore
+
+GET           /pathology/datum/datumBefore                              controllers.DatumController.datumBefore
+
+GET           /pathology/maintain/maintainBefore                        controllers.MaintainController.maintainBefore
+
+GET           /pathology/user/data/viewBefore                           controllers.userC.DataController.viewBefore
+POST           /pathology/user/data/getMutationData                           controllers.userC.DataController.getMutationData
+
+GET           /pathology/user/data/searchBefore                         controllers.userC.DataController.searchBefore
+
+GET           /pathology/user/logout                                    controllers.UserController.logout
+
+POST           /pathology/admin/data/addByFile                          controllers.adminC.DataController.addByFile
+
+POST            /pathology/user/data/queryAll                            controllers.userC.DataController.getMutationTable
+
+POST            /pathology/user/data/drawing                            controllers.userC.DataController.draw
+# Map static resources from the /public folder to the /assets URL path
+GET           /assets/*file                                             controllers.Assets.at(path="/public", file)
+
+
+
+      

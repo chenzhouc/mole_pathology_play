@@ -1,0 +1,227 @@
+@()(implicit request: play.api.mvc.RequestHeader)
+@main("数据库") {
+
+    <style>
+            .myModal .form-group {
+                margin-bottom: 0px;
+            }
+
+    </style>
+
+    <div class="row">
+        <div class="form-group col-sm-12">
+            <h2 class="page-heading"
+            style="text-align: left;
+                border-bottom: 5px solid #e9f3f4">数据库</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12" >
+
+            <div class="tab-content"><div class="msk-tab"><div class="small styles-module__QueryContainer__2cy7B styles-module__column__2pa-R styles-module__padded__3vpqj" style="display: flex;
+                overflow: visible;
+                flex-direction: column;"><div data-test="studyList" class="styles-module__CancerStudySelector__1FU50 styles-module__column__2pa-R" style="display: flex;
+                overflow: visible;
+                flex-direction: column;"><div class="styles-module__CancerStudySelectorHeader__D2N40 styles-module__row__3l99O" style="display: flex;
+                overflow: visible;
+                flex-direction: row;"><div class="styles-module__SectionHeader__3RwOA"><h2>
+                选择项目:</h2></div><div><a><b>0</b> 项目 选中 (<b>0</b>
+                样品)</a><span></span><button style="margin-left: 10px;
+                display: none;
+                cursor: pointer;" type="button" class="btn-primary btn btn-xs btn-primary"><i class="ci ci-pie-chart"></i>
+                View summary</button></div><div style="display: flex;
+                align-items: center;"><div class="autosuggest dropdown"><div class="input-group input-group-sm input-group-toggle">
+                <input autocomplete="off" class="form-control" placeholder="搜索..." type="text" value="">
+                <span class="input-group-btn"><button role="button" aria-haspopup="true" aria-expanded="false" type="button" class="dropdown-toggle btn btn-sm btn-default"> <span class="caret"></span></button></span></div></div></div></div><div class="styles-module__SectionHeader__3RwOA" style="display: none;"><h2>
+                Select Studies:<span class="styles-module__selectedCount__TRoaE"><b>0</b> studies selected (<b>0</b>
+                samples)</span></h2></div><div class="styles-module__cancerStudySelectorBody__2BfDm styles-module__row__3l99O" style="display: flex;
+                overflow: auto;
+                flex-direction: row;"><div class="styles-module__cancerTypeListContainer__rnSbV">
+                <ul class="styles-module__cancerTypeList__ouFgb">
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        细胞系</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        2</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        肾上腺</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        2</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        壶腹部</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        1</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        胆道</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        8</span></li>
+
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        膀胱/尿路</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        13</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        骨</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        2</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        肠</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        7</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        乳房</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        14</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        中枢神经系统/脑</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        16</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        子宫颈</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        2</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        食道/胃</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        14</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        眼睛</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        3</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        头和颈</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        13</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        肾</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        16</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        肝脏</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        8</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        肺</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        18</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        淋巴</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        17</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        骨髓</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        6</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        其他</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        10</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        卵巢/输卵管</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        4</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        胰腺</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        10</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        周围神经系统</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        5</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        胸膜</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        3</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        前列腺</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        18</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        皮肤</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        12</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        软组织</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        7</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        睾丸</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        3</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        胸腺</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        3</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        甲状腺</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        4</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        子宫</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        8</span></li>
+
+                    <li class="undefined styles-module__selectable__3NCiW"><span class="styles-module__cancerTypeListItemLabel__31N8Y">
+                        女阴/阴道</span><span class="styles-module__cancerTypeListItemCount__1HB2c">
+                        1</span></li>
+
+                </ul></div><div class="styles-module__cancerStudyListContainer__356jB" data-test="cancerTypeListContainer"><div class="checkbox" style="margin-left: 19px;"><div class="styles-module__quickSelect__3ZhaC">
+            </div></div>
+
+                <ul class="styles-module__StudyList__2mxsz styles-module__Level1__2R0IW"><li class="styles-module__CancerType__Zm_qX styles-module__Level1__2R0IW"><label class="styles-module__labeledCheckbox__jTAe1"><input type="checkbox"><span>
+                    细胞系</span><span class="styles-module__SelectAll__3SSsJ">
+                    选择全部</span></label></li>
+                    <li class="styles-module__Study__398QL" data-test="StudySelect"><label class="styles-module__labeledCheckbox__jTAe1">
+                        <input type="checkbox"><span class="styles-module__StudyName__3IA_4">
+                        ARMS</span></label><div class="styles-module__StudyMeta__3UFnp"><span class="styles-module__StudySamples__3_cjf">
+                        1020 样品</span>
+                        <span class="styles-module__StudyLinks__cMCHs"><a><span aria-hidden="true" class="fa fa-info-circle styles-module__icon__1ZBlQ styles-module__infoCircleIcon__27xSR"></span></a><a href="https://www.ncbi.nlm.nih.gov/pubmed/22460905" target="_blank"><span aria-hidden="true" class="fa fa-book styles-module__icon__1ZBlQ styles-module__iconWithTooltip__2yBW3"></span></a><span><a class="styles-module__summaryIcon__WR75I ci ci-pie-chart" href="/study?id=cellline_ccle_broad"></a></span></span></div></li>
+
+
+                    <li class="styles-module__Study__398QL" data-test="StudySelect"><label class="styles-module__labeledCheckbox__jTAe1"><input type="checkbox"><span class="styles-module__StudyName__3IA_4">
+                        淋巴瘤</span></label><div class="styles-module__StudyMeta__3UFnp"><span class="styles-module__StudySamples__3_cjf">
+                        67 样品</span><span class="styles-module__StudyLinks__cMCHs"><a><span aria-hidden="true" class="fa fa-info-circle styles-module__icon__1ZBlQ styles-module__infoCircleIcon__27xSR"></span></a><a href="https://www.ncbi.nlm.nih.gov/pubmed/22802077" target="_blank"><span aria-hidden="true" class="fa fa-book styles-module__icon__1ZBlQ styles-module__iconWithTooltip__2yBW3"></span></a><span><a class="styles-module__summaryIcon__WR75I ci ci-pie-chart" href="/study?id=cellline_nci60"></a></span></span></div></li>
+
+                    <li class="styles-module__Study__398QL" data-test="StudySelect"><label class="styles-module__labeledCheckbox__jTAe1"><input type="checkbox"><span class="styles-module__StudyName__3IA_4">
+                        燃石68</span></label><div class="styles-module__StudyMeta__3UFnp"><span class="styles-module__StudySamples__3_cjf">
+                        150 样品</span><span class="styles-module__StudyLinks__cMCHs"><a><span aria-hidden="true" class="fa fa-info-circle styles-module__icon__1ZBlQ styles-module__infoCircleIcon__27xSR"></span></a><a href="https://www.ncbi.nlm.nih.gov/pubmed/22802077" target="_blank"><span aria-hidden="true" class="fa fa-book styles-module__icon__1ZBlQ styles-module__iconWithTooltip__2yBW3"></span></a><span><a class="styles-module__summaryIcon__WR75I ci ci-pie-chart" href="/study?id=cellline_nci60"></a></span></span></div></li>
+
+
+                </ul>
+
+
+            </div></div></div><div class="styles-module__GeneSetSelector__2DY1b styles-module__row__3l99O styles-module__padded__3vpqj" style="display: flex;
+                overflow: visible;
+                flex-direction: row;"><div class="sectionLabel styles-module__SectionHeader__3RwOA"><h2>
+                输入基因:</h2></div><div style="display: flex;
+                overflow: visible;
+                flex-direction: column;" class="styles-module__column__2pa-R">
+
+                <select style="width: 100%;
+                    margin-bottom: 10px" class="Select-control" onchange="Db.change(this)"
+                id="geneSelect">
+                    <option>用户自定义基因列表</option>
+                    <option value="lym">淋巴瘤检测基因列表</option>
+                    <option value="bs68">燃石68检测基因列表</option>
+
+                </select>
+
+                <textarea class="styles-module__geneSet__Ra6KD" rows="5" cols="80" placeholder="输入基因名"
+                name="gene"
+                data-test="geneSet"></textarea>
+
+            </div></div><div class="styles-module__submitRow__k2sC8 styles-module__row__3l99O styles-module__padded__3vpqj" style="display: flex;
+                overflow: auto;
+                flex-direction: row;"><button style="padding-left: 50px;
+                padding-right: 50px;
+                margin-right: 50px;" class="btn btn-primary btn-lg" data-test="queryButton">
+                提交查询</button>
+            </div></div></div></div>
+
+        </div>
+    </div>
+    <hr>
+
+    <script>
+    </script>
+
+}

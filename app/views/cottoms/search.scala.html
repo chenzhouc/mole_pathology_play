@@ -1,0 +1,249 @@
+@()(implicit request: play.api.mvc.RequestHeader)
+@main("病例") {
+
+	<style>
+			.myModal .form-group {
+				margin-bottom: 0px;
+			}
+
+	</style>
+
+	<div class="row">
+		<div class="form-group col-sm-12">
+			<h2 class="page-heading"
+			style="text-align: left;
+				border-bottom: 5px solid #e9f3f4">病例</h2>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-sm-12" >
+			<form class="registration-form form-horizontal" id="form" accept-charset="UTF-8"
+			style=""
+			>
+				<div class="form-group">
+					<label class="control-label col-sm-2">病理号:</label>
+					<div class="col-sm-3">
+						<input class="form-control" name="pathologyId"  onblur="SickCase.idBlur">
+						<span class="help-block">示例：<a href="#" onclick="SickCase.showExample(this,'pathologyId')"><em id="egGeneId">
+							M19-0034</em></a></span>
+
+					</div>
+
+				</div>
+
+				<div class="form-group">
+					<label class="control-label col-sm-2">姓名:</label>
+					<div class="col-sm-3">
+						<input class="form-control" name="name" >
+						<span class="help-block">示例：<a href="#" onclick="SickCase.showExample(this,'name')"><em id="egGeneId">
+							张三</em></a></span>
+					</div>
+
+				</div>
+
+
+				<div class="form-group">
+					<div class="actions col-sm-offset-2 col-sm-2">
+						<button type="button" class="btn btn-primary" style="width: 90%;" id="search"
+						onclick="SickCase.search">
+							查询</button>
+					</div>
+				</div>
+			</form>
+
+		</div>
+	</div>
+	<hr>
+
+	<div id="content" style="display: none">
+
+		<div class="row" style="margin-top: 15px">
+
+			<div class="col-sm-12">
+
+				<form id="form" class="myModal " accept-charset="UTF-8" method="post" style="margin-top: -15px;">
+
+					<div class="form-body form-horizontal">
+
+						<h3 class="form-section">基本信息</h3>
+
+						<div class="form-group">
+							<label class="control-label col-sm-2">分子病理号:</label>
+							<div class="col-sm-3">
+								<p class="form-control-static" id="分子病理号">
+								</p>
+							</div>
+							<label class="control-label col-sm-2">
+								病理号: </label>
+							<div class="col-sm-3">
+								<p class="form-control-static" id="病理号">
+								</p>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-2">姓名:</label>
+							<div class="col-sm-3">
+								<p class="form-control-static" id="姓名">
+								</p>
+							</div>
+						</div>
+
+						<div id="moreInfo">
+							<div class="form-group">
+								<label class="control-label col-sm-2">性别:</label>
+								<div class="col-sm-3">
+									<p class="form-control-static" id="性别">
+									</p>
+								</div>
+								<label class="control-label col-sm-2">年龄:</label>
+								<div class="col-sm-3">
+									<p class="form-control-static" id="年龄">
+									</p>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="control-label col-sm-2">住院号:</label>
+								<div class="col-sm-3">
+									<p class="form-control-static" id="住院号">
+									</p>
+								</div>
+								<label class="control-label col-sm-2">门诊号:</label>
+								<div class="col-sm-3">
+									<p class="form-control-static" id="门诊号">
+									</p>
+								</div>
+							</div>
+
+						</div>
+
+						<h3 class="form-section" id="arms" style="display: none">ARMS输入</h3>
+
+						<div id="10Gene">
+
+							<h3 class="form-section" style="font-size: 15px">10基因</h3>
+
+							<div class="table-responsive" id="tableContent">
+								<table class="display table table-bordered" id="10GeneTable"
+								style="table-layout: fixed;
+									text-overflow: ellipsis"
+								>
+								</table>
+
+							</div>
+
+						</div>
+
+						<div id="braf">
+							<h3 class="form-section" style="font-size: 15px">BRAF</h3>
+
+							<div class="form-group">
+								<label class="control-label col-sm-2">BRAF:</label>
+								<div class="col-sm-3">
+									<p class="form-control-static" id="BRAF">
+
+									</p>
+								</div>
+							</div>
+						</div>
+
+						<div id="knpb">
+							<h3 class="form-section" style="font-size: 15px">KNPB</h3>
+
+							<div class="table-responsive" id="tableContent">
+								<table class="display table table-bordered" id="knpbTable"
+								style="table-layout: fixed;
+									text-overflow: ellipsis"
+								>
+								</table>
+
+							</div>
+
+						</div>
+
+						<div id="lymSnp">
+
+							<h3 class="form-section">淋巴瘤输入SNP</h3>
+
+							<label>显示的列:</label>
+							<div id="checkbox" class="checkbox">
+
+							</div>
+
+							<div class="table-responsive" id="tableContent">
+
+								<table class="display table table-bordered" id="table"
+								data-search="true"
+								style="text-overflow: ellipsis"
+								>
+								</table>
+
+							</div>
+
+						</div>
+
+						<div id="bs68">
+							<h3 class="form-section">燃石68输入</h3>
+
+							<h3 class="form-section" style="font-size: 15px">SNP</h3>
+
+							<div id="68Snp">
+								<label>显示的列:</label>
+								<div id="checkbox" class="checkbox">
+
+								</div>
+								<div class="table-responsive" id="tableContent">
+
+									<table class="display table table-bordered" id="table"
+									data-search="true"
+									style="text-overflow: ellipsis"
+									>
+									</table>
+
+								</div>
+							</div>
+
+							<h3 class="form-section" style="font-size: 15px">CNV</h3>
+
+							<div id="68Cnv">
+								<label>显示的列:</label>
+								<div id="checkbox" class="checkbox">
+
+								</div>
+								<div class="table-responsive" id="tableContent">
+
+									<table class="display table table-bordered" id="table"
+									data-search="true"
+									style="text-overflow: ellipsis"
+									>
+									</table>
+
+								</div>
+							</div>
+						</div>
+
+
+					</div>
+				</form>
+
+
+			</div>
+
+		</div>
+
+	</div>
+
+
+	<script>
+			$(function () {
+				App.selected("sickCase")
+				SickCase.init
+
+
+			})
+
+	</script>
+
+}
