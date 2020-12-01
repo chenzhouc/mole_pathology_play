@@ -18,10 +18,12 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
 
   import utils.MyPostgresProfile.api._
 
+  //插入表格，导入数据
   def insertOrUpdates(rows: Seq[MutationTableRow]) = {
     db.run(MutationTable ++= rows).map(_ => ())
   }
 
+  //处理前端提交的page里的search字段
   def processSearch(page: PageData) = {
     val jsObject = Json.parse(page.search.getOrElse("{\"\":{\"field\":\"\",\"searchType\":\"text\",\"data\":\"\"}}"))
     val fields = jsObject.as[JsObject].fields.map(x => x._2)
@@ -35,11 +37,13 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
     value
   }
 
+  //处理前端提交的page里的sort（顺序or逆序）
   def processSort(page: PageData) = {
     val sortfields = page.sort.getOrElse("id")
     sortfields
   }
 
+  //
   def queryAll() = db.run(MutationTable.result)
 
   def queryAll(page: PageData) = {
@@ -72,6 +76,7 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
     db.run(f)
   }
 
+  //查询数据库里数据的总数
   def queryTotal() = {
     db.run(MutationTable.length.result)
   }
@@ -79,15 +84,50 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
   def queryKeywords(reses: Seq[(String, String)]) = {
 
     val fs = reses.map { res =>
-       MutationTable.filter(x => x.data +>> res._1 === res._2).length.result
+      MutationTable.filter(x => x.data +>> res._1 === res._2).length.result
     }
     val seq = DBIO.sequence(fs).transactionally
     db.run(seq)
   }
 
-  def function1(t: (String, String)) = {
-    val k = MutationTable.filter(x => x.data +>> t._1 === t._2).length.result
-    db.run(k)
+  //查询各个满足各个筛选条件的交集的数量
+  def queryintersection(res: Seq[(String, String)]) = {
+    val finaldata = MutationTable.filter {
+      y => {
+        val bs = res.map(x => {
+          y.data +>> x._1 === x._2
+        })
+        bs.reduce((x, y) => x && y)
+      }
+    }
+    db.run(finaldata.length.result)
   }
 
+  //查询单个列的筛选的个数
+  def querySingleColumn(value: String) = {
+
+    val result = MutationTable.map { x =>
+      x.data +>> value
+    }.result
+    //      groupBy(x=>x).map{case(chr,xs)=>
+    //      (chr,xs.size)
+    //    }.sortBy(_._2.desc).take(10).
+    db.run(result)
+  }
+
+  //查询交集的数据
+  def queryintersectionData(res: Seq[(String, String)], param: String) = {
+    val data = MutationTable.filter {
+      y => {
+        val bs = res.map(x => {
+          y.data +>> x._1 === x._2
+        })
+        bs.reduce((x, y) => x && y)
+      }
+    }
+    val result = data.map{
+      x => x.data +>> param
+    }.result
+    db.run(result)
+  }
 }

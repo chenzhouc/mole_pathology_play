@@ -45,9 +45,10 @@ POST           /pathology/admin/data/addByFile                          controll
 POST            /pathology/user/data/queryAll                            controllers.userC.DataController.getMutationTable
 
 POST            /pathology/user/data/drawing                            controllers.userC.DataController.draw
-# Map static resources from the /public folder to the /assets URL path
-GET           /assets/*file                                             controllers.Assets.at(path="/public", file)
 
+POST             /pathology/user/data/drawing2                     controllers.userC.DataController.draw2
+# Map static resources from the /public folder to the /assets URL path
+GET             /assets/*file                                             controllers.Assets.at(path="/public", file)
 
 
       
