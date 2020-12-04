@@ -1,6 +1,8 @@
 package controllers.userC
 
 import dao.{AccountDao, UserDao, mutationDao}
+import play.api.libs.json
+
 import javax.inject.Inject
 import play.api.libs.json.{JsObject, JsValue, Json, __}
 import play.api.mvc.Results.Ok
@@ -71,11 +73,25 @@ class DataController @Inject()(cc: ControllerComponents)(
     implicit request =>
       val json = request.body.asFormUrlEncoded.head.keys.head
       val value = Json.parse(json)
+
+      //需要对start_position和end_position单独处理  判断data是否是{min:xxx,max:xxx}的格式
       val t = value.as[JsObject].fields.map(x => x._2).map(x => ((x \ "field").as[JsValue], (x \ "data").as[JsValue])).map {
         case (x, y) => {
-          val x1 = x.toString()
-          val x2 = y.toString()
-          (x1.substring(1, x1.length - 1), x2.substring(1, x2.length - 1))
+          //分情况讨论data的值 分为能解析min和max 和不能 两种情况
+
+          val booleanresult = (y \ "min").isDefined && (y \ "max").isDefined
+          if (booleanresult == true) {
+            val x1 = x.toString()
+            val num1 = (y \ "min").as[JsValue].toString()
+            val num2 = (y \ "max").as[JsValue].toString()
+            val x2 = List(num1.substring(1, num1.length - 1), num2.substring(1, num2.length - 1)) //"1","999999"
+            (x1, x2)
+          } else {
+            val x1 = x.toString()
+            val x2 = y.toString()
+            val res = (x1.substring(1, x1.length - 1), List(x2.substring(1, x2.length - 1)))
+            res
+          }
         }
       }.toList
 
@@ -98,28 +114,37 @@ class DataController @Inject()(cc: ControllerComponents)(
       val value = request.body.asJson.get
       var param = (value \ "param").as[JsValue].toString()
       param = param.substring(1, param.length - 1)
+
+
       val a = value \\ "field"
       val b = value \\ "data"
       val seq1 = a.map(x => x.toString())
-      val seq2 = b.map(x => x.toString())
+      val seq2 = b.map(x => {
+        if ((x \ "min").isDefined) {
+          List((x \ "min").as[JsValue].toString, (x \ "max").as[JsValue].toString)
+        } else {
+          List(x.toString())
+        }
+      })
       val seq = seq1.zip(seq2).toList
       val t = seq.map {
-        case (x, y) => (x.substring(1, x.length - 1), y.substring(1, y.length - 1))
+        //  case (x, y) => (x.substring(1, x.length - 1), y.substring(1, y.length - 1))
+        case (x, y) => {
+          if (y.length == 1) {
+            val str = y(0)
+            (x.substring(1, x.length - 1), List(str.substring(1, str.length - 1)))
+          } else {
+            val min = y(0).substring(1, y(0).length - 1)
+            val max = y(1).substring(1, y(1).length - 1)
+            (x.substring(1, x.length - 1), List(min, max))
+          }
+        }
       }
       val res = Await.result(mutationDao.queryintersectionData(t, param), Duration.Inf)
       val res2 = computeTop10(res)
       Ok(Json.obj("Result" -> res2.map {
         case (x, y) => Json.obj("name" -> x, "y" -> y)
       }))
-
-
-
-    /* val value = request.body.asFormUrlEncoded.head.keys.head
-     val res = Await.result(mutationDao.querySingleColumn(value), Duration.Inf)
-     val res2 = computeTop10(res)
-     Ok(Json.obj("Result" -> res2.map {
-       case (x, y) => Json.obj("name" -> x, "y" -> y)
-     }))*/
   }
 
   def computeTop10(list: Seq[String]) = {
@@ -138,7 +163,11 @@ class DataController @Inject()(cc: ControllerComponents)(
     result.foreach(x => {
       others += x._2.toDouble
     })
-    others = 100 - others
+    if (others < 0) {
+      others = others.ceil
+    } else {
+      others = (100 - others).floor
+    }
 
     val newResult = if (others == 0) {
       result.map(x => (x._1, x._2.toDouble))
@@ -148,6 +177,58 @@ class DataController @Inject()(cc: ControllerComponents)(
     newResult
   }
 
+  def computeDistribution(list: Seq[String]) = {
+    val total = list.length
+    val hashMap = new mutable.HashMap[String, Int]()
+    list.foreach(x => {
+      if (!hashMap.contains(x)) {
+        hashMap.put(x, 1)
+      } else {
+        val count = hashMap.get(x).get
+        hashMap.put(x, count + 1)
+      }
+    })
+    val result = hashMap.toList.sortBy(-_._2).map(x => (x._1, (x._2.toDouble * 100 / total).formatted("%.2f"))).map(x => (x._1, x._2 + "%"))
+    result
+  }
+
+
+  def makeTable2 = Action {
+    implicit request =>
+      val value = request.body.asJson.get
+      var param = (value \ "param").as[JsValue].toString()
+      param = param.substring(1, param.length - 1)
+      val a = value \\ "field"
+      val b = value \\ "data"
+      val seq1 = a.map(x => x.toString())
+      val seq2 = b.map(x => {
+        if ((x \ "min").isDefined) {
+          List((x \ "min").as[JsValue].toString, (x \ "max").as[JsValue].toString)
+        } else {
+          List(x.toString())
+        }
+      })
+      val seq = seq1.zip(seq2).toList
+      val t = seq.map {
+        //  case (x, y) => (x.substring(1, x.length - 1), y.substring(1, y.length - 1))
+        case (x, y) => {
+          if (y.length == 1) {
+            val str = y(0)
+            (x.substring(1, x.length - 1), List(str.substring(1, str.length - 1)))
+          } else {
+            val min = y(0).substring(1, y(0).length - 1)
+            val max = y(1).substring(1, y(1).length - 1)
+            (x.substring(1, x.length - 1), List(min, max))
+          }
+        }
+      }
+      val res = Await.result(mutationDao.queryintersectionData(t, param), Duration.Inf)
+      val res2 = computeDistribution(res)
+
+      Ok(Json.obj("Result" -> res2.map {
+        case (x, y) => Json.obj("name" -> x, "y" -> y)
+      }))
+  }
 
 }
 

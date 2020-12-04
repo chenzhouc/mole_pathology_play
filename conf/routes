@@ -34,7 +34,8 @@ GET           /pathology/datum/datumBefore                              controll
 GET           /pathology/maintain/maintainBefore                        controllers.MaintainController.maintainBefore
 
 GET           /pathology/user/data/viewBefore                           controllers.userC.DataController.viewBefore
-POST           /pathology/user/data/getMutationData                           controllers.userC.DataController.getMutationData
+
+POST           /pathology/user/data/getMutationData                     controllers.userC.DataController.getMutationData
 
 GET           /pathology/user/data/searchBefore                         controllers.userC.DataController.searchBefore
 
@@ -46,7 +47,9 @@ POST            /pathology/user/data/queryAll                            control
 
 POST            /pathology/user/data/drawing                            controllers.userC.DataController.draw
 
-POST             /pathology/user/data/drawing2                     controllers.userC.DataController.draw2
+POST             /pathology/user/data/drawing2                          controllers.userC.DataController.draw2
+
+POST           /pathology/user/data/maketable2                          controllers.userC.DataController.makeTable2
 # Map static resources from the /public folder to the /assets URL path
 GET             /assets/*file                                             controllers.Assets.at(path="/public", file)
 
