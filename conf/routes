@@ -50,6 +50,8 @@ POST            /pathology/user/data/drawing                            controll
 POST             /pathology/user/data/drawing2                          controllers.userC.DataController.draw2
 
 POST           /pathology/user/data/maketable2                          controllers.userC.DataController.makeTable2
+
+GET             /pathology/user/data/detailInfo                          controllers.userC.DataController.showDetailInfo
 # Map static resources from the /public folder to the /assets URL path
 GET             /assets/*file                                             controllers.Assets.at(path="/public", file)
 

@@ -43,18 +43,21 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-12 stretch-card">
-                    <div class="card">
-                        <div class="card-body">
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" style="margin-bottom: 20px">
-                                点击筛选
-                            </button>
+            <div id="container">
+                <div class="row">
+                    <div class="col-md-12 stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" style="margin-bottom: 20px">
+                                    点击筛选
+                                </button>
+                            </div>
+                            <table id="table" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
                         </div>
-                        <table id="table" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
                     </div>
                 </div>
             </div>
+
 
             <div id="result" style="display: none">
 

@@ -16,9 +16,6 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
 
-/**
- * Created by yz on 21/7/2020
- */
 class DataController @Inject()(cc: ControllerComponents)(
   implicit val userDao: UserDao,
   implicit val accountDao: AccountDao,
@@ -228,6 +225,11 @@ class DataController @Inject()(cc: ControllerComponents)(
       Ok(Json.obj("Result" -> res2.map {
         case (x, y) => Json.obj("name" -> x, "y" -> y)
       }))
+  }
+
+  def showDetailInfo() = Action {
+    implicit request =>
+      Ok(views.html.user.data.detailInfo("barcode"))
   }
 
 }

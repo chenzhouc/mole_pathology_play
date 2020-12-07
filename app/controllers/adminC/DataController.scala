@@ -49,11 +49,18 @@ class DataController @Inject()(cc: ControllerComponents)(
     val tmpDir = Tool.createTempDirectory("tmpDir")
     val tmpXlsxFile = new File(tmpDir, "tmp.xlsx")
     file.ref.moveTo(tmpXlsxFile, true)
+
     /*  val myMessage = Tool.fileCheck(tmpXlsxFile).toMyMessage
       if (!myMessage.valid) {
         Tool.deleteDirectory(tmpDir)
         Future.successful(Ok(Json.obj("message" -> myMessage.message, "valid" -> false)))
       } else {*/
+
+
+    //先验证文件表头，简单验证 区分是样本表、病人表还是突变信息表
+
+    //根据不同的表信息，将表的内容上传到数据库里
+
     val lines = tmpXlsxFile.xlsxLines()
     val headers = lines.head.toLowerCase
     val rows = lines.lineMapNoLower.map { map =>
@@ -69,7 +76,6 @@ class DataController @Inject()(cc: ControllerComponents)(
     mutationDao.insertOrUpdates(rows).flatMap { x =>
       Tool.deleteDirectory(tmpDir)
       mutationDao.queryAll().map { all =>
-
         Ok(Json.obj("valid" -> true))
       }
     }

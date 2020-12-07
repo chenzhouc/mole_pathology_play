@@ -71,79 +71,64 @@ trait Tables {
     val sampleBarcode: Rep[Int] = column[Int]("sample_barcode")
     /** Database column kit_id SqlType(int4) */
     val kitId: Rep[Int] = column[Int]("kit_id")
+
+    /** Index over (data) (database name idx_chromosome) */
+    val index1 = index("idx_chromosome", data)
   }
   /** Collection-like TableQuery object for table MutationTable */
   lazy val MutationTable = new TableQuery(tag => new MutationTable(tag))
 
   /** Entity class storing rows of table Patient
    *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
-   *  @param diagnosis Database column diagnosis SqlType(varchar)
-   *  @param stage Database column stage SqlType(varchar)
-   *  @param diagnosisAge Database column diagnosis_age SqlType(varchar)
-   *  @param sex Database column Sex SqlType(varchar)
-   *  @param ethnicityCategory Database column Ethnicity_Category SqlType(varchar) */
-  case class PatientRow(id: Int, diagnosis: String, stage: String, diagnosisAge: String, sex: String, ethnicityCategory: String)
+   *  @param patientid Database column patientid SqlType(int4)
+   *  @param data Database column data SqlType(jsonb) */
+  case class PatientRow(id: Int, patientid: Int, data: play.api.libs.json.JsValue)
   /** GetResult implicit for fetching PatientRow objects using plain SQL queries */
-  implicit def GetResultPatientRow(implicit e0: GR[Int], e1: GR[String]): GR[PatientRow] = GR{
+  implicit def GetResultPatientRow(implicit e0: GR[Int], e1: GR[play.api.libs.json.JsValue]): GR[PatientRow] = GR{
     prs => import prs._
-    PatientRow.tupled((<<[Int], <<[String], <<[String], <<[String], <<[String], <<[String]))
+    PatientRow.tupled((<<[Int], <<[Int], <<[play.api.libs.json.JsValue]))
   }
   /** Table description of table patient. Objects of this class serve as prototypes for rows in queries. */
   class Patient(_tableTag: Tag) extends profile.api.Table[PatientRow](_tableTag, "patient") {
-    def * = (id, diagnosis, stage, diagnosisAge, sex, ethnicityCategory) <> (PatientRow.tupled, PatientRow.unapply)
+    def * = (id, patientid, data) <> (PatientRow.tupled, PatientRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = ((Rep.Some(id), Rep.Some(diagnosis), Rep.Some(stage), Rep.Some(diagnosisAge), Rep.Some(sex), Rep.Some(ethnicityCategory))).shaped.<>({r=>import r._; _1.map(_=> PatientRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = ((Rep.Some(id), Rep.Some(patientid), Rep.Some(data))).shaped.<>({r=>import r._; _1.map(_=> PatientRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(serial), AutoInc, PrimaryKey */
     val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
-    /** Database column diagnosis SqlType(varchar) */
-    val diagnosis: Rep[String] = column[String]("diagnosis")
-    /** Database column stage SqlType(varchar) */
-    val stage: Rep[String] = column[String]("stage")
-    /** Database column diagnosis_age SqlType(varchar) */
-    val diagnosisAge: Rep[String] = column[String]("diagnosis_age")
-    /** Database column Sex SqlType(varchar) */
-    val sex: Rep[String] = column[String]("Sex")
-    /** Database column Ethnicity_Category SqlType(varchar) */
-    val ethnicityCategory: Rep[String] = column[String]("Ethnicity_Category")
+    /** Database column patientid SqlType(int4) */
+    val patientid: Rep[Int] = column[Int]("patientid")
+    /** Database column data SqlType(jsonb) */
+    val data: Rep[play.api.libs.json.JsValue] = column[play.api.libs.json.JsValue]("data")
   }
   /** Collection-like TableQuery object for table Patient */
   lazy val Patient = new TableQuery(tag => new Patient(tag))
 
   /** Entity class storing rows of table Sample
-   *  @param sampleid Database column sampleId SqlType(serial), AutoInc, PrimaryKey
-   *  @param patientid Database column patientId SqlType(int4)
-   *  @param cancertype Database column cancerType SqlType(varchar), Length(255,true)
-   *  @param immunohistochemistry Database column immunohistochemistry SqlType(varchar), Length(255,true)
-   *  @param oncotreecode Database column oncotreecode SqlType(varchar), Length(255,true)
-   *  @param cancertypeDetailed Database column cancerType_detailed SqlType(varchar)
-   *  @param sampleType Database column sample_type SqlType(varchar) */
-  case class SampleRow(sampleid: Int, patientid: Int, cancertype: String, immunohistochemistry: String, oncotreecode: String, cancertypeDetailed: String, sampleType: String)
+   *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
+   *  @param sampleid Database column sampleid SqlType(varchar)
+   *  @param patientid Database column patientid SqlType(varchar)
+   *  @param data Database column data SqlType(jsonb) */
+  case class SampleRow(id: Int, sampleid: String, patientid: String, data: play.api.libs.json.JsValue)
   /** GetResult implicit for fetching SampleRow objects using plain SQL queries */
-  implicit def GetResultSampleRow(implicit e0: GR[Int], e1: GR[String]): GR[SampleRow] = GR{
+  implicit def GetResultSampleRow(implicit e0: GR[Int], e1: GR[String], e2: GR[play.api.libs.json.JsValue]): GR[SampleRow] = GR{
     prs => import prs._
-    SampleRow.tupled((<<[Int], <<[Int], <<[String], <<[String], <<[String], <<[String], <<[String]))
+    SampleRow.tupled((<<[Int], <<[String], <<[String], <<[play.api.libs.json.JsValue]))
   }
   /** Table description of table sample. Objects of this class serve as prototypes for rows in queries. */
   class Sample(_tableTag: Tag) extends profile.api.Table[SampleRow](_tableTag, "sample") {
-    def * = (sampleid, patientid, cancertype, immunohistochemistry, oncotreecode, cancertypeDetailed, sampleType) <> (SampleRow.tupled, SampleRow.unapply)
+    def * = (id, sampleid, patientid, data) <> (SampleRow.tupled, SampleRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = ((Rep.Some(sampleid), Rep.Some(patientid), Rep.Some(cancertype), Rep.Some(immunohistochemistry), Rep.Some(oncotreecode), Rep.Some(cancertypeDetailed), Rep.Some(sampleType))).shaped.<>({r=>import r._; _1.map(_=> SampleRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get, _7.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = ((Rep.Some(id), Rep.Some(sampleid), Rep.Some(patientid), Rep.Some(data))).shaped.<>({r=>import r._; _1.map(_=> SampleRow.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
-    /** Database column sampleId SqlType(serial), AutoInc, PrimaryKey */
-    val sampleid: Rep[Int] = column[Int]("sampleId", O.AutoInc, O.PrimaryKey)
-    /** Database column patientId SqlType(int4) */
-    val patientid: Rep[Int] = column[Int]("patientId")
-    /** Database column cancerType SqlType(varchar), Length(255,true) */
-    val cancertype: Rep[String] = column[String]("cancerType", O.Length(255,varying=true))
-    /** Database column immunohistochemistry SqlType(varchar), Length(255,true) */
-    val immunohistochemistry: Rep[String] = column[String]("immunohistochemistry", O.Length(255,varying=true))
-    /** Database column oncotreecode SqlType(varchar), Length(255,true) */
-    val oncotreecode: Rep[String] = column[String]("oncotreecode", O.Length(255,varying=true))
-    /** Database column cancerType_detailed SqlType(varchar) */
-    val cancertypeDetailed: Rep[String] = column[String]("cancerType_detailed")
-    /** Database column sample_type SqlType(varchar) */
-    val sampleType: Rep[String] = column[String]("sample_type")
+    /** Database column id SqlType(serial), AutoInc, PrimaryKey */
+    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column sampleid SqlType(varchar) */
+    val sampleid: Rep[String] = column[String]("sampleid")
+    /** Database column patientid SqlType(varchar) */
+    val patientid: Rep[String] = column[String]("patientid")
+    /** Database column data SqlType(jsonb) */
+    val data: Rep[play.api.libs.json.JsValue] = column[play.api.libs.json.JsValue]("data")
   }
   /** Collection-like TableQuery object for table Sample */
   lazy val Sample = new TableQuery(tag => new Sample(tag))
