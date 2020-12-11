@@ -16,7 +16,7 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema: profile.SchemaDescription = Account.schema ++ MutationTable.schema ++ Patient.schema ++ Sample.schema ++ User.schema
+  lazy val schema: profile.SchemaDescription = Array(Account.schema, Kit.schema, MutationTable.schema, Patient.schema, Sample.schema, User.schema).reduceLeft(_ ++ _)
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
@@ -46,16 +46,39 @@ trait Tables {
   /** Collection-like TableQuery object for table Account */
   lazy val Account = new TableQuery(tag => new Account(tag))
 
+  /** Entity class storing rows of table Kit
+   *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
+   *  @param data Database column data SqlType(jsonb) */
+  case class KitRow(id: Int, data: play.api.libs.json.JsValue)
+  /** GetResult implicit for fetching KitRow objects using plain SQL queries */
+  implicit def GetResultKitRow(implicit e0: GR[Int], e1: GR[play.api.libs.json.JsValue]): GR[KitRow] = GR{
+    prs => import prs._
+    KitRow.tupled((<<[Int], <<[play.api.libs.json.JsValue]))
+  }
+  /** Table description of table kit. Objects of this class serve as prototypes for rows in queries. */
+  class Kit(_tableTag: Tag) extends profile.api.Table[KitRow](_tableTag, "kit") {
+    def * = (id, data) <> (KitRow.tupled, KitRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = ((Rep.Some(id), Rep.Some(data))).shaped.<>({r=>import r._; _1.map(_=> KitRow.tupled((_1.get, _2.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(serial), AutoInc, PrimaryKey */
+    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column data SqlType(jsonb) */
+    val data: Rep[play.api.libs.json.JsValue] = column[play.api.libs.json.JsValue]("data")
+  }
+  /** Collection-like TableQuery object for table Kit */
+  lazy val Kit = new TableQuery(tag => new Kit(tag))
+
   /** Entity class storing rows of table MutationTable
    *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
    *  @param data Database column data SqlType(jsonb)
-   *  @param sampleBarcode Database column sample_barcode SqlType(int4)
+   *  @param sampleBarcode Database column sample_barcode SqlType(varchar)
    *  @param kitId Database column kit_id SqlType(int4) */
-  case class MutationTableRow(id: Int, data: play.api.libs.json.JsValue, sampleBarcode: Int, kitId: Int)
+  case class MutationTableRow(id: Int, data: play.api.libs.json.JsValue, sampleBarcode: String, kitId: Int)
   /** GetResult implicit for fetching MutationTableRow objects using plain SQL queries */
-  implicit def GetResultMutationTableRow(implicit e0: GR[Int], e1: GR[play.api.libs.json.JsValue]): GR[MutationTableRow] = GR{
+  implicit def GetResultMutationTableRow(implicit e0: GR[Int], e1: GR[play.api.libs.json.JsValue], e2: GR[String]): GR[MutationTableRow] = GR{
     prs => import prs._
-    MutationTableRow.tupled((<<[Int], <<[play.api.libs.json.JsValue], <<[Int], <<[Int]))
+    MutationTableRow.tupled((<<[Int], <<[play.api.libs.json.JsValue], <<[String], <<[Int]))
   }
   /** Table description of table mutation_table. Objects of this class serve as prototypes for rows in queries. */
   class MutationTable(_tableTag: Tag) extends profile.api.Table[MutationTableRow](_tableTag, "mutation_table") {
@@ -67,8 +90,8 @@ trait Tables {
     val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
     /** Database column data SqlType(jsonb) */
     val data: Rep[play.api.libs.json.JsValue] = column[play.api.libs.json.JsValue]("data")
-    /** Database column sample_barcode SqlType(int4) */
-    val sampleBarcode: Rep[Int] = column[Int]("sample_barcode")
+    /** Database column sample_barcode SqlType(varchar) */
+    val sampleBarcode: Rep[String] = column[String]("sample_barcode")
     /** Database column kit_id SqlType(int4) */
     val kitId: Rep[Int] = column[Int]("kit_id")
 
@@ -80,13 +103,13 @@ trait Tables {
 
   /** Entity class storing rows of table Patient
    *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
-   *  @param patientid Database column patientid SqlType(int4)
+   *  @param patientid Database column patientid SqlType(varchar)
    *  @param data Database column data SqlType(jsonb) */
-  case class PatientRow(id: Int, patientid: Int, data: play.api.libs.json.JsValue)
+  case class PatientRow(id: Int, patientid: String, data: play.api.libs.json.JsValue)
   /** GetResult implicit for fetching PatientRow objects using plain SQL queries */
-  implicit def GetResultPatientRow(implicit e0: GR[Int], e1: GR[play.api.libs.json.JsValue]): GR[PatientRow] = GR{
+  implicit def GetResultPatientRow(implicit e0: GR[Int], e1: GR[String], e2: GR[play.api.libs.json.JsValue]): GR[PatientRow] = GR{
     prs => import prs._
-    PatientRow.tupled((<<[Int], <<[Int], <<[play.api.libs.json.JsValue]))
+    PatientRow.tupled((<<[Int], <<[String], <<[play.api.libs.json.JsValue]))
   }
   /** Table description of table patient. Objects of this class serve as prototypes for rows in queries. */
   class Patient(_tableTag: Tag) extends profile.api.Table[PatientRow](_tableTag, "patient") {
@@ -96,8 +119,8 @@ trait Tables {
 
     /** Database column id SqlType(serial), AutoInc, PrimaryKey */
     val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
-    /** Database column patientid SqlType(int4) */
-    val patientid: Rep[Int] = column[Int]("patientid")
+    /** Database column patientid SqlType(varchar) */
+    val patientid: Rep[String] = column[String]("patientid")
     /** Database column data SqlType(jsonb) */
     val data: Rep[play.api.libs.json.JsValue] = column[play.api.libs.json.JsValue]("data")
   }

@@ -51,8 +51,45 @@ object VarTool {
     "Protein_position",
     "Codons",
     "Hotspot",
-
     )
 
+  val patientHeaders = List(
+      "PATIENT_ID",
+      "LYMPH_NODES_EXAMINED_POSITIVE",
+      "NPI",
+      "CELLULARITY",
+      "CHEMOTHERAPY",
+      "COHORT",
+      "ER_IHC",
+      "HER2_SNP6",
+      "HORMONE_THERAPY",
+      "INFERRED_MENOPAUSAL_STATE",
+      "SEX",
+      "INTCLUST",
+      "AGE_AT_DIAGNOSIS",
+      "OS_MONTHS",
+      "OS_STATUS",
+      "CLAUDIN_SUBTYPE",
+      "THREEGENE",
+      "VITAL_STATUS",
+      "LATERALITY",
+      "RADIO_THERAPY",
+      "HISTOLOGICAL_SUBTYPE",
+      "BREAST_SURGERY"
+  )
+
+  val sampleHeaders = List(
+    "PATIENT_ID",
+    "SAMPLE_ID",
+    "CANCER_TYPE",
+    "CANCER_TYPE_DETAILED",
+    "ER_STATUS",
+    "HER2_STATUS",
+    "GRADE",
+    "ONCOTREE_CODE",
+    "PR_STATUS",
+    "SAMPLE_TYPE",
+    "TUMOR_STAGE"
+  )
 
 }

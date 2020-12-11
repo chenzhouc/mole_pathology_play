@@ -189,6 +189,10 @@
                         },
                         columns: [{
                             field: "id",
+                            title: "id"
+                        }]
+                    /*    columns: [{
+                            field: "id",
                             title: "id",
                             sortable: true,
                             searchType: "text"
@@ -474,22 +478,24 @@
                                 sortable: true,
                                 searchType: "text"
                             },
-
-                        ]
+                        ]*/
                     })
 
                     //控制展示的列 后面会改成A试剂盒，B试剂盒....
-                    const fields = ["id", "sample_id", "Hugo_Symbol", "Entrez_Gene_Id", "Center",
+                   /* const fields = ["id", "sample_id", "Hugo_Symbol", "Entrez_Gene_Id", "Center",
                         "NCBI_Build", "Chromosome", "Start_Position", "End_Position", "Strand", "Consequence", "Variant_Classification", "Variant_Type", "Reference_Allele", "Tumor_Seq_Allele1", "Tumor_Seq_Allele2", "dbSNP_RS", "dbSNP_Val_Status", "Tumor_Sample_Barcode",
                         "Matched_Norm_Sample_Barcode", "Match_Norm_Seq_Allele1", "Match_Norm_Seq_Allele2", "Tumor_Validation_Allele1", "Tumor_Validation_Allele2", "Match_Norm_Validation_Allele1", "Match_Norm_Validation_Allele2", "Verification_Status",
                         "Validation_Status", "Mutation_Status", "Sequencing_Phase", "Sequence_Source", "Validation_Method", "Score", "BAM_File", "Sequencer", "t_ref_count", "t_alt_count", "n_ref_count", "n_alt_count", "HGVSc", "HGVSp", "HGVSp_Short", "Transcript_ID", "RefSeq",
                         "Protein_position", "Codons", "Hotspot", "t_alt_count_percentage"];
+*/
+                    const fields = ["试剂盒A", "试剂盒B", "试剂盒C", "试剂盒D"];
+                    const titles = ["试剂盒A", "试剂盒B", "试剂盒C", "试剂盒D"];
 
-                    const titles = ["id", "sample_id", "Hugo_Symbol", "Entrez_Gene_Id", "Center",
+                   /* const titles = ["id", "sample_id", "Hugo_Symbol", "Entrez_Gene_Id", "Center",
                         "NCBI_Build", "Chromosome", "Start_Position", "End_Position", "Strand", "Consequence", "Variant_Classification", "Variant_Type", "Reference_Allele", "Tumor_Seq_Allele1", "Tumor_Seq_Allele2", "dbSNP_RS", "dbSNP_Val_Status", "Tumor_Sample_Barcode",
                         "Matched_Norm_Sample_Barcode", "Match_Norm_Seq_Allele1", "Match_Norm_Seq_Allele2", "Tumor_Validation_Allele1", "Tumor_Validation_Allele2", "Match_Norm_Validation_Allele1", "Match_Norm_Validation_Allele2", "Verification_Status",
                         "Validation_Status", "Mutation_Status", "Sequencing_Phase", "Sequence_Source", "Validation_Method", "Score", "BAM_File", "Sequencer", "t_ref_count", "t_alt_count", "n_ref_count", "n_alt_count", "HGVSc", "HGVSp", "HGVSp_Short", "Transcript_ID", "RefSeq",
-                        "Protein_position", "Codons", "Hotspot", "t_alt_count_percentage"];
+                        "Protein_position", "Codons", "Hotspot", "t_alt_count_percentage"];*/
 
                     $.each(fields, (i, v) => {
                         $("#filter").append(`<div class="form-check form-check-success col-sm-4"><label class="form-check-label">

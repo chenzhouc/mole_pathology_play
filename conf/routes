@@ -25,6 +25,10 @@ GET           /pathology/admin/data/addByFileBefore                     controll
 
 GET           /pathology/admin/data/manageBefore                        controllers.adminC.DataController.manageBefore
 
+GET           /pathology/admin/data/addByKitBefore                      controllers.adminC.DataController.addKitBefore
+
+POST           /pathology/admin/data/saveKit                            controllers.adminC.DataController.saveKit
+
 GET           /pathology/tool/downloadExampleFile                       controllers.ToolController.downloadExampleFile
 
 GET           /pathology/case/searchBefore                              controllers.CaseController.searchBefore
@@ -52,6 +56,12 @@ POST             /pathology/user/data/drawing2                          controll
 POST           /pathology/user/data/maketable2                          controllers.userC.DataController.makeTable2
 
 GET             /pathology/user/data/detailInfo                          controllers.userC.DataController.showDetailInfo
+
+POST           /pathology/user/data/searchByBarcode                      controllers.userC.DataController.searchByBarcode
+
+POST            /pathology/user/data/searchByPatient                     controllers.userC.DataController.searchByPatientId
+
+POST            /pathology/user/data/searchByGene                        controllers.userC.DataController.searchByGene
 # Map static resources from the /public folder to the /assets URL path
 GET             /assets/*file                                             controllers.Assets.at(path="/public", file)
 

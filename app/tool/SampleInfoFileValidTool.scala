@@ -11,7 +11,9 @@ class DataFileValidTool(lines: List[List[String]]) {
 
   val headers = lines.head
   val fileInfo = "数据文件"
-  val hasHeaders = VarTool.dataHeaders
+  val mutationHeaders = VarTool.dataHeaders
+  val patientHeaders = VarTool.patientHeaders
+  val sampleHeaders = VarTool.sampleHeaders
 
   def validHeadersRepeat = {
     val repeatHeaders = headers.diff(headers.distinct)
@@ -20,10 +22,18 @@ class DataFileValidTool(lines: List[List[String]]) {
   }
 
   def validHeadersExist = {
-    val noExistHeaders = hasHeaders.diff(headers)
-    val valid = noExistHeaders.isEmpty
-    Validated.cond(valid, true, s"${fileInfo}表头 ${noExistHeaders.head} 不存在!")
+    val noExistHeaders = mutationHeaders.diff(headers)
+    val noPatient = patientHeaders.diff(headers)
+    val noSample = sampleHeaders.diff(headers)
+    println(headers)
+    println(noExistHeaders)
+    println(noPatient)
+    println(noSample)
+    val valid = (noExistHeaders.isEmpty || noPatient.isEmpty || noSample.isEmpty)
+    println(valid)
+    Validated.cond(valid, true, s"${fileInfo}表头不存在！！!")
   }
+
 
   def validColumnNum = {
     val info = lines.drop(1).zipWithIndex.map { case (tmpColumns, i) =>

@@ -47,13 +47,18 @@
                         <div class="form-group">
                             <label class="control-label col-sm-3">Tumor_Sample_Barcode:</label>
                             <div class="col-sm-4">
-                                <select name="barcode" id="sampleNames" style=""
-                                class="checkbox form-control refGene"></select>
+                                <select name="barcode" id="sampleids" style="" class="checkbox form-control refGene">
+                                    <option value="MTS-T0058">MTS-T0058</option>
+                                    <option value="MTS-T0059">MTS-T0059</option>
+                                    <option value="MTS-T0060">MTS-T0060</option>
+                                    <option value="MTS-T0061">MTS-T0061</option>
+                                    <option value="MTS-T0062">MTS-T0062</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="actions col-sm-offset-3 col-sm-3">
-                                <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="searchBarcode">
+                                <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="searchBarcode()">
                                     搜索</button>
                             </div>
                         </div>
@@ -67,13 +72,18 @@
                         <div class="form-group">
                             <label class="control-label col-sm-3">Tumor_Sample_Name:</label>
                             <div class="col-sm-4">
-                                <select name="sampleName" id="sampleNames" style="width: 100%"
-                                class="checkbox form-control refGene"></select>
+                                <select name="sampleName" id="patient_id" style="width: 100%" class="checkbox form-control refGene">
+                                    <option value="MTS-T0058">MTS-T0058</option>
+                                    <option value="MTS-T0059">MTS-T0059</option>
+                                    <option value="MTS-T0060">MTS-T0060</option>
+                                    <option value="MTS-T0061">MTS-T0061</option>
+                                    <option value="MTS-T0062">MTS-T0062</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="actions col-sm-offset-3 col-sm-3">
-                                <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="DataSearch.sampleNameSearch">
+                                <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="searchSampleByPatient()">
                                     搜索</button>
                             </div>
                         </div>
@@ -87,13 +97,15 @@
                         <div class="form-group">
                             <label class="control-label col-sm-3">Gene.refGene:</label>
                             <div class="col-sm-4">
-                                <select name="refGene" id="sampleNames" style="width: 100%"
-                                class="checkbox form-control refGene"></select>
+                                <select name="refGene" id="GeneName" style="width: 100%"
+                                class="checkbox form-control refGene">
+                                    <option value="TP53">TP53</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="actions col-sm-offset-3 col-sm-3">
-                                <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="DataSearch.refGeneSearch">
+                                <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="SearchByGene()">
                                     搜索</button>
                             </div>
                         </div>
@@ -105,7 +117,7 @@
 
         </div>
 
-        <div class="row">
+        <div class="row" >
             <div class="col-md-12 stretch-card">
                 <div class="card">
                     <div class="card-body">
@@ -118,55 +130,55 @@
         <script>
 
                 var datavalue = [
-                            {id: 'hugo_symbol', text: 'Hugo_Symbol'},
-                            {id: 'entrez_gene_id', text: 'Entrez_Gene_Id'},
-                            {id: "center", text: "Center"},
-                            {id: "ncbi_build", text: "NCBI_Build"},
-                            {id: "chromosome", text: "Chromosome"},
-                            {id: "start_position", text: "Start_Position"},
-                            {id: "end_position", text: "End_Position"},
-                            {id: "strand", text: "Strand"},
-                            {id: "consequence", text: "Consequence"},
-                            {id: "variant_classification", text: "Variant_Classification"},
-                            {id: "variant_type", text: "Variant_Type"},
-                            {id: "reference_allele", text: "Reference_Allele"},
-                            {id: "tumor_seq_allele1", text: "Tumor_Seq_Allele1"},
-                            {id: "tumor_seq_allele2", text: "Tumor_Seq_Allele2"},
-                            {id: "dbsnp_rs", text: "dbSNP_RS"},
-                            {id: "dbsnp_val_status", text: "dbSNP_Val_Status"},
-                            {id: "tumor_sample_barcode", text: "Tumor_Sample_Barcode"},
-                            {id: "matched_norm_sample_barcode", text: "Matched_Norm_Sample_Barcode"},
-                            {id: "match_norm_seq_allele1", text: "Match_Norm_Seq_Allele1"},
-                            {id: "match_norm_seq_allele2", text: "Match_Norm_Seq_Allele2"},
-                            {id: "tumor_validation_allele1", text: "Tumor_Validation_Allele1"},
-                            {id: "tumor_validation_allele2", text: "Tumor_Validation_Allele2"},
-                            {id: "match_norm_validation_allele1", text: "Match_Norm_Validation_Allele1"},
-                            {id: "match_norm_validation_allele2", text: "Match_Norm_Validation_Allele2"},
-                            {id: "verification_status", text: "Verification_Status"},
-                            {id: "validation_status", text: "Validation_Status"},
-                            {id: "mutation_status", text: "Mutation_Status"},
-                            {id: "sequencing_phase", text: "Sequencing_Phase"},
-                            {id: "sequence_source", text: "Sequence_Source"},
-                            {id: "validation_method", text: "Validation_Method"},
-                            {id: "score", text: "Score"},
-                            {id: "bam_file", text: "BAM_File"},
-                            {id: "sequencer", text: "Sequencer"},
-                            {id: "t_ref_count", text: "t_ref_count"},
-                            {id: "t_alt_count", text: "t_alt_count"},
-                            {id: "n_ref_count", text: "n_ref_count"},
-                            {id: "n_alt_count", text: "n_alt_count"},
-                            {id: "hgvsc", text: "HGVSc"},
-                            {id: "hgvsp", text: "HGVSp"},
-                            {id: "hgvsp_short", text: "HGVSp_Short"},
-                            {id: "transcript_id", text: "Transcript_ID"},
-                            {id: "refseq", text: "RefSeq"},
-                            {id: "protein_position", text: "Protein_position"},
-                            {id: "codons", text: "Codons"},
-                            {id: "hotspot", text: "Hotspot"},
-                            {id: "t_alt_count_percentage", text: "t_alt_count_percentage"},
-                        ]
+                    {id: 'hugo_symbol', text: 'Hugo_Symbol'},
+                    {id: 'entrez_gene_id', text: 'Entrez_Gene_Id'},
+                    {id: "center", text: "Center"},
+                    {id: "ncbi_build", text: "NCBI_Build"},
+                    {id: "chromosome", text: "Chromosome"},
+                    {id: "start_position", text: "Start_Position"},
+                    {id: "end_position", text: "End_Position"},
+                    {id: "strand", text: "Strand"},
+                    {id: "consequence", text: "Consequence"},
+                    {id: "variant_classification", text: "Variant_Classification"},
+                    {id: "variant_type", text: "Variant_Type"},
+                    {id: "reference_allele", text: "Reference_Allele"},
+                    {id: "tumor_seq_allele1", text: "Tumor_Seq_Allele1"},
+                    {id: "tumor_seq_allele2", text: "Tumor_Seq_Allele2"},
+                    {id: "dbsnp_rs", text: "dbSNP_RS"},
+                    {id: "dbsnp_val_status", text: "dbSNP_Val_Status"},
+                    {id: "tumor_sample_barcode", text: "Tumor_Sample_Barcode"},
+                    {id: "matched_norm_sample_barcode", text: "Matched_Norm_Sample_Barcode"},
+                    {id: "match_norm_seq_allele1", text: "Match_Norm_Seq_Allele1"},
+                    {id: "match_norm_seq_allele2", text: "Match_Norm_Seq_Allele2"},
+                    {id: "tumor_validation_allele1", text: "Tumor_Validation_Allele1"},
+                    {id: "tumor_validation_allele2", text: "Tumor_Validation_Allele2"},
+                    {id: "match_norm_validation_allele1", text: "Match_Norm_Validation_Allele1"},
+                    {id: "match_norm_validation_allele2", text: "Match_Norm_Validation_Allele2"},
+                    {id: "verification_status", text: "Verification_Status"},
+                    {id: "validation_status", text: "Validation_Status"},
+                    {id: "mutation_status", text: "Mutation_Status"},
+                    {id: "sequencing_phase", text: "Sequencing_Phase"},
+                    {id: "sequence_source", text: "Sequence_Source"},
+                    {id: "validation_method", text: "Validation_Method"},
+                    {id: "score", text: "Score"},
+                    {id: "bam_file", text: "BAM_File"},
+                    {id: "sequencer", text: "Sequencer"},
+                    {id: "t_ref_count", text: "t_ref_count"},
+                    {id: "t_alt_count", text: "t_alt_count"},
+                    {id: "n_ref_count", text: "n_ref_count"},
+                    {id: "n_alt_count", text: "n_alt_count"},
+                    {id: "hgvsc", text: "HGVSc"},
+                    {id: "hgvsp", text: "HGVSp"},
+                    {id: "hgvsp_short", text: "HGVSp_Short"},
+                    {id: "transcript_id", text: "Transcript_ID"},
+                    {id: "refseq", text: "RefSeq"},
+                    {id: "protein_position", text: "Protein_position"},
+                    {id: "codons", text: "Codons"},
+                    {id: "hotspot", text: "Hotspot"},
+                    {id: "t_alt_count_percentage", text: "t_alt_count_percentage"},
+                ]
 
-                let allTotal = 0;
+               /* let allTotal = 0;
                 $(function () {
                     $("#table").bootstrapTable({
                         method: 'post',
@@ -179,11 +191,11 @@
                         contentType: "application/x-www-form-urlencoded",
                         advancedSortable: true,
                         onLoadSuccess: function (data) {
-                            /*   if(count ===0){
+                            /!*   if(count ===0){
                                    count ++;
                                    allTotal=data.total;
                                }
-                             drawing(data.total);*/
+                             drawing(data.total);*!/
                         },
                         columns: [{
                             field: "id",
@@ -494,8 +506,346 @@
                                <input type='checkbox' checked='checked' value="${v}" class="form-check-input" onclick="setColumns('${v}')"
                                />${titles[i]}<i class="input-helper"></i></label></div>`)
                     })
-                })
+                })*/
 
+        </script>
+
+        <script>
+
+            /*
+            "/pathology/user/data/searchByBarcode",
+            * */
+                function searchBarcode() {
+                    let d = $('#sampleids').val()
+                    $("#table").bootstrapTable({
+                        method: 'post',
+                        url:"@userC.routes.DataController.searchByBarcode()",
+                        data: d,
+                        method: 'post',
+                        contentType:"text/plain; charset=utf-8",
+                        pageNumber: 1,
+                        queryParams : function (param){
+                            var temp = {
+                                search: d
+                            }
+                            return temp
+                        },
+                        columns: [{
+                            field: "id",
+                            title: "id",
+                            sortable: true,
+                            searchType: "text"
+                        },
+                            {
+                                field: "sample_id",
+                                title: "sample_id",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "hugo_symbol",
+                                title: "Hugo_Symbol",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "entrez_gene_id",
+                                title: "Entrez_Gene_Id",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "center",
+                                title: "Center",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "ncbi_build",
+                                title: "NCBI_Build",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "chromosome",
+                                title: "Chromosome",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "start_position",
+                                title: "Start_Position",
+                                sortable: true,
+                                searchType: "num"
+                            },
+                            {
+                                field: "end_position",
+                                title: "End_Position",
+                                sortable: true,
+                                searchType: "num"
+                            },
+                            {
+                                field: "strand",
+                                title: "Strand",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "consequence",
+                                title: "Consequence",
+                                sortable: true,
+                                searchType: "text"
+                            }, {
+                                field: "variant_classification",
+                                title: "Variant_Classification",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "variant_type",
+                                title: "Variant_Type",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "reference_allele",
+                                title: "Reference_Allele",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "tumor_seq_allele1",
+                                title: "Tumor_Seq_Allele1",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "tumor_seq_allele2",
+                                title: "Tumor_Seq_Allele2",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "dbsnp_rs",
+                                title: "dbSNP_RS",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "dbsnp_val_status",
+                                title: "dbSNP_Val_Status",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "tumor_sample_barcode",
+                                title: "Tumor_Sample_Barcode",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "matched_norm_sample_barcode",
+                                title: "Matched_Norm_Sample_Barcode",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "match_norm_seq_allele1",
+                                title: "Match_Norm_Seq_Allele1",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "match_norm_seq_allele2",
+                                title: "Match_Norm_Seq_Allele2",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "tumor_validation_allele1",
+                                title: "Tumor_Validation_Allele1",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "tumor_validation_allele2",
+                                title: "Tumor_Validation_Allele2",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "match_norm_validation_allele1",
+                                title: "Match_Norm_Validation_Allele1",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "match_norm_validation_allele2",
+                                title: "Match_Norm_Validation_Allele2",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "verification_status",
+                                title: "Verification_Status",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "validation_status",
+                                title: "Validation_Status",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "mutation_status",
+                                title: "Mutation_Status",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "sequencing_phase",
+                                title: "Sequencing_Phase",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "sequence_source",
+                                title: "Sequence_Source",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "validation_method",
+                                title: "Validation_Method",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "score",
+                                title: "Score",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "bam_file",
+                                title: "BAM_File",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "sequencer",
+                                title: "Sequencer",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "t_ref_count",
+                                title: "t_ref_count",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "t_alt_count",
+                                title: "t_alt_count",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "n_ref_count",
+                                title: "n_ref_count",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "n_alt_count",
+                                title: "n_alt_count",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "hgvsc",
+                                title: "HGVSc",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "hgvsp",
+                                title: "HGVSp",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "hgvsp_short",
+                                title: "HGVSp_Short",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "transcript_ID",
+                                title: "Transcript_ID",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "refseq",
+                                title: "RefSeq",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "protein_position",
+                                title: "Protein_position",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "codons",
+                                title: "Codons",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "hotspot",
+                                title: "Hotspot",
+                                sortable: true,
+                                searchType: "text"
+                            },
+                            {
+                                field: "t_alt_count_percentage",
+                                title: "t_alt_count_percentage",
+                                sortable: true,
+                                searchType: "text"
+                            },
+
+                        ]
+                    })
+                }
+
+                function searchSampleByPatient() {
+                    let d = $('#patient_id').val()
+                    $.ajax({
+                        url: "/pathology/user/data/searchByPatient",
+                        type: "post",
+                        contentType: "text/plain; charset=utf-8",
+                        success: function (res) {
+
+                        }
+                    })
+                }
+
+                function SearchByGene() {
+                    let d = $('#GeneName').val()
+                    $.ajax({
+                        url: "/pathology/user/data/searchByGene",
+                        type: "post",
+                        data: d,
+                        contentType: "text/plain; charset=utf-8",
+                        success: function (res){
+
+                        }
+                    })
+                }
         </script>
 
 

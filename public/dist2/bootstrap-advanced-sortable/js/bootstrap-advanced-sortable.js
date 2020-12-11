@@ -161,7 +161,10 @@
                 params.filter = JSON.stringify(this.filterColumnsPartial, null);
             }
 
+
+
             data = calculateObjectValue(this.options, this.options.queryParams, [params], data);
+
 
             $.extend(data, query || {});
 
@@ -701,8 +704,6 @@
                 if (that.searchText === "{}") {
                     $(".search-toolbar").hide();
                 }
-                let v = $('.btn-remove-search').length
-                console.log(v)
                 that.onSort(event)
             })
 

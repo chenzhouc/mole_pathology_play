@@ -1,6 +1,6 @@
 package controllers.userC
 
-import dao.{AccountDao, UserDao, mutationDao}
+import dao.{AccountDao, PatientDao, UserDao, mutationDao}
 import play.api.libs.json
 
 import javax.inject.Inject
@@ -20,6 +20,7 @@ class DataController @Inject()(cc: ControllerComponents)(
   implicit val userDao: UserDao,
   implicit val accountDao: AccountDao,
   implicit val mutationDao: mutationDao,
+  implicit val patientDao: PatientDao,
   exec: ExecutionContext
 ) extends AbstractController(cc) {
 
@@ -112,7 +113,6 @@ class DataController @Inject()(cc: ControllerComponents)(
       var param = (value \ "param").as[JsValue].toString()
       param = param.substring(1, param.length - 1)
 
-
       val a = value \\ "field"
       val b = value \\ "data"
       val seq1 = a.map(x => x.toString())
@@ -189,7 +189,6 @@ class DataController @Inject()(cc: ControllerComponents)(
     result
   }
 
-
   def makeTable2 = Action {
     implicit request =>
       val value = request.body.asJson.get
@@ -231,6 +230,42 @@ class DataController @Inject()(cc: ControllerComponents)(
     implicit request =>
       Ok(views.html.user.data.detailInfo("barcode"))
   }
+
+  def searchByBarcode() = Action.async {
+    implicit request =>
+      //获取参数 例如 MTS-T0058
+      val text = request.body.asText.getOrElse("")
+      val v = text.split("=")(1)
+      println(v)
+      // 根据样本编号查询数据
+      mutationDao.queryByBarcode(v).map { x =>
+        val json = x.map { y =>
+          y.data.as[JsObject] ++ Json.obj("sample_id" -> y.sampleBarcode, "id" -> y.id)
+        }
+        Ok(Json.obj("rows" -> json,"total" -> 5000))
+      }
+  }
+
+  //根据病人搜索对应的样本
+  def searchByPatientId() = Action {
+    implicit request =>
+      //获取病人的id
+      val text = request.body.asText.getOrElse("")
+      val res = Await.result(patientDao.querySampleByPatientId(text),Duration.Inf)
+      Ok("hello")
+  }
+
+
+  def searchByGene() = Action {
+    implicit request =>
+      val text = request.body.asText.getOrElse("")
+      println(text)
+      val res = Await.result(mutationDao.queryByGeneName(text),Duration.Inf)
+      println(res)
+      Ok("hello")
+  }
+
+
 
 }
 

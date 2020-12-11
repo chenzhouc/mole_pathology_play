@@ -243,4 +243,13 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
     }.result
     db.run(result)
   }
+
+  // 根据sampleid 查询数据
+  def queryByBarcode(barcode:String) = {
+    db.run(MutationTable.filter(x => x.data +>> "tumor_sample_barcode" === barcode).result)
+  }
+
+  def queryByGeneName(Gene:String) = {
+    db.run(MutationTable.filter(x => x.data +>> "hugo_symbol" === Gene).result)
+  }
 }
