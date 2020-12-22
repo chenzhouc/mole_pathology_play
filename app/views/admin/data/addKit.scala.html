@@ -29,7 +29,7 @@
         <br>
         <br>
         <br>
-        <h4 align="center">请输入您的试剂盒配置，以";"隔开</h4>
+        <h4 align="center">请输入您的试剂盒配置，格式为XX:aa;bb;cc<b>&amp;&amp;</b>YY:aa;bb;cc   (冒号和分号均为英文半角符号,不同的配置之间用“&&”分隔)</h4>
 
         <br>
         <form role="form">
@@ -74,27 +74,109 @@
     </div>
 
     <script>
-        function filldata(){
-            $('#textarea1').val("Hugo_Symbol;Chromosome;Start_Position;End_Position;Consequence;Variant_Classification;Reference_Allele")
-        }
+            //展示示例输入
+            function filldata() {
 
-        function submit1(){
-            let data = $('#textarea1').val()
-            let name = $('#name').val()
-            var params = {
-                "data" : data,
-                "name" : name
+                let str = `[xxx]
+a = hgvsc;score;center;codons;refseq;strand
+b = hgvsc;score;center;codons;refseq;strand
+c = hgvsc;score;center;codons;refseq;strand;hgvsc;score;center;codons;refseq;strand;hgvsc;score;center;codons;refseq;strand
+[yyy]
+c = bam_file;dbsnp_rs;sequencer;chromosome
+[zzz]
+d = tumor_validation_allele1;tumor_validation_allele2;variant_classification`
+                $('#textarea1').val(str)
             }
-            let v = JSON.stringify(params)
-            $.ajax({
-                url: "/pathology/admin/data/saveKit",
-                type: "post",
-                data: v,
-                contentType: "application/json",
-                success: function (res) {
 
+            /*
+            *
+            * */
+            function submit1() {
+                /*array1
+               1: "xxx]\nhgvsc;score;center;codons;refseq;strand\n"
+               2: "yyy]\nbam_file;dbsnp_rs;sequencer;chromosome\n"
+               3: "zzz]\ntumor_validation_allele1;tumor_validation_allele2;variant_classification"
+               */
+                /*
+                * map3
+                * [xxx],["hgvsc", "score", "center", "codons", "refseq", "strand"]
+                * [yyy],["bam_file", "dbsnp_rs", "sequencer", "chromosome"]
+                * [zzz],["tumor_validation_allele1", "tumor_validation_allele2", "variant_classification"]
+                * */
+                var datavalue = $('#textarea1').val()
+
+                //如果是有[]的情况
+             /*   if (array1.length > 1) {
+                    //去掉第一个元素 “”
+                    array1.shift()
+                    //对“[”两边的元素 去空格
+                    //切割冒号
+                    let res = array1.map(x => x.trim()).map(x => x.split("]")).map(x => x.map(y => y.split(";"))).map(x => x.map(y => y.map(z => z.trim())))
+                    var f2 = res.map(x => {
+                        var json = {
+                            param: x[0][0],
+                            value: x[1]
+                        }
+                        return json
+                    })
+                } else {
+                    let res = array1.map(x => x.trim()).map(x => x.split(";")).map(x => x.map(y => y.trim()))
+                    var f2 = {
+                        param: "",
+                        value: res[0]
+                    }
+                }*/
+
+               /* let array1 = data.split("[")
+                let array2 = array1.map(x => x.trim().split(']'))
+                array2.shift()
+                let array3 = array2.map(x => x.map(y => y.trim().split('\n')))
+                let array4 = array3.map(x => x.map(y => y.map(z => z.trim().split("':'|'：'"))))
+                let array5 = array4.map(x => x.map(y => y.map(z => z.map(m => m.trim().split("';'|'；'")))))
+                let res = array5.map(x => {
+                    var js = {
+                        param: x[0][0],
+                        value: x[1]
+                    }
+                    return js
+                })
+                console.log(res)
+                let name = $('#name').val()
+                var params = {
+                    "data": res,
+                    "name": name
                 }
-            })
-        }
+                let v = JSON.stringify(params)*/
+                $.ajax({
+                    url: "/pathology/admin/data/saveKit",
+                    type: "post",
+                    data: datavalue,
+                    contentType: "text/plain",
+                    success: function (res) {
+                        swal({
+                            title: "",
+                            text: res,
+                            icon: "success",
+                            button: "Aww yiss!",
+                        });
+                    },
+                    error: function (res) {
+                        swal({
+                            title: "",
+                            text: "提交失败",
+                            icon: "error",
+                            button: "Aww yiss!",
+                        });
+                    }
+                })
+            }
     </script>
 }
+
+
+    @*
+        先按[切割，再按]切割
+
+
+
+    *@

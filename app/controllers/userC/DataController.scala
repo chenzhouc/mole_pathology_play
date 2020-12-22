@@ -1,6 +1,6 @@
 package controllers.userC
 
-import dao.{AccountDao, PatientDao, UserDao, mutationDao}
+import dao.{AccountDao, PatientDao, UserDao, mutationDao, kitDao}
 import play.api.libs.json
 
 import javax.inject.Inject
@@ -21,6 +21,7 @@ class DataController @Inject()(cc: ControllerComponents)(
   implicit val accountDao: AccountDao,
   implicit val mutationDao: mutationDao,
   implicit val patientDao: PatientDao,
+  implicit val kitDao: kitDao,
   exec: ExecutionContext
 ) extends AbstractController(cc) {
 
@@ -236,13 +237,12 @@ class DataController @Inject()(cc: ControllerComponents)(
       //获取参数 例如 MTS-T0058
       val text = request.body.asText.getOrElse("")
       val v = text.split("=")(1)
-      println(v)
       // 根据样本编号查询数据
-      mutationDao.queryByBarcode(v).map { x =>
-        val json = x.map { y =>
-          y.data.as[JsObject] ++ Json.obj("sample_id" -> y.sampleBarcode, "id" -> y.id)
-        }
-        Ok(Json.obj("rows" -> json,"total" -> 5000))
+      val res = mutationDao.queryByBarcode(v)
+      mutationDao.queryByBarcode(v).map { case (x, size) =>
+        val json = x.map(y => y.data.as[JsObject])
+        val total = size
+        Ok(Json.obj("rows" -> json,"total" -> total))
       }
   }
 
@@ -251,7 +251,7 @@ class DataController @Inject()(cc: ControllerComponents)(
     implicit request =>
       //获取病人的id
       val text = request.body.asText.getOrElse("")
-      val res = Await.result(patientDao.querySampleByPatientId(text),Duration.Inf)
+      val res = Await.result(patientDao.querySampleByPatientId(text), Duration.Inf)
       Ok("hello")
   }
 
@@ -259,12 +259,27 @@ class DataController @Inject()(cc: ControllerComponents)(
   def searchByGene() = Action {
     implicit request =>
       val text = request.body.asText.getOrElse("")
-      println(text)
-      val res = Await.result(mutationDao.queryByGeneName(text),Duration.Inf)
-      println(res)
+      val res = Await.result(mutationDao.queryByGeneName(text), Duration.Inf)
       Ok("hello")
   }
 
+
+  def searchKit = Action {
+    implicit request =>
+      val res = Await.result(kitDao.queryKit(), Duration.Inf)
+      val r = res.map(x => (x.data \ "name").as[JsValue])
+      Ok(Json.toJson(r))
+  }
+
+
+  def searchKitdata = Action {
+    implicit request =>
+      val param = request.body.asText.getOrElse("")
+      //根据param查询该试剂盒包含哪些列
+      val res = Await.result(kitDao.querykitByName(param), Duration.Inf)
+      val f = res.head.data
+      Ok(Json.toJson(f))
+  }
 
 
 }

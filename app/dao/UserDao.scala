@@ -19,4 +19,6 @@ class UserDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) 
     .filter(_.password === user.password).result.headOption)
   }
 
+
+
 }

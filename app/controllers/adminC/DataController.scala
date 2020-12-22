@@ -8,13 +8,15 @@ import javax.inject.Inject
 import models.Tables.{KitRow, MutationTableRow, PatientRow, SampleRow}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import tool.{FileTool, FormTool, Tool}
+import tool.{FileTool, FormTool, Tool, parseTool}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
 import models._
 
 import scala.concurrent.duration.Duration
+import scala.util.parsing.json.JSONObject
+
 /**
  * Created by yz on 21/7/2020
  */
@@ -36,9 +38,6 @@ class DataController @Inject()(cc: ControllerComponents)(
     Ok(views.html.admin.data.manage())
   }
 
-  /* def addByFile = Action.async(parse.multipartFormData) { request =>
-     Ok(Json.obj("valid" -> true))
-   }*/
 
   def addByFile = Action.async(parse.multipartFormData) { request =>
     val file = request.body.file("file").get
@@ -111,23 +110,60 @@ class DataController @Inject()(cc: ControllerComponents)(
 
   }
 
-  def addKitBefore() = Action{
+  def addKitBefore() = Action {
     implicit request =>
-    Ok(views.html.admin.data.addKit())
+      Ok(views.html.admin.data.addKit())
   }
 
   def saveKit = Action {
     implicit request =>
-      val v = request.body.asJson.get
-      val kitRow = KitRow(
-        0,
-        v
-      )
-      Await.result(kitDao.insertKit(kitRow),Duration.Inf)
+      val v = request.body.asText.get
+      val res = parseTool.parseKit(v)
+      val res2 = res.map({
+        case (a, b) => (a, b.map(x => Json.obj("param" -> x._1, "value" -> x._2)))
+      })
+      val res3 = res2.map {
+        case (a, b) => (a.substring(1, a.length - 1), Json.toJson(b.toArray))
+      }.map(x => Json.obj("name" -> x._1, "config" -> x._2))
+      /* val res3 = res2.map(x => Json.obj("name" -> x._1,"config" -> x._2))*/
+      val rs = res3.toList
+      //查询是否有同名的试剂盒
+      val value = (Json.toJson(rs.toArray) \\ "name").map(x => x.toString())
+      val numbers = value.map(x => {
+        Await.result(kitDao.queryKitNumberByName(x.substring(1, x.length - 1)), Duration.Inf)
+      })
 
-      val res = Await.result(kitDao.queryKit(),Duration.Inf)
-      println(res)
-      Ok("hello")
+      val bool = numbers.forall(x => x == 0)
+      println(bool)
+      if (bool == true) {
+        val rows = rs.map(x => KitRow(
+          0,
+          x
+        ))
+        Await.result(kitDao.insertKit(rows), Duration.Inf)
+        Ok("success")
+      } else {
+        Ok("数据库已有同名的试剂盒，请更换试剂盒名称！")
+      }
+      /* res3.foreach(x => {
+         val kitRow = KitRow(
+           0,
+           x
+         )
+       })
+       val kitRow = KitRow(
+         0,
+         res3
+       )
+       val name = (v \ "name").as[String]
+       //先查询是否数据库内有同名的数量，数量不为0则直接返回错误
+       val number = Await.result(kitDao.queryKitNumberByName(name),Duration.Inf)
+       if(number == 0){
+         Await.result(kitDao.insertKit(kitRow),Duration.Inf)
+         Ok("success")
+       }else{
+         Ok("数据库已有同名的试剂盒，请更换试剂盒名称！")
+       }*/
   }
 
 
