@@ -13,7 +13,7 @@ GET     /db                              controllers.DBController.db
 
 GET     /loginbefore                           controllers.AppController.loginBefore
 
-POST     /login                                  controllers.AppController.login
+POST    /login                                  controllers.AppController.login
 
 GET     /pathology/admin/changePasswordBefore                     controllers.AdminController.changePasswordBefore
 
@@ -66,6 +66,14 @@ POST            /pathology/user/data/searchByGene                        control
 GET            /pathology/user/data/searchKit                           controllers.userC.DataController.searchKit
 
 POST             /pathology/user/data/searchKitdata                      controllers.userC.DataController.searchKitdata
+
+GET             /pathology/admin/data/addSampleBefore                    controllers.adminC.DataController.addSampleFileBefore
+
+POST            /pathology/admin/data/addSample                          controllers.adminC.DataController.addSampleFile
+
+GET             /pathology/admin/data/addPatientBefore                   controllers.adminC.DataController.addPatientFileBefore
+
+POST            /pathology/admin/data/addPatient                         controllers.adminC.DataController.addPatientFile
 # Map static resources from the /public folder to the /assets URL path
 GET             /assets/*file                                             controllers.Assets.at(path="/public", file)
 

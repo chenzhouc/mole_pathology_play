@@ -21,17 +21,28 @@ class DataFileValidTool(lines: List[List[String]]) {
     Validated.cond(valid, true, s"${fileInfo}表头 ${repeatHeaders.head} 重复!")
   }
 
+
+  //检验mutation的表头是否一致
   def validHeadersExist = {
     val noExistHeaders = mutationHeaders.diff(headers)
-    val noPatient = patientHeaders.diff(headers)
-    val noSample = sampleHeaders.diff(headers)
     println(headers)
-    println(noExistHeaders)
-    println(noPatient)
-    println(noSample)
-    val valid = (noExistHeaders.isEmpty || noPatient.isEmpty || noSample.isEmpty)
+    val valid = (noExistHeaders.isEmpty)
     println(valid)
     Validated.cond(valid, true, s"${fileInfo}表头不存在！！!")
+  }
+
+  //检验病人信息表的表头和数据是否一致
+  def validPatientHeadersExist = {
+    val noPatient = patientHeaders.diff(headers)
+    val valid = (noPatient).isEmpty
+    Validated.cond(valid,true,s"${fileInfo}表头不存在！！！")
+  }
+
+  //检验样本信息表的表头和数据是否一致
+  def validSampleHeadersExist = {
+    val noSample = sampleHeaders.diff(headers)
+    val valid = (noSample).isEmpty
+    Validated.cond(valid,true,s"${fileInfo}表头不存在")
   }
 
 
@@ -53,17 +64,46 @@ class DataFileValidTool(lines: List[List[String]]) {
 
 object DataFileValidTool {
 
+  //检验突变信息表
   def valid(lines: List[List[String]]) = {
     val fileValidTool = new DataFileValidTool(lines)
     import fileValidTool._
     validHeadersRepeat.andThen { b =>
       validHeadersExist
     }.andThen { b =>
+      //检验 一行列的数量和表头的数量是否一致
       validColumnNum
     }.leftMap { x =>
       s"数据文件格式有误!\n${x}"
     }
+  }
 
+  //检验病人表
+  def validPatient(lines: List[List[String]]) = {
+    val fileValidTool = new DataFileValidTool(lines)
+    import fileValidTool._
+    validHeadersRepeat.andThen { b =>
+      validPatientHeadersExist
+    }.andThen { b =>
+      //检验 一行列的数量和表头的数量是否一致
+      validColumnNum
+    }.leftMap { x =>
+      s"数据文件格式有误!\n${x}"
+    }
+  }
+
+  //检验样本信息表
+  def validSample(lines: List[List[String]]) = {
+    val fileValidTool = new DataFileValidTool(lines)
+    import fileValidTool._
+    validHeadersRepeat.andThen { b =>
+      validSampleHeadersExist
+    }.andThen { b =>
+      //检验 一行列的数量和表头的数量是否一致
+      validColumnNum
+    }.leftMap { x =>
+      s"数据文件格式有误!\n${x}"
+    }
   }
 
 }

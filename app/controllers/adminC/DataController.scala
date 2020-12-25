@@ -3,19 +3,15 @@ package controllers.adminC
 import java.io.{File, FileInputStream}
 import dao._
 import implicits.Implicits._
-
 import javax.inject.Inject
 import models.Tables.{KitRow, MutationTableRow, PatientRow, SampleRow}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import tool.{FileTool, FormTool, Tool, parseTool}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
-import models._
-
 import scala.concurrent.duration.Duration
-import scala.util.parsing.json.JSONObject
+
 
 /**
  * Created by yz on 21/7/2020
@@ -33,11 +29,9 @@ class DataController @Inject()(cc: ControllerComponents)(
     Ok(views.html.admin.data.addByFile())
   }
 
-
   def manageBefore = Action { implicit request =>
     Ok(views.html.admin.data.manage())
   }
-
 
   def addByFile = Action.async(parse.multipartFormData) { request =>
     val file = request.body.file("file").get
@@ -50,18 +44,38 @@ class DataController @Inject()(cc: ControllerComponents)(
         Tool.deleteDirectory(tmpDir)
         Future.successful(Ok(Json.obj("message" -> myMessage.message, "valid" -> false)))
       } else {*/
-
-
     //先验证文件表头，简单验证 区分是样本表、病人表还是突变信息表
-
-
     // filecheck方法验证了
     val myMessage = FileTool.fileCheck(tmpXlsxFile).toMyMessage
     println(myMessage)
     if (!myMessage.valid) {
       Tool.deleteDirectory(tmpDir)
       Future.successful(Ok(Json.obj("message" -> myMessage.message, "valid" -> false)))
-    } else if (tmpXlsxFile.xlsxLines().head.head == "PATIENT_ID" && tmpXlsxFile.xlsxLines().head(1) == "LYMPH_NODES_EXAMINED_POSITIVE") {
+    } else {
+      val lines = tmpXlsxFile.xlsxLines()
+      val headers = lines.head.toLowerCase
+      println(headers)
+      val rows = lines.lineMapNoLower.map { map =>
+        MutationTableRow(
+          0,
+          Json.toJson(map),
+          map("tumor_sample_barcode"),
+          0
+          //这里是因为表格里没有，样本id和试剂盒需要从表格里提取出来
+        )
+      }
+      mutationDao.insertOrUpdates(rows).flatMap { x =>
+        Tool.deleteDirectory(tmpDir)
+        mutationDao.queryAll().map { all =>
+          Ok(Json.obj("valid" -> true, "message" -> "success！"))
+        }
+      }
+    }
+
+    //根据不同的表信息，将表的内容上传到数据库里
+
+
+    /*if (tmpXlsxFile.xlsxLines().head.head == "PATIENT_ID" && tmpXlsxFile.xlsxLines().head(1) == "LYMPH_NODES_EXAMINED_POSITIVE") {
       val lines = tmpXlsxFile.xlsxLines()
       val rows = lines.drop(1).map { map =>
         PatientRow(
@@ -85,29 +99,84 @@ class DataController @Inject()(cc: ControllerComponents)(
           Tool.deleteDirectory(tmpDir)
           Ok(Json.obj("valid" -> true))
       }
-    } else {
-      val lines = tmpXlsxFile.xlsxLines()
-      val headers = lines.head.toLowerCase
-      println(headers)
-      val rows = lines.lineMapNoLower.map { map =>
-        MutationTableRow(
-          0,
-          Json.toJson(map),
-          map("tumor_sample_barcode"),
-          0
-          //这里是因为表格里没有，样本id和试剂盒需要从表格里提取出来
-        )
-      }
-      mutationDao.insertOrUpdates(rows).flatMap { x =>
+    } else*/
+  }
+
+  //添加样本页
+  def addSampleFileBefore = Action {
+    implicit request =>
+      Ok(views.html.admin.data.addSampleFile())
+  }
+
+  //添加病人信息页
+  def addPatientFileBefore = Action {
+    implicit request =>
+      Ok(views.html.admin.data.addPatientFile())
+  }
+
+  def addSampleFile = Action.async(parse.multipartFormData) {
+    implicit request =>
+      val file = request.body.file("file").get
+      val tmpDir = Tool.createTempDirectory("SampleTmpDir")
+      val tmpXlsxFile = new File(tmpDir, "tmp.xlsx")
+      file.ref.moveTo(tmpXlsxFile, true)
+      val myMessage = FileTool.SampleFileCheck(tmpXlsxFile).toMyMessage
+      if (!myMessage.valid) {
         Tool.deleteDirectory(tmpDir)
-        mutationDao.queryAll().map { all =>
-          Ok(Json.obj("valid" -> true))
+        Future.successful(Ok(Json.obj("message" -> myMessage.message, "valid" -> false)))
+      } else {
+        val lines = tmpXlsxFile.xlsxLines()
+        val headers = lines.head.toLowerCase
+        println(headers)
+        val rows = lines.lineMapNoLower.map {
+          map =>
+            SampleRow(
+              0,
+              map("sample_id"),
+              map("patient_id"),
+              Json.toJson(map)
+            )
+        }
+        sampleDao.insertSampleTable(rows).flatMap {
+          x =>
+            Tool.deleteDirectory(tmpDir)
+            patientDao.queryAll().map(all =>
+              Ok(Json.obj("valid" -> true, "message" -> "success！"
+              )))
         }
       }
-    }
+  }
 
-    //根据不同的表信息，将表的内容上传到数据库里
-
+  def addPatientFile = Action.async(parse.multipartFormData) {
+    implicit request =>
+      val file = request.body.file("file").get
+      val tmpDir = Tool.createTempDirectory("PatientTmpDir")
+      val tmpXlsxFile = new File(tmpDir, "tmp.xlsx")
+      file.ref.moveTo(tmpXlsxFile, true)
+      val myMessage = FileTool.PatientFileCheck(tmpXlsxFile).toMyMessage
+      if (!myMessage.valid) {
+        Tool.deleteDirectory(tmpDir)
+        Future.successful(Ok(Json.obj("message" -> myMessage.message, "valid" -> false)))
+      } else {
+        val lines = tmpXlsxFile.xlsxLines()
+        val headers = lines.head.toLowerCase
+        println(headers)
+        val rows = lines.lineMapNoLower.map {
+          map =>
+            PatientRow(
+              0,
+              map("patient_id"),
+              Json.toJson(map)
+            )
+        }
+        patientDao.insertPatientTables(rows).flatMap {
+          x =>
+            Tool.deleteDirectory(tmpDir)
+            patientDao.queryAll().map(all =>
+              Ok(Json.obj("valid" -> true, "message" -> "success"
+              )))
+        }
+      }
   }
 
   def addKitBefore() = Action {
@@ -145,25 +214,25 @@ class DataController @Inject()(cc: ControllerComponents)(
       } else {
         Ok("数据库已有同名的试剂盒，请更换试剂盒名称！")
       }
-      /* res3.foreach(x => {
-         val kitRow = KitRow(
-           0,
-           x
-         )
-       })
+    /* res3.foreach(x => {
        val kitRow = KitRow(
          0,
-         res3
+         x
        )
-       val name = (v \ "name").as[String]
-       //先查询是否数据库内有同名的数量，数量不为0则直接返回错误
-       val number = Await.result(kitDao.queryKitNumberByName(name),Duration.Inf)
-       if(number == 0){
-         Await.result(kitDao.insertKit(kitRow),Duration.Inf)
-         Ok("success")
-       }else{
-         Ok("数据库已有同名的试剂盒，请更换试剂盒名称！")
-       }*/
+     })
+     val kitRow = KitRow(
+       0,
+       res3
+     )
+     val name = (v \ "name").as[String]
+     //先查询是否数据库内有同名的数量，数量不为0则直接返回错误
+     val number = Await.result(kitDao.queryKitNumberByName(name),Duration.Inf)
+     if(number == 0){
+       Await.result(kitDao.insertKit(kitRow),Duration.Inf)
+       Ok("success")
+     }else{
+       Ok("数据库已有同名的试剂盒，请更换试剂盒名称！")
+     }*/
   }
 
 

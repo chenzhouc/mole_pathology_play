@@ -707,17 +707,21 @@
                     data: v,
                     contentType: "text/plain; charset=utf-8",
                     success: function (res) {
-                        /* res.data = {"data":"Hugo_Symbol,Chromosome,Start_Position,End_Position,Consequence,Variant_Classification,Reference_Allele","param":"XXX"},
-                        {"data":"Chromosome,Start_Position,End_Position,Consequence,Variant_Classification,Reference_Allele","param":"YYY"}*/
-                        /*  var str = JSON.stringify(res.data)*/
-                        //遍历json数组里的每个{data,param}
-                        for (let i = res.data.length - 1; i >= 0; i--) {
-                            var elem = res.data[i] //XXX
+                        /*  {"name":"x1xx",
+                                "config":[
+                                    {"param":"a","value":"hgvsc,score,center,codons,refseq,strand"},
+                                    {"param":"b","value":"hgvsc,score,center,codons,refseq,strand"},
+                                    {"param":"c","value":"hgvsc,score,center,codons,refseq,strand,hgvsc,score,center,codons,refseq,strand,hgvsc,score,center,codons,refseq,strand"}]
+                               }
+                        * */
+                        let data = res.config
+                        for (let i = data.length - 1; i >= 0; i--) {
+                            var elem = res.config[i]
                             var kitparam = elem.param
-                            var str = elem.data
+                            var str = elem.value
                             var kitcolumns = str.split(",")
                             // 展示param   XXX:
-                            $("#showcolumns").append(`
+                          /*  $("#showcolumns").append(`
 
                                         <div class="checkbox inline">
                                           <label>
@@ -725,13 +729,18 @@
                                          </label>
                                           </div>
 
+                            `)*/
+                            $("#showcolumns").append(`
+                                 <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="selectAll('${kitparam}')">全选</button>
+                                 <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="antiselectAll('${kitparam}')">全不选</button>
+                                   <b style="font-size: 20px">${kitparam}:</b>
                             `)
                             $("#showcolumns").append(`&nbsp;&nbsp;`)
                             $.each(kitcolumns, (i, v) => {
                                 $("#showcolumns").append(`
                                   <div class="checkbox inline" style="margin: 10px">
                                 <label>
-                                    <input type="checkbox" target-name=${kitparam}   value="${v}" onclick="addcolumn()" > ${kitcolumns[i]}
+                                    <input type="checkbox" target-name=${kitparam}   value="${v}" onclick="addcolumn(this)" > ${kitcolumns[i]}
                                 </label>
                                   </div>
                                 `)
@@ -741,15 +750,36 @@
                     }
                 })
             }
-            function addcolumn() {
-                columnsforshow = []
-                var element = $("input[target-name]:checked")
+            function selectAll(kitparam){
+                  /* $("[target-name='" + kitparam + "']").each(function(){
+                           if($(this).is(':checked')){
+                               $(this).prop('checked',false)
+                               columnsforshow.pop($(this).val())
+                           }else{
+                               $(this).prop('checked',true)
+                               columnsforshow.push($(this).val())
+                           }
 
-                //let element = $("input:checkbox[value=" + value + "]");
-                if (element.is(":checked")) {
-                    columnsforshow.push(element.val())
-                } else {
-                    columnsforshow.pop(element.val())
+                   })*/
+                $("[target-name='" + kitparam + "']").each(function(){
+                    $(this).prop('checked',true)
+                    columnsforshow.push(($(this).val()))
+                })
+
+            }
+
+            function antiselectAll(kitparam){
+                $("[target-name='" + kitparam + "']").each(function(){
+                    $(this).prop('checked',false)
+                    columnsforshow.pop(($(this).val()))
+                })
+            }
+            //点击复选框后触发的函数
+            function addcolumn(p) {
+                if($(p).is(':checked')){
+                    columnsforshow.push($(p).val())
+                }else{
+                    columnsforshow.pop($(p).val())
                 }
                 console.log(columnsforshow)
             }
@@ -770,6 +800,7 @@
                                 <label>
                                     <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')"> ${titles[i]}
                                 </label>
+
                             </div>
 `)
                                 @* onclick="setColumns('${v}')"*@

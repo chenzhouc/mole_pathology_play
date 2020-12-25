@@ -47,7 +47,7 @@
                         <div class="form-group">
                             <label class="control-label col-sm-3">Tumor_Sample_Barcode:</label>
                             <div class="col-sm-4">
-                               @* <select name="barcode" id="sampleids" style="" class="checkbox form-control refGene">
+                                @* <select name="barcode" id="sampleids" style="" class="checkbox form-control refGene">
                                 </select>*@
                                 <input type="text" name="barcode" id="sampleids" class="checkbox form-control refGene"/>
                             </div>
@@ -87,7 +87,7 @@
                         <div class="form-group">
                             <label class="control-label col-sm-3">Gene.refGene:</label>
                             <div class="col-sm-4">
-                               @* <select name="refGene" id="GeneName" style="width: 100%"
+                                @* <select name="refGene" id="GeneName" style="width: 100%"
                                 class="checkbox form-control refGene">
                                 </select>*@
                                 <input type="text" name="refGene" id="GeneName" style="width: 100%" class="checkbox form-control refGene"/>
@@ -107,51 +107,41 @@
 
         </div>
 
-        <div class="row" >
+        <div class="row" id="hideTable" style="display: none">
             <div class="col-md-12 stretch-card">
                 <div class="card">
-                    <div class="card-body">
-                    </div>
+                    <div class="card-body"></div>
                     <table id="table" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row" id="hideTable2" style="display: none">
+            <div class="col-md-12 stretch-card">
+                <div class="card">
+                    <div class="card-body"></div>
+                    <table id="table2" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
                 </div>
             </div>
         </div>
 
         <script>
 
-            /*
-            "/pathology/user/data/searchByBarcode",
-            * */
-                function searchBarcode() {
-                    let d = $('#sampleids').val()
-                    $("#table").bootstrapTable('destroy')
+                $(function () {
+                    //突变信息表的初始化
                     $("#table").bootstrapTable({
                         method: 'post',
-                        url:"@userC.routes.DataController.searchByBarcode()",
-                        data: d,
-                        method: 'post',
+                        url: "@userC.routes.DataController.getMutationTable()",
                         sidePagination: "server",
                         pageNumber: 1,
-                        pagination: true,
                         pageList: [15],
                         pageSize: 20,
-                        contentType:"text/plain; charset=utf-8",
-                        pageNumber: 1,
-                        queryParams : function (param){
-                            var temp = {
-                                search: d
-                            }
-                            return temp
-                        },
-                        columns: [{
-                            field: "id",
-                            title: "id",
-                            sortable: true,
-                            searchType: "text"
-                        },
+                        contentType: "application/x-www-form-urlencoded",
+                        columns: [
                             {
-                                field: "sample_id",
-                                title: "sample_id",
+                                field: "tumor_sample_barcode",
+                                title: "Tumor_Sample_Barcode",
                                 sortable: true,
                                 searchType: "text"
                             },
@@ -247,12 +237,6 @@
                             {
                                 field: "dbsnp_val_status",
                                 title: "dbSNP_Val_Status",
-                                sortable: true,
-                                searchType: "text"
-                            },
-                            {
-                                field: "tumor_sample_barcode",
-                                title: "Tumor_Sample_Barcode",
                                 sortable: true,
                                 searchType: "text"
                             },
@@ -432,6 +416,29 @@
                             }
                         ]
                     })
+
+
+
+
+                })
+
+                /*
+                "/pathology/user/data/searchByBarcode",
+                * */
+                function searchBarcode() {
+                    $("#tumor_sample_barcode-sort-button").click()
+                    let d = $('#sampleids').val();
+                    $("th").find("tumor_sample_barcode")
+                    let $tumor =  $("#tumor_sample_barcode-search")
+                    $tumor.val(d);
+                    $tumor.parent().find(".btn-sort-primary").click()
+                    $("#hideTable").show()
+                }
+
+
+                function SearchByGene() {
+                   $("#hugo_symbol-sort-button").click()
+                    let d = $("#")
                 }
 
                 function searchSampleByPatient() {
@@ -446,18 +453,7 @@
                     })
                 }
 
-                function SearchByGene() {
-                    let d = $('#GeneName').val()
-                    $.ajax({
-                        url: "/pathology/user/data/searchByGene",
-                        type: "post",
-                        data: d,
-                        contentType: "text/plain; charset=utf-8",
-                        success: function (res){
 
-                        }
-                    })
-                }
         </script>
 
 

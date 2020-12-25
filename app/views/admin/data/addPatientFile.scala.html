@@ -23,14 +23,14 @@
 
     </style>
 
-                    @* <li><a href="@adminC.routes.DataController.addByFileBefore()" ;id="case" style="font-size: 16px">导入突变信息</a></li>*@
-                    @* <li><a href="@routes.DBController.db()" id="db" style="font-size: 16px">导入病人信息</a> </li>
-                    <li><a href="@routes.MaintainController.maintainBefore" id="maintain" style="font-size: 16px">导入样本信息</a></li>*@
+    @* <li><a href="@adminC.routes.DataController.addByFileBefore()" ;id="case" style="font-size: 16px">导入突变信息</a></li>*@
+    @* <li><a href="@routes.DBController.db()" id="db" style="font-size: 16px">导入病人信息</a> </li>
+    <li><a href="@routes.MaintainController.maintainBefore" id="maintain" style="font-size: 16px">导入样本信息</a></li>*@
     <div class="container">
         <ul class="nav nav-tabs" style="position: relative; top: 25px">
-            <li role="presentation" class="active"><a href="@adminC.routes.DataController.addByFileBefore()">导入突变信息</a></li>
-            <li role="presentation"><a href="@adminC.routes.DataController.addSampleFileBefore()">导入样本信息</a></li>
-            <li role="presentation"><a href="@adminC.routes.DataController.addPatientFileBefore()">导入病人信息</a></li>
+            <li role="presentation" ><a href="@adminC.routes.DataController.addByFileBefore()">导入突变信息</a></li>
+            <li role="presentation" ><a href="@adminC.routes.DataController.addSampleFileBefore()">导入样本信息</a></li>
+            <li role="presentation" class="active"><a href="@adminC.routes.DataController.addPatientFileBefore()">导入病人信息</a></li>
         </ul>
     </div>
 
@@ -43,7 +43,7 @@
                 <div class="form-group col-sm-12">
                     <h2 class="page-heading"
                     style="text-align: left;
-                        border-bottom: 5px solid #e9f3f4">导入突变信息表</h2>
+                        border-bottom: 5px solid #e9f3f4">导入病人信息</h2>
                 </div>
             </div>
 
@@ -117,7 +117,7 @@
                     });
                     var formData = document.getElementById("form")
                     $.ajax({
-                        url: "/pathology/admin/data/addByFile",
+                        url: "/pathology/admin/data/addPatient",
                         type: "post",
                         processData: false,
                         contentType: false,

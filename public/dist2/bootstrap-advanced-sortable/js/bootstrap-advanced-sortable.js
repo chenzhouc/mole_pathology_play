@@ -102,7 +102,7 @@
                 }
                 $($(_sortable).find(".sort-box")).remove();
                 $(_sortable).append(`<div class="sort-box">
-                                        <button type="button" class="my-table-sort-icon sort-btn">
+                                        <button type="button" class="my-table-sort-icon sort-btn" id="${field}-sort-button">
                                             ${mdi}
                                         </button>                                     
                                      </div>`)

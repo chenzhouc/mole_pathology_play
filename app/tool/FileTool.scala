@@ -13,8 +13,18 @@ object FileTool {
    FileTool.dataFileCheck(file)
   }
 
+  def PatientFileCheck(file: File) = {
+    DataFileValidTool.validPatient(file.xlsxLines())
+  }
+
+  def SampleFileCheck(file: File) = {
+    DataFileValidTool.validSample(file.xlsxLines())
+  }
+
   def dataFileCheck(file: File) = {
     DataFileValidTool.valid(file.xlsxLines())
   }
+
+
 
 }

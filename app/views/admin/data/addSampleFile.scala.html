@@ -23,13 +23,13 @@
 
     </style>
 
-                    @* <li><a href="@adminC.routes.DataController.addByFileBefore()" ;id="case" style="font-size: 16px">导入突变信息</a></li>*@
-                    @* <li><a href="@routes.DBController.db()" id="db" style="font-size: 16px">导入病人信息</a> </li>
-                    <li><a href="@routes.MaintainController.maintainBefore" id="maintain" style="font-size: 16px">导入样本信息</a></li>*@
+    @* <li><a href="@adminC.routes.DataController.addByFileBefore()" ;id="case" style="font-size: 16px">导入突变信息</a></li>*@
+    @* <li><a href="@routes.DBController.db()" id="db" style="font-size: 16px">导入病人信息</a> </li>
+    <li><a href="@routes.MaintainController.maintainBefore" id="maintain" style="font-size: 16px">导入样本信息</a></li>*@
     <div class="container">
         <ul class="nav nav-tabs" style="position: relative; top: 25px">
-            <li role="presentation" class="active"><a href="@adminC.routes.DataController.addByFileBefore()">导入突变信息</a></li>
-            <li role="presentation"><a href="@adminC.routes.DataController.addSampleFileBefore()">导入样本信息</a></li>
+            <li role="presentation" ><a href="@adminC.routes.DataController.addByFileBefore()">导入突变信息</a></li>
+            <li role="presentation" class="active"><a href="@adminC.routes.DataController.addSampleFileBefore()">导入样本信息</a></li>
             <li role="presentation"><a href="@adminC.routes.DataController.addPatientFileBefore()">导入病人信息</a></li>
         </ul>
     </div>
@@ -43,7 +43,7 @@
                 <div class="form-group col-sm-12">
                     <h2 class="page-heading"
                     style="text-align: left;
-                        border-bottom: 5px solid #e9f3f4">导入突变信息表</h2>
+                        border-bottom: 5px solid #e9f3f4">导入样本信息</h2>
                 </div>
             </div>
 
@@ -110,24 +110,29 @@
                 var valid = bv.isValid()
                 if (valid) {
                     let element = "<div id='content'><span id='info'>文件上传中： </span><span id='progress'></span></div>";
-                    let index = layer.msg(element, {
+                    var index = layer.msg(element, {
                         icon: 16
                         , shade: 0.01,
                         time: 20000000
                     });
                     var formData = document.getElementById("form")
                     $.ajax({
-                        url: "/pathology/admin/data/addByFile",
+                        url: "/pathology/admin/data/addSample",
                         type: "post",
                         processData: false,
                         contentType: false,
                         data: new FormData(form[0]),
-                        xhr: function () { //获取ajaxSettings中的xhr对象，为它的upload属性绑定progress事件的处理函数
-                            myXhr = $.ajaxSettings.xhr();
+                        xhr: function () {
+                            let myXhr = $.ajaxSettings.xhr();
                             if (myXhr.upload) { //检查upload属性是否存在
                                 //绑定progress事件的回调函数
-                                myXhr.upload.addEventListener('progress', progressHandlingFunction, false);
+                                let date = new Date();
+                                let time = date.getTime();
+                                myXhr.upload.addEventListener('progress',  function (e) {
+                                    progressHandlingFunction(e, time)
+                                }, false);
                             }
+                            console.log(myXhr)
                             return myXhr; //xhr对象返回给jQuery使用
                         },
                         success: function (res) {
@@ -152,19 +157,17 @@
                 }
             }
 
-            function progressHandlingFunction(e) {
+            function progressHandlingFunction(e,time) {
                 if (e.lengthComputable) {
-                    $('#progress').attr({value: e.loaded, max: e.total}); //更新数据到进度条
-                    let mydate = new Date();
-                    let time1 = mydate.getTime();
+                    let progress = $('#progress');
+                    progress.attr({value: e.loaded, max: e.total}); //更新数据到进度条
+                    let time1 = (new Date()).getTime();
                     let speed = (e.loaded / 1024) / ((time1 - time) / 1000);
                     let percent = e.loaded / e.total * 100;
-                    console.log(percent)
-                    $('#progress').html(percent.toFixed(2) + "%   " + parseInt(speed) + "KB/S");
-                    $('#progress').css('width', percent.toFixed(2) + "%");
+                    progress.html(percent.toFixed(2) + "%   " + parseInt(speed) + "KB/S");
+                    progress.css('width', percent.toFixed(2) + "%");
                 }
             }
-
 
             $("#input-1").fileinput({
                 showPreview: false,

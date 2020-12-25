@@ -255,7 +255,6 @@ class DataController @Inject()(cc: ControllerComponents)(
       Ok("hello")
   }
 
-
   def searchByGene() = Action {
     implicit request =>
       val text = request.body.asText.getOrElse("")
@@ -263,14 +262,12 @@ class DataController @Inject()(cc: ControllerComponents)(
       Ok("hello")
   }
 
-
   def searchKit = Action {
     implicit request =>
       val res = Await.result(kitDao.queryKit(), Duration.Inf)
       val r = res.map(x => (x.data \ "name").as[JsValue])
       Ok(Json.toJson(r))
   }
-
 
   def searchKitdata = Action {
     implicit request =>
@@ -280,7 +277,6 @@ class DataController @Inject()(cc: ControllerComponents)(
       val f = res.head.data
       Ok(Json.toJson(f))
   }
-
 
 }
 
