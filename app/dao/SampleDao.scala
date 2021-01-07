@@ -1,8 +1,10 @@
 package dao
 
-import models.Tables.{Sample, SampleRow}
+import models.Tables.{Patient, Sample, SampleRow}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
+import utils.PageData
+import utils.Utils.{processSection, processSort}
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -14,5 +16,58 @@ class SampleDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider
 
   def insertSampleTable(rows: Seq[SampleRow]) = {
     db.run(Sample ++= rows).map(_ => ())
+  }
+
+  def queryAll(page: PageData) = {
+    val value = processSection(page)
+    val sortfields = processSort(page)
+    val order = page.order
+    val filterData = if (page.search == None || page.search.get == "{}") Sample
+    else
+      Sample.filter { y =>
+        val bs = value.map(x => {
+          //val rs = y.data +>> (x._1)
+          if (x._2.length == 1) {
+            y.data +>> (x._1) === x._2(0)
+          } else {
+            var min: Long = 0
+            var max: Long = 0
+            try {
+              min = x._2(0).toLong
+              max = x._2(1).toLong
+            } catch {
+              case ex: NumberFormatException =>
+                min = Long.MinValue
+                max = Long.MaxValue
+            }
+            val rs = (y.data +>> x._1).asColumnOf[Long]
+            rs > min && rs < max
+          }
+        })
+        bs.reduce((x, y) => x && y)
+      }
+    val sortData = if (order == "desc") filterData.sortBy(x => x.data.+>>(sortfields).desc)
+    else filterData.sortBy { x =>
+      x.data.+>>(sortfields).asc
+    }
+    /* val xx = filterData.sortBy { x =>
+      x.data.+>>(sortfields).desc
+    }*/
+    val finalData = sortData
+    val countF = finalData.length.result
+    //    val resultF = finalData.drop(page.offset).take(page.limit).result
+    val resultF = finalData.map(_.id).drop(page.offset).take(page.limit).result.flatMap { ids =>
+      finalData.filter(_.id.inSetBind(ids)).result
+    }
+    val f = countF.zip(resultF)
+    db.run(f)
+  }
+
+
+  def deleteUserById(list:List[String]) = {
+      val newlist = list.map(x => x.toInt)
+      val q = Sample.filter(_.id.inSet(newlist))
+      val action = q.delete
+      db.run(action)
   }
 }

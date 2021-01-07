@@ -1,0 +1,204 @@
+@()(implicit request: play.api.mvc.RequestHeader)
+@admin.main("配置样本信息表列筛选") {
+    <script src="@routes.Assets.at("layer-3.1.1/dist/layer.js")" type="text/javascript"></script>
+
+    <style>
+            .form-control {
+                display: block;
+                width: 100%;
+                height: 34px;
+                padding: 6px 12px;
+                font-size: 14px;
+                line-height: 1.42857143;
+                color: #555;
+                background: #fff none;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+                -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+                -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+                transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            }
+
+
+
+    </style>
+
+    <div class="container" style="margin-bottom: -22px">
+        <ul class="nav nav-tabs" style="position: relative;
+            top: 25px">
+            <li role="presentation" ><a href="@adminC.routes.DataController.addKitBefore()">配置突变信息表的列筛选</a></li>
+            <li role="presentation" class="active"><a href="@adminC.routes.DataController.addSampleKitBefore()">
+                配置样本信息表的列筛选</a></li>
+            <li role="presentation" ><a href="@adminC.routes.DataController.addPatientKitBefore()">配置病人信息表的列筛选</a></li>
+        </ul>
+    </div>
+
+    <div class="container-fluid" style="height: 900px;
+        width: 1232px">
+        <br>
+        <br>
+        <br>
+        <h4 align="center">请输入您的列筛选的配置，格式参照示例</h4>
+
+        <br>
+        <form role="form">
+            @*<span class="example">
+            <a href="/colorectal/utils/downloadExample?file=rf.txt">
+            <em id="egCrics">示例文件</em>
+            </a>
+            </span>*@
+
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="filldata()">输入示例</button>
+            </div>
+            <div class="form-group">
+                <textarea id="textarea1" class="form-control" rows="3" style="height: 300px"></textarea>
+            </div>
+           @* <div class="form-group">
+                <label class="sr-only" for="name">名称</label>
+                <input type="text" class="form-control" id="kitname" placeholder="请输入试剂盒名称">
+            </div>*@
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="submit1()">提交</button>
+            </div>
+        </form>
+
+
+        @* <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">请输入该试剂盒的名称</h4>
+        </div>
+        <div class="modal-body">
+        <div class="input-group">
+        <input id="name" type="text" class="form-control" style="width: 400px">
+        </div>
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="submit1()">确定</button>
+        </div>
+        </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+        </div>*@
+
+    </div>
+
+    <script>
+            //展示示例输入
+            function filldata() {
+
+                let str = `[配置A]
+科室1 = PATIENT_ID;SAMPLE_ID;CANCER_TYPE;CANCER_TYPE_DETAILED
+科室2 = PATIENT_ID;SAMPLE_ID;CANCER_TYPE;CANCER_TYPE_DETAILED;ER_STATUS;HER2_STATUS
+科室3 = PATIENT_ID;SAMPLE_ID;CANCER_TYPE;CANCER_TYPE_DETAILED;ONCOTREE_CODE;SAMPLE_TYPE
+[配置B]
+科室1 = PATIENT_ID;SAMPLE_ID;CANCER_TYPE;
+[配置C]
+科室2 = PATIENT_ID;SAMPLE_ID;CANCER_TYPE;CANCER_TYPE_DETAILED;SAMPLE_TYPE`
+                $('#textarea1').val(str)
+            }
+
+            /*
+            *
+            * */
+            function submit1() {
+                /*array1
+               1: "xxx]\nhgvsc;score;center;codons;refseq;strand\n"
+               2: "yyy]\nbam_file;dbsnp_rs;sequencer;chromosome\n"
+               3: "zzz]\ntumor_validation_allele1;tumor_validation_allele2;variant_classification"
+               */
+                /*
+                * map3
+                * [xxx],["hgvsc", "score", "center", "codons", "refseq", "strand"]
+                * [yyy],["bam_file", "dbsnp_rs", "sequencer", "chromosome"]
+                * [zzz],["tumor_validation_allele1", "tumor_validation_allele2", "variant_classification"]
+                * */
+                var datavalue = $('#textarea1').val()
+                var param = {
+                    v: datavalue
+                }
+                //如果是有[]的情况
+                /*   if (array1.length > 1) {
+                       //去掉第一个元素 “”
+                       array1.shift()
+                       //对“[”两边的元素 去空格
+                       //切割冒号
+                       let res = array1.map(x => x.trim()).map(x => x.split("]")).map(x => x.map(y => y.split(";"))).map(x => x.map(y => y.map(z => z.trim())))
+                       var f2 = res.map(x => {
+                           var json = {
+                               param: x[0][0],
+                               value: x[1]
+                           }
+                           return json
+                       })
+                   } else {
+                       let res = array1.map(x => x.trim()).map(x => x.split(";")).map(x => x.map(y => y.trim()))
+                       var f2 = {
+                           param: "",
+                           value: res[0]
+                       }
+                   }*/
+
+                /* let array1 = data.split("[")
+                 let array2 = array1.map(x => x.trim().split(']'))
+                 array2.shift()
+                 let array3 = array2.map(x => x.map(y => y.trim().split('\n')))
+                 let array4 = array3.map(x => x.map(y => y.map(z => z.trim().split("':'|'：'"))))
+                 let array5 = array4.map(x => x.map(y => y.map(z => z.map(m => m.trim().split("';'|'；'")))))
+                 let res = array5.map(x => {
+                     var js = {
+                         param: x[0][0],
+                         value: x[1]
+                     }
+                     return js
+                 })
+                 console.log(res)
+                 let name = $('#name').val()
+                 var params = {
+                     "data": res,
+                     "name": name
+                 }
+                 let v = JSON.stringify(params)*/
+                $.ajax({
+                    url: "@adminC.routes.DataController.saveSampleKit()",
+                    type: "post",
+                    data: param,
+                    success: function (res) {
+                        if(res.list == undefined){
+                            swal({
+                                title: "",
+                                text: res,
+                                icon: "success",
+                                button: "Aww yiss!",
+                            });
+                        }else{
+                            swal({
+                                title: "",
+                                text: res.list + "在数据库中重名，请修改后再提交！",
+                                icon: "error",
+                                button: "Aww yiss!",
+                            })
+                        }
+
+                    },
+                    error: function (res) {
+                        swal({
+                            title: "",
+                            text: "提交失败,请检查您的格式是否正确",
+                            icon: "error",
+                            button: "Aww yiss!",
+                        });
+                    }
+                })
+            }
+    </script>
+}
+@*
+先按[切割，再按]切割
+
+*@

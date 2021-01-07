@@ -1,10 +1,12 @@
 package utils
 
 import java.io.File
-
 import implicits.Implicits.MyXlxsFile
 import org.apache.commons.io.FileUtils
+import play.api.libs.json.{JsObject, JsValue, Json}
 
+import java.text.SimpleDateFormat
+import java.util.Date
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 import scala.util.parsing.json.JSON
@@ -109,4 +111,46 @@ object Utils {
   }
 
 
+  //处理前端提交的page里的sort（顺序or逆序）
+  def processSort(page: PageData) = {
+    val sortfields = page.sort.getOrElse("id")
+    sortfields
+  }
+
+  //处理前端提交的page里的search字段(没有处理求区间的情况)
+  def processSearch(page: PageData) = {
+    val jsObject = Json.parse(page.search.getOrElse("{\"\":{\"field\":\"\",\"searchType\":\"text\",\"data\":\"\"}}"))
+    val fields = jsObject.as[JsObject].fields.map(x => x._2)
+    val value = fields.map(x => {
+      val result = x \ "field"
+      val str1 = result.as[String]
+      val result2 = x \ "data"
+      val str2 = result2.as[String]
+      (str1, str2)
+    })
+    value
+  }
+
+
+  //  判断searchType 然后返回过滤条件 如果是num 返回(field,(min,max))  如果是text 返回(field,data)
+  def processSection(page: PageData) = {
+    val jsObject = Json.parse(page.search.getOrElse("{\"\":{\"field\":\"\",\"searchType\":\"text\",\"data\":\"\"}}"))
+    val fields = jsObject.as[JsObject].fields.map(x => x._2)
+    val value = fields.map(x => {
+      val searchType = (x \ "searchType").as[String]
+      if (searchType == "num") {
+
+        val field = (x \ "field").as[String]
+        val Jsobject2 = (x \ "data").as[JsValue]
+        val min = (Jsobject2 \ "min").as[String]
+        val max = (Jsobject2 \ "max").as[String]
+        (field, List(min, max))
+      } else {
+        val field = (x \ "field").as[String]
+        val data = (x \ "data").as[String]
+        (field, List(data))
+      }
+    })
+    value
+  }
 }

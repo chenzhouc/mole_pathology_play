@@ -2,7 +2,7 @@ package tool
 
 object parseTool {
   def parseKit(s: String) = {
-    val lines = s.split("\n").toList
+    val lines = s.split("\r\n|\n|\r").toList
     val newLines = lines.foldLeft(List[String]()) { (x, y) =>
       val finalList = if (y.startsWith("[") || y.contains("=")) {
         x ::: List(y)
@@ -51,4 +51,5 @@ object parseTool {
     }
     newMap
   }
+
 }

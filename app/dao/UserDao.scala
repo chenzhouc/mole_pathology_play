@@ -19,6 +19,13 @@ class UserDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) 
     .filter(_.password === user.password).result.headOption)
   }
 
+  def addUser(row: UserRow) = {
+    db.run(User += row)
+  }
 
+  def queryCondition(username: String) = {
+    val q = User.filter(x => x.username === username)
+    db.run(q.result)
+  }
 
 }

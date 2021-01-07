@@ -30,17 +30,20 @@
         <div class="row">
 
             <div class="col-sm-3">
-                <div class="bs-docs-sidebar" role="complementary">
+                @*role="complementary"*@
+                <div class="bs-docs-sidebar" >
+                    @*data-toggle="tab"*@
                     <ul class="nav bs-docs-sidenav">
-                        <li class="active"><a href="#barcode" data-toggle="tab">Tumor_Sample_Barcode搜索</a></li>
-                        <li class=""><a href="#sampleName" data-toggle="tab">Tumor_Sample_Name搜索</a></li>
-                        <li class=""><a href="#refGene" data-toggle="tab">Gene.refGene搜索</a></li>
+                        <li class="active"><a href="@userC.routes.DataController.searchBefore()">Tumor_Sample_Barcode搜索</a></li>
+                        <li class=""><a href="@userC.routes.DataController.searchSampleBefore()">RefGene_Name搜索</a></li>
+                        <li class=""><a href="@userC.routes.DataController.searchPatientBefore()">Patient搜索</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="col-sm-8 tab-content myform" >
 
+                @*id="barcode"*@
                 <div class="tab-pane active" id="barcode">
 
                     <form class="form-horizontal" method="get" id="keywordForm">
@@ -62,49 +65,6 @@
 
                 </div>
 
-                <div class="tab-pane " id="sampleName">
-
-                    <form class="form-horizontal" method="get" id="keywordForm">
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Tumor_Sample_Name:</label>
-                            <div class="col-sm-4">
-                                <input type="text" name="sampleName" id="patient_id" style="width: 100%" class="checkbox form-control refGene"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="actions col-sm-offset-3 col-sm-3">
-                                <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="searchSampleByPatient()">
-                                    搜索</button>
-                            </div>
-                        </div>
-                    </form>
-
-                </div>
-
-                <div class="tab-pane " id="refGene">
-
-                    <form class="form-horizontal" method="get" id="keywordForm">
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Gene.refGene:</label>
-                            <div class="col-sm-4">
-                                @* <select name="refGene" id="GeneName" style="width: 100%"
-                                class="checkbox form-control refGene">
-                                </select>*@
-                                <input type="text" name="refGene" id="GeneName" style="width: 100%" class="checkbox form-control refGene"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="actions col-sm-offset-3 col-sm-3">
-                                <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="SearchByGene()">
-                                    搜索</button>
-                            </div>
-                        </div>
-                    </form>
-
-                </div>
-
-            </div>
-
         </div>
 
         <div class="row" id="hideTable" style="display: none">
@@ -117,14 +77,14 @@
         </div>
 
 
-        <div class="row" id="hideTable2" style="display: none">
+      @*  <div class="row" id="hideTable2" style="display: none">
             <div class="col-md-12 stretch-card">
                 <div class="card">
                     <div class="card-body"></div>
                     <table id="table2" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
                 </div>
             </div>
-        </div>
+        </div>*@
 
         <script>
 
@@ -436,7 +396,7 @@
                 }
 
 
-                function SearchByGene() {
+               /* function SearchByGene() {
                    $("#hugo_symbol-sort-button").click()
                     let d = $("#")
                 }
@@ -451,7 +411,7 @@
 
                         }
                     })
-                }
+                }*/
 
 
         </script>

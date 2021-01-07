@@ -16,7 +16,7 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema: profile.SchemaDescription = Array(Account.schema, Kit.schema, MutationTable.schema, Patient.schema, Sample.schema, User.schema).reduceLeft(_ ++ _)
+  lazy val schema: profile.SchemaDescription = Array(Account.schema, Kit.schema, MutationTable.schema, Patient.schema, PatientKit.schema, Sample.schema, SampleKit.schema, User.schema).reduceLeft(_ ++ _)
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
@@ -127,6 +127,29 @@ trait Tables {
   /** Collection-like TableQuery object for table Patient */
   lazy val Patient = new TableQuery(tag => new Patient(tag))
 
+  /** Entity class storing rows of table PatientKit
+   *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
+   *  @param data Database column data SqlType(jsonb) */
+  case class PatientKitRow(id: Int, data: play.api.libs.json.JsValue)
+  /** GetResult implicit for fetching PatientKitRow objects using plain SQL queries */
+  implicit def GetResultPatientKitRow(implicit e0: GR[Int], e1: GR[play.api.libs.json.JsValue]): GR[PatientKitRow] = GR{
+    prs => import prs._
+    PatientKitRow.tupled((<<[Int], <<[play.api.libs.json.JsValue]))
+  }
+  /** Table description of table patient_kit. Objects of this class serve as prototypes for rows in queries. */
+  class PatientKit(_tableTag: Tag) extends profile.api.Table[PatientKitRow](_tableTag, "patient_kit") {
+    def * = (id, data) <> (PatientKitRow.tupled, PatientKitRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = ((Rep.Some(id), Rep.Some(data))).shaped.<>({r=>import r._; _1.map(_=> PatientKitRow.tupled((_1.get, _2.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(serial), AutoInc, PrimaryKey */
+    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column data SqlType(jsonb) */
+    val data: Rep[play.api.libs.json.JsValue] = column[play.api.libs.json.JsValue]("data")
+  }
+  /** Collection-like TableQuery object for table PatientKit */
+  lazy val PatientKit = new TableQuery(tag => new PatientKit(tag))
+
   /** Entity class storing rows of table Sample
    *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
    *  @param sampleid Database column sampleid SqlType(varchar)
@@ -156,22 +179,47 @@ trait Tables {
   /** Collection-like TableQuery object for table Sample */
   lazy val Sample = new TableQuery(tag => new Sample(tag))
 
+  /** Entity class storing rows of table SampleKit
+   *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
+   *  @param data Database column data SqlType(jsonb) */
+  case class SampleKitRow(id: Int, data: play.api.libs.json.JsValue)
+  /** GetResult implicit for fetching SampleKitRow objects using plain SQL queries */
+  implicit def GetResultSampleKitRow(implicit e0: GR[Int], e1: GR[play.api.libs.json.JsValue]): GR[SampleKitRow] = GR{
+    prs => import prs._
+    SampleKitRow.tupled((<<[Int], <<[play.api.libs.json.JsValue]))
+  }
+  /** Table description of table sample_kit. Objects of this class serve as prototypes for rows in queries. */
+  class SampleKit(_tableTag: Tag) extends profile.api.Table[SampleKitRow](_tableTag, "sample_kit") {
+    def * = (id, data) <> (SampleKitRow.tupled, SampleKitRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = ((Rep.Some(id), Rep.Some(data))).shaped.<>({r=>import r._; _1.map(_=> SampleKitRow.tupled((_1.get, _2.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(serial), AutoInc, PrimaryKey */
+    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column data SqlType(jsonb) */
+    val data: Rep[play.api.libs.json.JsValue] = column[play.api.libs.json.JsValue]("data")
+  }
+  /** Collection-like TableQuery object for table SampleKit */
+  lazy val SampleKit = new TableQuery(tag => new SampleKit(tag))
+
   /** Entity class storing rows of table User
    *  @param id Database column id SqlType(int2), AutoInc, PrimaryKey
    *  @param username Database column username SqlType(varchar), Length(255,true)
    *  @param password Database column password SqlType(varchar), Length(255,true)
-   *  @param `create-time` Database column create-time SqlType(date) */
-  case class UserRow(id: Short, username: String, password: String, `create-time`: java.sql.Date)
+   *  @param `create-time` Database column create-time SqlType(date)
+   *  @param kitvalue Database column kitvalue SqlType(jsonb)
+   *  @param filtervalue Database column filtervalue SqlType(jsonb) */
+  case class UserRow(id: Short, username: String, password: String, `create-time`: java.sql.Date, kitvalue: play.api.libs.json.JsValue, filtervalue: play.api.libs.json.JsValue)
   /** GetResult implicit for fetching UserRow objects using plain SQL queries */
-  implicit def GetResultUserRow(implicit e0: GR[Short], e1: GR[String], e2: GR[java.sql.Date]): GR[UserRow] = GR{
+  implicit def GetResultUserRow(implicit e0: GR[Short], e1: GR[String], e2: GR[java.sql.Date], e3: GR[play.api.libs.json.JsValue]): GR[UserRow] = GR{
     prs => import prs._
-    UserRow.tupled((<<[Short], <<[String], <<[String], <<[java.sql.Date]))
+    UserRow.tupled((<<[Short], <<[String], <<[String], <<[java.sql.Date], <<[play.api.libs.json.JsValue], <<[play.api.libs.json.JsValue]))
   }
   /** Table description of table user. Objects of this class serve as prototypes for rows in queries. */
   class User(_tableTag: Tag) extends profile.api.Table[UserRow](_tableTag, "user") {
-    def * = (id, username, password, `create-time`) <> (UserRow.tupled, UserRow.unapply)
+    def * = (id, username, password, `create-time`, kitvalue, filtervalue) <> (UserRow.tupled, UserRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = ((Rep.Some(id), Rep.Some(username), Rep.Some(password), Rep.Some(`create-time`))).shaped.<>({r=>import r._; _1.map(_=> UserRow.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = ((Rep.Some(id), Rep.Some(username), Rep.Some(password), Rep.Some(`create-time`), Rep.Some(kitvalue), Rep.Some(filtervalue))).shaped.<>({r=>import r._; _1.map(_=> UserRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(int2), AutoInc, PrimaryKey */
     val id: Rep[Short] = column[Short]("id", O.AutoInc, O.PrimaryKey)
@@ -181,6 +229,10 @@ trait Tables {
     val password: Rep[String] = column[String]("password", O.Length(255,varying=true))
     /** Database column create-time SqlType(date) */
     val `create-time`: Rep[java.sql.Date] = column[java.sql.Date]("create-time")
+    /** Database column kitvalue SqlType(jsonb) */
+    val kitvalue: Rep[play.api.libs.json.JsValue] = column[play.api.libs.json.JsValue]("kitvalue")
+    /** Database column filtervalue SqlType(jsonb) */
+    val filtervalue: Rep[play.api.libs.json.JsValue] = column[play.api.libs.json.JsValue]("filtervalue")
   }
   /** Collection-like TableQuery object for table User */
   lazy val User = new TableQuery(tag => new User(tag))

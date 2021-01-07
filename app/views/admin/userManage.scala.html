@@ -1,126 +1,252 @@
 @()(implicit request: play.api.mvc.RequestHeader)
-@admin.main("用户管理") {
-	<div class="container">
-		<div class="row">
-			<div class="form-group col-sm-12">
-				<h2 class="page-heading"
-				style="text-align: left;
-					border-bottom: 5px solid #e9f3f4">
-					用户管理
-				</h2>
-			</div>
-		</div>
+    @admin.main("用户管理") {
+        @* <link rel="stylesheet" href="@routes.Assets.at("/formvalidation/dist/css/formValidation.min.css")"/>
+        <script src="@routes.Assets.at("/formvalidation/dist/js/FormValidation.js")"></script>*@
+        <div class="container">
+            <div class="row">
+                <div class="form-group col-sm-12">
+                    <h2 class="page-heading"
+                    style="text-align: left;
+                        border-bottom: 5px solid #e9f3f4">
+                        用户管理
+                    </h2>
+                </div>
+            </div>
 
-		<div id="toolbar">
-			<button type="button" class="btn btn-primary" id="deleteButton" onclick="UserManage.addShow">
-				<i class="fa fa-plus"></i>&nbsp;新增用户
-			</button>
-		</div>
+            <div id="toolbar">
+                <button type="button" class="btn btn-primary" id="deleteButton" data-toggle="modal" data-target="#addModal" style="margin-bottom: 30px">
+                    <i class="fa fa-plus"></i>&nbsp;新增用户
+                </button>
+                <button type="button" class="btn btn-primary" id="deleteButton" data-toggle="modal" data-target="#updateModal" style="margin-bottom: 30px">
+                    <i class="fa fa-plus"></i>&nbsp;修改用户
+                </button>
+            </div>
 
-		<div class="table-responsive" id="tableContent">
-			<table class="display table table-bordered" id="table" data-pagination="true" data-search="true"
-			data-toolbar="#toolbar" data-page-list="[10, 25, 50, 100, all]" data-multiple-search="true">
-				<thead>
-					<tr>
-						<th data-field="name" data-sortable="true">用户名</th>
-						<th data-field="createTime" data-sortable="true">创建时间</th>
-						<th data-field="operate" data-formatter="UserManage.operateFmt">操作</th>
-					</tr>
-				</thead>
-			</table>
-		</div>
+            <div class="table-responsive" id="tableContent">
+                <table class="display table table-bordered" id="table" data-pagination="true" data-search="true"
+                data-toolbar="#toolbar" data-page-list="[10, 25, 50, 100, all]" data-multiple-search="true">
+                    <thead>
+                        <tr>
+                            <th data-field="name" data-sortable="true">用户名</th>
+                            <th data-field="createTime" data-sortable="true">创建时间</th>
+                            <th data-field="operate" data-formatter="UserManage.operateFmt">操作</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
 
-		<div id="addModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-dialog" style="width: 800px">
-				<div class="modal-content">
-					<div class="modal-header bg-primary">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-						<h4 class="modal-title">
-							<i class="fa fa-plus"></i>
-							<span id="lblAddTitle" style="font-weight: bold">新增用户</span>
-						</h4>
-					</div>
-					<form class="form-horizontal" id="form" action="" data-toggle="validator" enctype="multipart/form-data">
-						<div class="modal-body">
-							<div class="row-fluid">
+            <div id="addModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog" style="width: 800px">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                            <h4 class="modal-title">
+                                <i class="fa fa-plus"></i>
+                                <span id="lblAddTitle" style="font-weight: bold">新增用户</span>
+                            </h4>
+                        </div>
+                        <form class="form-horizontal" id="form" action="" data-toggle="validator" enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <div class="row-fluid">
 
-								<div class="form-group">
-									<label class="control-label col-sm-3">用户名:</label>
-									<div class="col-sm-6">
-										<input class="form-control" name="name"/>
-									</div>
-								</div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-3">用户名:</label>
+                                        <div class="col-sm-6">
+                                            <input class="form-control" name="username1" id="username1"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-3">密码:</label>
+                                        <div class="col-sm-6">
+                                            <input class="form-control" name="password1" id="password1" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-top: -41px;">
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-primary" style="position: relative;
+                                                right: 487px;
+                                                top: 85px;
+                                                background-color: white;
+                                                color: green;" onclick="filldata()">输入示例</button>
+                                        </div>
+                                        <label class="control-label col-sm-3">可以查看的试剂盒:</label>
+                                        <div class="col-sm-6">
+                                            <textarea id="kitarea" name="kit1" class="form-control" rows="3" style="height: 80px"></textarea>
+                                        </div>
+                                    </div>
 
-								<div class="form-group">
-									<label class="control-label col-sm-3">密码:</label>
-									<div class="col-sm-6">
-										<input class="form-control" name="password" />
-									</div>
-								</div>
+                                    <div class="form-group" style="margin-top: -41px;">
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-primary" style="position: relative;
+                                                right: 487px;
+                                                top: 85px;
+                                                background-color: white;
+                                                color: green;" onclick="filldata2()">输入示例</button>
+                                        </div>
+                                        <label class="control-label col-sm-3">配置用户可浏览数据范围:</label>
+                                        <div class="col-sm-6">
+                                            <textarea id="filterarea" name="filterarea1" class="form-control" rows="3" style="height: 400px"></textarea>
+                                        </div>
+                                    </div>
 
-							</div>
-						</div>
-						<div class="modal-footer bg-info">
-							<input type="hidden" id="ID" name="ID" />
-							<button type="button" class="btn blue" onclick="UserManage.add">确定</button>
-							<button type="button" class="btn green" data-dismiss="modal">取消</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-info">
+                                <input type="hidden" id="ID" name="ID" />
+                                <button type="button" class="btn blue" onclick="addUser()">确定</button>
+                                <button type="button" class="btn green" data-dismiss="modal">取消</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-		<div id="updateModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-dialog" style="width: 650px">
-				<div class="modal-content">
-					<div class="modal-header bg-primary">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-						<h4 class="modal-title">
-							<i class="fa fa-repeat"></i>
-							<span id="lblAddTitle" style="font-weight: bold">重置密码</span>
-						</h4>
-					</div>
-					<form class="form-horizontal" id="updateForm" action="" data-toggle="validator">
-						<div class="modal-body">
-							<div class="row-fluid">
+            <div id="updateModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog" style="width: 800px">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                            <h4 class="modal-title">
+                                <i class="fa fa-repeat"></i>
+                                <span id="lblAddTitle" style="font-weight: bold">修改用户数据</span>
+                            </h4>
+                        </div>
+                        <form class="form-horizontal" id="updateForm" action="" data-toggle="validator">
+                            <div class="modal-body">
+                                <div class="row-fluid">
 
-								<div class="form-group">
-									<label class="control-label col-sm-3">用户名:</label>
-									<div class="col-sm-6">
-										<input class="form-control" name="name"  readonly/>
-									</div>
-								</div>
-
-
-								<div class="form-group">
-									<label class="control-label col-sm-3">密码:</label>
-									<div class="col-sm-6">
-										<input class="form-control" name="password" />
-									</div>
-								</div>
-
-							</div>
-						</div>
-						<div class="modal-footer bg-info">
-							<input type="hidden" id="id" name="id" />
-							<button type="button" class="btn blue" onclick="UserManage.update">
-								确定</button>
-							<button type="button" class="btn green" data-dismiss="modal">
-								取消</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-3">用户名:</label>
+                                        <div class="col-sm-6">
+                                            <input class="form-control" name="name"/>
+                                        </div>
+                                    </div>
 
 
-	</div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-3">密码:</label>
+                                        <div class="col-sm-6">
+                                            <input class="form-control" name="password" />
+                                        </div>
+                                    </div>
 
-			<script>
-			$(function () {
-				UserManage.init
-			})
+                                    <div class="form-group">
+                                        @*<div class="form-group">
+                                        <button type="button" class="btn btn-primary" style="position: relative;
+                                        right: 487px;
+                                        top: 85px;
+                                        background-color: white;
+                                        color: green;" onclick="filldata3()">输入示例</button>
+                                        </div>*@
+                                        <label class="control-label col-sm-3">可以查看的试剂盒:</label>
+                                        <div class="col-sm-6">
+                                            <textarea id="kitarea3" name="kit" class="form-control" rows="3" style="height: 80px"></textarea>
+                                        </div>
+                                    </div>
 
-	</script>
+                                    <div class="form-group">
+                                        @*<div class="form-group">
+                                        <button type="button" class="btn btn-primary" style="position: relative;
+                                        right: 487px;
+                                        top: 85px;
+                                        background-color: white;
+                                        color: green;" onclick="filldata4()">输入示例</button>
+                                        </div>*@
+                                        <label class="control-label col-sm-3">配置用户可浏览数据范围:</label>
+                                        <div class="col-sm-6">
+                                            <textarea id="filterarea3" name="filterarea" class="form-control" rows="3" style="height: 400px"></textarea>
+                                        </div>
+                                    </div>
 
-}
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-info">
+                                <input type="hidden" id="id" name="id" />
+                                <button type="button" class="btn blue" onclick="insertUser()">
+                                    确定</button>
+                                <button type="button" class="btn green" data-dismiss="modal">
+                                    取消</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="graph"></div>
+
+
+        </div>
+
+
+        <script>
+                function insertUser() {
+
+                }
+
+                function filldata() {
+                    let str = `试剂盒1,试剂盒2,试剂盒3,试剂盒4,试剂盒5`
+                    $('#kitarea').val(str)
+                }
+
+                function filldata2() {
+                    let str = `[Patient]
+sex=Female
+age=(40,90)
+her2_snp6=NEUTRAL,LOSS,GAIN
+[Sample]
+Sample_type=Primary
+Tumor_Size=(5,Inf）
+[Mutation]
+Start_Position=(5000000,10000000)
+End_Position=(-Inf,10000000)
+Hugo_Symbol=TP53,NT5E,AHNAK`
+                    $('#filterarea').val(str)
+                }
+
+                function filldata3() {
+                    let str = `试剂盒1,试剂盒2,试剂盒3,试剂盒4,试剂盒5`
+                    $('#kitarea3').val(str)
+                }
+
+                function filldata4() {
+                    let str = `[Patient]
+sex=Female
+age=(40,90)
+her2_snp6=NEUTRAL,LOSS,GAIN
+[Sample]
+Sample_type=Primary
+Tumor_Size=(5,Inf）
+[Mutation]
+Start_Position=(5000000,10000000)
+End_Position=(-Inf,10000000)
+Hugo_Symbol=TP53,NT5E,AHNAK`
+                    $('#filterarea3').val(str)
+                }
+
+
+                function addUser() {
+                    let username = $("#username1").val()
+                    let password = $("#password1").val()
+                    let kitarea = $("#kitarea").val()
+                    let filterarea = $("#filterarea").val()
+                    let json = {
+                        "username": username,
+                        "password": password,
+                        "kitarea": kitarea,
+                        "filterarea": filterarea
+                    }
+                    $.ajax({
+                        url: "@routes.AdminController.addUser()",
+                        type: "post",
+                        data: JSON.stringify(json),
+                        contentType: 'application/json;charset=UTF-8',
+                        success(res) {
+                            alert(res)
+                        }
+                    })
+                }
+
+
+        </script>
+
+    }

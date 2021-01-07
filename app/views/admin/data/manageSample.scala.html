@@ -1,0 +1,396 @@
+@()(implicit request: play.api.mvc.RequestHeader)
+@admin.main("数据管理") {
+    <script src="@routes.Assets.at("dist2/bootstrap-advanced-sortable/js/bootstrap-advanced-sortable.js")" type="text/javascript"></script>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("dist2/bootstrap-advanced-sortable/css/bootstrap-advanced-sortable.css")">
+
+
+    <div class="container">
+        <div class="row">
+            <div class="form-group col-sm-12">
+                <h2 class="page-heading"
+                style="text-align: left;
+                    border-bottom: 5px solid #e9f3f4">数据管理</h2>
+            </div>
+        </div>
+
+
+        <div class="container" style="margin-bottom: 55px">
+            <ul class="nav nav-tabs" style="position: relative;
+                top: 25px">
+                <li role="presentation" ><a href="@adminC.routes.DataController.manageBefore()">管理突变信息</a></li>
+                <li role="presentation" class="active"><a href="@adminC.routes.DataController.manageSampleBefore()">
+                    管理样本信息</a></li>
+                <li role="presentation" ><a href="@adminC.routes.DataController.managePatientBefore()">管理病人信息</a></li>
+            </ul>
+        </div>
+
+        <div id="container">
+            <div class="row">
+                <div class="col-md-12 stretch-card">
+                    <div class="card">
+                        <div id="toolbar">
+                            <button type="button" class="btn btn-primary" id="deleteButton" onclick="deleteUserList()" style="margin-bottom: 20px;">
+                                <i class="glyphicon glyphicon-trash"></i>&nbsp;删除选中数据
+                            </button>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" style="margin-bottom: 20px">
+                                请选择试剂盒
+                            </button>
+                        </div>
+                        <table id="table" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel" id="staticBackdrop">
+        <div class="modal-dialog modal-xl  modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="width: 1000px">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">筛选</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: relative;
+                        top: -16px">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="height: auto">
+                    <div class="col-sm-12 row" id="filter">
+                    </div>
+                </div>
+                @*分割线*@
+                <hr style="margin-bottom: 39px">
+                <div class="modal-body" style="height: 460px;
+                    padding: 0px">
+                    <div class="col-sm-12 row" id="showcolumns" style=" margin-top: -21px;
+                        padding-left: 15px;
+                        position: relative;
+                        left: 15px;
+                    ">
+                        @*这里会填充试剂盒的内容*@
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="confirm1()">确认</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+            $(function () {
+                $("#table").bootstrapTable({
+                    method: 'post',
+                    url: "@userC.routes.DataController.getSampleTable()",
+                    sidePagination: "server",
+                    pageNumber: 1,
+                    pageList: [10, 20, 50, 100, 200],
+                    pageSize: 20,
+                    contentType: "application/x-www-form-urlencoded",
+                    columns: [
+                        {
+                            checkbox: true
+                        },
+                        {
+                            field: "patient_id",
+                            title: "Patient_ID",
+                            sortable: true,
+                            searchType: "text"
+                        },
+                        {
+                            field: "sample_id",
+                            title: "Sample_ID",
+                            sortable: true,
+                            searchType: "text"
+                        },
+                        {
+                            field: "cancer_type",
+                            title: "Cancer_Type",
+                            sortable: true,
+                            searchType: "text"
+                        },
+                    ]
+                })
+            })
+
+
+            function deleteUserList() {
+                swal({
+                            title: "",
+                            text: "确定删除？\n",
+                            type: "warning",
+                            showCancelButton: true,
+                            showConfirmButton: true,
+                            confirmButtonClass: "btn-danger",
+                            confirmButtonText: "确定",
+                            closeOnConfirm: false,//设置为false才可以触发双重swal
+                            cancelButtonClass: "btn-outline-danger",
+                            cancelButtonText: "取消"
+                        },
+                        function () {
+                            var index = layer.load(1, {
+                                shade: [0.1, '#fff']
+                            });
+                            var rows = $("#table").bootstrapTable('getSelections')
+                            let ids = '';
+                            for (var i = 0; i < rows.length; i++) {
+                                ids += rows[i]['id'] + ","
+                            }
+                            ids = ids.substring(0, ids.length - 1)
+                            if(ids == ""){
+                                layer.close(index)
+                                swal({
+                                    title: "",
+                                    text: "\n请至少选择一项！\n",
+                                    type: "error",
+                                    confirmButtonText: "确定",
+                                },function (){
+                                    $("#table").bootstrapTable(
+                                            "refresh",
+                                    )
+                                })
+                            }else{
+                                $.ajax({
+                                    url: "@adminC.routes.DataController.deleteSampleTableByIds()",
+                                    type: "post",
+                                    data: ids,
+                                    contentType: "text/plain",
+                                    success: function () {
+                                        /*swal("", "\n删除成功！\n", "success"),
+                                        layer.close(index);
+                                        location.reload()*/
+                                        layer.close(index)
+                                        swal({
+                                            title: "",
+                                            text: "\n删除成功！\n",
+                                            type: "success",
+                                            confirmButtonText: "确定",
+                                        }, function () {
+                                            $("#table").bootstrapTable(
+                                                    "refresh",
+                                                    /*{
+                                                        url: "@userC.routes.DataController.getMutationTable()",
+                                                            columns: columnsforshow
+                                                        }*/
+                                            )
+                                        })
+
+                                    }
+                                });
+                            }
+
+                        });
+            }
+    </script>
+
+    <script>
+            var columnsforshow = []
+
+            function showColumns(value) {
+                let v = value.toString()
+                columnsforshow = []
+                $("#showcolumns").empty()
+                $.ajax({
+                    url: "@userC.routes.DataController.searchSampleKitdata()",
+                    type: "post",
+                    data: v,
+                    contentType: "text/plain; charset=utf-8",
+                    success: function (res) {
+                        /*  {"name":"x1xx",
+                                "config":[
+                                    {"param":"a","value":"hgvsc,score,center,codons,refseq,strand"},
+                                    {"param":"b","value":"hgvsc,score,center,codons,refseq,strand"},
+                                    {"param":"c","value":"hgvsc,score,center,codons,refseq,strand,hgvsc,score,center,codons,refseq,strand,hgvsc,score,center,codons,refseq,strand"}]
+                               }
+                        * */
+                        let data = res.config
+                        for (let i = data.length - 1; i >= 0; i--) {
+                            var elem = res.config[i]
+                            var kitparam = elem.param
+                            var str = elem.value
+                            var kitcolumns = str.split(",")
+                            // 展示param   XXX:
+                            /*  $("#showcolumns").append(`
+
+                                          <div class="checkbox inline">
+                                            <label>
+                                          <input type="checkbox" data-name=${kitparam} name="optionsRadios2" id="optionsRadios2" value="${kitparam}" onclick="selectparams('${kitparam}')"> <b>${kitparam}</b>
+                                           </label>
+                                            </div>
+
+                              `)*/
+                            $("#showcolumns").append(`
+                                 <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="selectAll('${kitparam}')">全选</button>
+                                 <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="antiselectAll('${kitparam}')">全不选</button>
+                                   <b style="font-size: 20px">${kitparam}:</b>
+                            `)
+                            $("#showcolumns").append(`&nbsp;&nbsp;`)
+                            $.each(kitcolumns, (i, v) => {
+                                $("#showcolumns").append(`
+                                  <div class="checkbox inline" style="margin: 10px">
+                               <label style="margin-bottom: 17px">
+                                    <input type="checkbox" target-name=${kitparam}   value="${v}" onclick="addcolumn(this)" > ${kitcolumns[i]}
+                                </label>
+                                  </div>
+                                `)
+                            })
+                            $("#showcolumns").append(`<hr style="width:auto">`)
+                        }
+                    }
+                })
+            }
+
+            function selectAll(kitparam) {
+                /* $("[target-name='" + kitparam + "']").each(function(){
+                         if($(this).is(':checked')){
+                             $(this).prop('checked',false)
+                             columnsforshow.pop($(this).val())
+                         }else{
+                             $(this).prop('checked',true)
+                             columnsforshow.push($(this).val())
+                         }
+
+                 })*/
+                $("[target-name='" + kitparam + "']").each(function () {
+                    $(this).prop('checked', true)
+                    columnsforshow.push(($(this).val()))
+                })
+
+            }
+
+            function antiselectAll(kitparam) {
+                $("[target-name='" + kitparam + "']").each(function () {
+                    $(this).prop('checked', false)
+                    columnsforshow.pop(($(this).val()))
+                })
+            }
+
+            //点击复选框后触发的函数
+            function addcolumn(p) {
+                if ($(p).is(':checked')) {
+                    columnsforshow.push($(p).val())
+                } else {
+                    columnsforshow.pop($(p).val())
+                }
+                console.log(columnsforshow)
+            }
+
+            $(function () {
+                //查询数据库里有哪些试剂盒
+                var kits = []
+                $.ajax({
+                    url: "@userC.routes.DataController.searchSampleKit()",
+                    type: "get",
+                    success: function (res) {
+                        kits = res
+                        const fields = kits
+                        const titles = kits
+                        $.each(fields, (i, v) => {
+                            if (i == 0) {
+                                $("#filter").append(`
+                                  <div class="radio-inline">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')"> ${titles[i]}
+                                </label>
+
+                            </div>
+`)
+                                @* onclick="setColumns('${v}')"*@
+                            } else {
+                                $("#filter").append(`
+                                  <div class="radio-inline">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')" > ${titles[i]}
+                                </label>
+                            </div>
+`)
+                            }
+                        })
+                    }
+                })
+
+                //选择试剂盒 然后发送ajax请求到后台，查到该试剂盒对应的列，以json格式返回，然后bootstraptable重新渲染
+            })
+
+            //  点击试剂盒内部的属性(param) 其属性中的列全部选中，否则全反选
+            function selectparams(v) {
+                // 一个带有value的按钮点击，判断这个value是否checked 是则true，否则false
+                let element = $("[data-name='" + v + "']")
+                if (element.is(":checked")) {
+                    $("[target-name='" + v + "']").prop("checked", true)
+                } else {
+                    $("[target-name='" + v + "']").prop("checked", false)
+                }
+            }
+
+            // 确定要查看的列之后提交
+            function confirm1() {
+                var columns = []
+                $.each(columnsforshow, (i, v) => {
+                    var obj = {
+                        field: v.toLowerCase(),
+                        title: v,
+                        sortable: true,
+                        searchType: "text"
+                    }
+                    columns.push(obj)
+                })
+                columns.unshift({
+                    checkbox: true
+                })
+                let newarr = arrDistinctByProp(columns, 'field')
+                if(newarr.length > 1){
+                    $("#table").bootstrapTable(
+                            "refreshOptions",
+                            {
+                                url: "@userC.routes.DataController.getSampleTable()",
+                                columns: newarr
+                            }
+                    )
+                }else{
+                    $("#table").bootstrapTable(
+                            "refreshOptions",
+                            {
+                                url: "@userC.routes.DataController.getSampleTable()",
+                                columns:  [
+                                    {
+                                        checkbox: true
+                                    },
+                                    {
+                                        field: "patient_id",
+                                        title: "Patient_ID",
+                                        sortable: true,
+                                        searchType: "text"
+                                    },
+                                    {
+                                        field: "sample_id",
+                                        title: "Sample_ID",
+                                        sortable: true,
+                                        searchType: "text"
+                                    },
+                                    {
+                                        field: "cancer_type",
+                                        title: "Cancer_Type",
+                                        sortable: true,
+                                        searchType: "text"
+                                    },
+                                ]
+                            }
+                    )
+                }
+
+            }
+
+            // 封装方法:根据提供的属性去重
+            function arrDistinctByProp(arr, prop) {
+                let obj = {};
+                return arr.reduce(function (preValue, item) {
+                    obj[item[prop]] ? '' : obj[item[prop]] = true && preValue.push(item);
+                    return preValue
+                }, [])
+            }
+
+    </script>
+
+}

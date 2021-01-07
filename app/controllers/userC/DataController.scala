@@ -1,19 +1,17 @@
 package controllers.userC
 
-import dao.{AccountDao, PatientDao, UserDao, mutationDao, kitDao}
-import play.api.libs.json
+import dao.{AccountDao, PatientDao, PatientKitDao, SampleDao, SampleKitDao, UserDao, kitDao, mutationDao}
 
 import javax.inject.Inject
 import play.api.libs.json.{JsObject, JsValue, Json, __}
-import play.api.mvc.Results.Ok
 import play.api.mvc.{AbstractController, ControllerComponents}
-import tool.{FormTool, Tool}
 import utils.TableUtils.{mutationRow, pageForm}
 import utils.{TableUtils, Utils}
-
+import tool.parseTool2._
 import scala.collection.mutable
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
+
 
 
 class DataController @Inject()(cc: ControllerComponents)(
@@ -21,7 +19,10 @@ class DataController @Inject()(cc: ControllerComponents)(
   implicit val accountDao: AccountDao,
   implicit val mutationDao: mutationDao,
   implicit val patientDao: PatientDao,
+  implicit val sampleDao: SampleDao,
   implicit val kitDao: kitDao,
+  implicit val patientKitDao: PatientKitDao,
+  implicit val sampleKitDao: SampleKitDao,
   exec: ExecutionContext
 ) extends AbstractController(cc) {
 
@@ -29,8 +30,24 @@ class DataController @Inject()(cc: ControllerComponents)(
     Ok(views.html.user.data.view())
   }
 
+  def viewSampleBefore = Action { implicit request =>
+    Ok(views.html.user.data.viewSample())
+  }
+
+  def viewPatientBefore = Action { implicit request =>
+    Ok(views.html.user.data.viewPatient())
+  }
+
   def searchBefore = Action { implicit request =>
     Ok(views.html.user.data.search())
+  }
+
+  def searchSampleBefore = Action { implicit request =>
+    Ok(views.html.user.data.searchSample())
+  }
+
+  def searchPatientBefore = Action { implicit request =>
+    Ok(views.html.user.data.searchPatient())
   }
 
   def getMutationData = Action { implicit request =>
@@ -55,14 +72,57 @@ class DataController @Inject()(cc: ControllerComponents)(
     Ok(Json.obj("rows" -> json, "total" -> total))
   }
 
+  //获取数据 填充给表格  需要根据不同的用户，来进行过滤，用户的 浏览、搜索的数据全部来源于此API
+  // admin页面的管理数据 需要重新实现一个getMutationTable方法(没有过滤条件的)
   def getMutationTable = Action.async {
     implicit request =>
+      // 查询过滤条件 param: username 需要获取到当前用户的用户名
+      val username = request.session.get("mole_pathology_user").get
+      val filtervalue = Await.result(userDao.queryCondition(username), Duration.Inf).map(x => x.filtervalue).head
+      // 解析条件
+      val tables = (filtervalue \\ "table").map(x => x.toString().substring(1, x.toString().length - 1))
+      val conditions = filtervalue \\ "condition"
+      val map = tables.zip(conditions).toMap
+      // 规则: 如果冒号后面是 A 或者 A,B,C 的形式 直接按逗号分隔 如果是[A,B] 表示区间 如果是Inf表示无穷大 如果是-Inf表示无穷小
 
+
+      // mutation表的过滤条件
+      val mutation_condition = map.get("Mutation").get.toString()
+
+      //解析过滤条件
+      val conditionlist = parseColumnConditions(mutation_condition)
+      val r = conditionlist.map(x => x.split(":").map(y => y.trim.substring(1, y.length - 1)))
+
+      // 根据用户自带的过滤条件进行查询
       val page = pageForm.bindFromRequest.get
-
-      mutationDao.queryAll(page).map { case (size, x) =>
+      mutationDao.queryAll(page, r).map { case (size, x) =>
         val json = x.map { y =>
           y.data.as[JsObject] ++ Json.obj("sample_id" -> y.sampleBarcode, "id" -> y.id)
+        }
+        Ok(Json.obj("rows" -> json, "total" -> size))
+      }
+
+  }
+
+  //获取病人表
+
+  def getPatientTable = Action.async {
+    implicit request =>
+      val page = pageForm.bindFromRequest.get
+      patientDao.queryAll(page).map { case (size, x) =>
+        val json = x.map { y =>
+          y.data.as[JsObject] ++ Json.obj("patient_id" -> y.patientid, "id" -> y.id)
+        }
+        Ok(Json.obj("rows" -> json, "total" -> size))
+      }
+  }
+
+  def getSampleTable = Action.async {
+    implicit request =>
+      val page = pageForm.bindFromRequest().get
+      sampleDao.queryAll(page).map { case (size, x) =>
+        val json = x.map { y =>
+          y.data.as[JsObject] ++ Json.obj("patient_id" -> y.patientid, "id" -> y.id, "sample_id" -> y.sampleid)
         }
         Ok(Json.obj("rows" -> json, "total" -> size))
       }
@@ -156,13 +216,14 @@ class DataController @Inject()(cc: ControllerComponents)(
         hashMap.put(x, count + 1)
       }
     })
+    //formatted .2f
     val result = hashMap.toList.sortBy(-_._2).take(10).map(x => (x._1, (x._2.toDouble * 100 / total).formatted("%.2f")))
     var others = 0.0
     result.foreach(x => {
       others += x._2.toDouble
     })
     if (others < 0) {
-      others = others.ceil
+      others = 0.00
     } else {
       others = (100 - others).floor
     }
@@ -242,18 +303,18 @@ class DataController @Inject()(cc: ControllerComponents)(
       mutationDao.queryByBarcode(v).map { case (x, size) =>
         val json = x.map(y => y.data.as[JsObject])
         val total = size
-        Ok(Json.obj("rows" -> json,"total" -> total))
+        Ok(Json.obj("rows" -> json, "total" -> total))
       }
   }
 
   //根据病人搜索对应的样本
-  def searchByPatientId() = Action {
-    implicit request =>
-      //获取病人的id
-      val text = request.body.asText.getOrElse("")
-      val res = Await.result(patientDao.querySampleByPatientId(text), Duration.Inf)
-      Ok("hello")
-  }
+  /* def searchByPatientId() = Action {
+     implicit request =>
+       //获取病人的id
+       val text = request.body.asText.getOrElse("")
+       val res = Await.result(patientDao.querySampleByPatientId(text), Duration.Inf)
+       Ok("hello")
+   }*/
 
   def searchByGene() = Action {
     implicit request =>
@@ -276,6 +337,48 @@ class DataController @Inject()(cc: ControllerComponents)(
       val res = Await.result(kitDao.querykitByName(param), Duration.Inf)
       val f = res.head.data
       Ok(Json.toJson(f))
+  }
+
+
+  def searchPatientKit = Action {
+    implicit request =>
+      val res = Await.result(patientKitDao.queryKit(), Duration.Inf)
+      val r = res.map(x => (x.data \ "name").as[JsValue])
+      Ok(Json.toJson(r))
+  }
+
+  def searchPatientKitdata = Action {
+    implicit request =>
+      val param = request.body.asText.getOrElse("")
+      //根据param查询该试剂盒包含哪些列
+      val res = Await.result(patientKitDao.querykitByName(param), Duration.Inf)
+      val f = res.head.data
+      Ok(Json.toJson(f))
+  }
+
+  def searchSampleKit = Action {
+    implicit request =>
+      val res = Await.result(sampleKitDao.queryKit(), Duration.Inf)
+      val r = res.map(x => (x.data \ "name").as[JsValue])
+      Ok(Json.toJson(r))
+  }
+
+  def searchSampleKitdata = Action {
+    implicit request =>
+      val param = request.body.asText.getOrElse("")
+      //根据param查询该试剂盒包含哪些列
+      val res = Await.result(sampleKitDao.querykitByName(param), Duration.Inf)
+      val f = res.head.data
+      Ok(Json.toJson(f))
+  }
+
+  // 查询表头
+  def searchColumnsOfMutationTable = Action{
+    implicit request =>
+      val heads = Await.result(mutationDao.queryHeadOfMutationTable,Duration.Inf)
+      val value = heads.data.as[JsObject].value
+      val list = value.map(x => x._1).toList
+      Ok(Json.obj("head" -> list))
   }
 
 }

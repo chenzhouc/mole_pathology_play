@@ -68,13 +68,13 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
   //
   def queryAll() = db.run(MutationTable.result)
 
-  def queryAll(page: PageData) = {
+  def queryAll(page: PageData, conditions: List[Array[String]]) = {
     //val value = processSearch(page)
     val value = processSection(page)
     val sortfields = processSort(page)
     val order = page.order
     val filterData = if (page.search == None || page.search.get == "{}") MutationTable
-    else
+    else {
       MutationTable.filter { y =>
         val bs = value.map(x => {
           //val rs = y.data +>> (x._1)
@@ -97,6 +97,72 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
         })
         bs.reduce((x, y) => x && y)
       }
+    }
+    val filterData2 = conditions.foldLeft(filterData)((x, y) => {
+      if (y(1).contains("(")) {
+        val start = y(1).substring(1, y(1).length - 1).split(",")(0)
+        val end = y(1).substring(1, y(1).length - 1).split(",")(1)
+        val min = if (start == "-Inf") Long.MinValue else start.toLong
+        val max = if (end == "Inf") Long.MaxValue else end.toLong
+        x.filter(b => {
+          val rs = (b.data +>> y(0).toLowerCase()).asColumnOf[Long]
+          rs > min && rs < max
+        })
+      } else {
+        val value = y(1).split(",")
+        x.filter(a => {
+          val bs = value.map(z => a.data +>> y(0).toLowerCase() === z)
+          bs.reduce((x,y) => x || y)
+        })
+      }
+    })
+    val sortData = if (order == "desc") filterData2.sortBy(x => x.data.+>>(sortfields).desc)
+    else filterData2.sortBy { x =>
+      x.data.+>>(sortfields).asc
+    }
+    /* val xx = filterData.sortBy { x =>
+      x.data.+>>(sortfields).desc
+    }*/
+    val finalData = sortData
+    val countF = finalData.length.result
+    //    val resultF = finalData.drop(page.offset).take(page.limit).result
+    val resultF = finalData.map(_.id).drop(page.offset).take(page.limit).result.flatMap { ids =>
+      finalData.filter(_.id.inSetBind(ids)).result
+    }
+    val f = countF.zip(resultF)
+    db.run(f)
+  }
+
+  def queryAll(page: PageData) = {
+    //val value = processSearch(page)
+    val value = processSection(page)
+    val sortfields = processSort(page)
+    val order = page.order
+    val filterData = if (page.search == None || page.search.get == "{}") MutationTable
+    else {
+      MutationTable.filter { y =>
+        val bs = value.map(x => {
+          //val rs = y.data +>> (x._1)
+          if (x._2.length == 1) {
+            y.data +>> (x._1) === x._2(0)
+          } else {
+            var min: Long = 0
+            var max: Long = 0
+            try {
+              min = x._2(0).toLong
+              max = x._2(1).toLong
+            } catch {
+              case ex: NumberFormatException =>
+                min = Long.MinValue
+                max = Long.MaxValue
+            }
+            val rs = (y.data +>> x._1).asColumnOf[Long]
+            rs > min && rs < max
+          }
+        })
+        bs.reduce((x, y) => x && y)
+      }
+    }
     val sortData = if (order == "desc") filterData.sortBy(x => x.data.+>>(sortfields).desc)
     else filterData.sortBy { x =>
       x.data.+>>(sortfields).asc
@@ -196,20 +262,20 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
   }
 
   //查询交集的数据(表格)
- /* def queryintersectionData(res: Seq[(String, String)], param: String) = {
-    val data = MutationTable.filter {
-      y => {
-        val bs = res.map(x => {
-          y.data +>> x._1 === x._2
-        })
-        bs.reduce((x, y) => x && y)
-      }
-    }
-    val result = data.map {
-      x => x.data +>> param
-    }.result
-    db.run(result)
-  }*/
+  /* def queryintersectionData(res: Seq[(String, String)], param: String) = {
+     val data = MutationTable.filter {
+       y => {
+         val bs = res.map(x => {
+           y.data +>> x._1 === x._2
+         })
+         bs.reduce((x, y) => x && y)
+       }
+     }
+     val result = data.map {
+       x => x.data +>> param
+     }.result
+     db.run(result)
+   }*/
 
   def queryintersectionData(res: Seq[(String, Seq[String])], param: String) = {
     val data = MutationTable.filter {
@@ -238,21 +304,33 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
         bs.reduce((x, y) => x && y)
       }
     }
-    val result  = data.map{
+    val result = data.map {
       x => x.data +>> param
     }.result
     db.run(result)
   }
 
   // 根据sampleid 查询数据
-  def queryByBarcode(barcode:String) = {
+  def queryByBarcode(barcode: String) = {
     val data = MutationTable.filter(x => x.data +>> "tumor_sample_barcode" === barcode)
     val count = data.length.result
     val f = data.result.zip(count)
     db.run(f)
   }
 
-  def queryByGeneName(Gene:String) = {
+  def queryByGeneName(Gene: String) = {
     db.run(MutationTable.filter(x => x.data +>> "hugo_symbol" === Gene).result)
+  }
+
+  //根据id删除mutationtable里的数据
+  def deleteUserById(list: List[String]) = {
+      val newlist = list.map(x => x.toInt)
+      val q = MutationTable.filter(_.id.inSetBind(newlist))
+      val action = q.delete
+      db.run(action)
+  }
+
+  def queryHeadOfMutationTable = {
+    db.run(MutationTable.result.head)
   }
 }

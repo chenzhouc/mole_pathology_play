@@ -33,10 +33,18 @@
 
     </style>
 
+    <div class="container" style="margin-bottom: 55px">
+        <ul class="nav nav-tabs" style="position: relative;
+            top: 25px">
+            <li role="presentation" class="active"><a href="@userC.routes.DataController.viewBefore()">浏览突变信息</a></li>
+            <li role="presentation"><a href="@userC.routes.DataController.viewSampleBefore()">浏览样本信息</a></li>
+            <li role="presentation"><a href="@userC.routes.DataController.viewPatientBefore()">浏览病人信息</a></li>
+        </ul>
+    </div>
 
     <div class="container">
         <div class="row">
-            <div class="form-group col-sm-12">
+            <div class="form-group col-sm-12" style="margin-top: -38px;">
                 <h2 class="page-heading"
                 style="text-align: left;
                     border-bottom: 5px solid #e9f3f4">数据一览</h2>
@@ -130,7 +138,6 @@
         </div>
     </div>
 
-
     <script>
             var datavalue = [
                 {id: 'hugo_symbol', text: 'Hugo_Symbol'},
@@ -180,9 +187,34 @@
                 {id: "hotspot", text: "Hotspot"},
                 {id: "t_alt_count_percentage", text: "t_alt_count_percentage"},
             ]
+
             let count = 0;
+
             let allTotal = 0;
+
+            var columnshead = []
+
+            var initcolumns = []
+
             $(function () {
+                $.ajax({
+                    url: "@userC.routes.DataController.searchColumnsOfMutationTable()",
+                    type: "get",
+                    async: false,
+                    success(res) {
+                        columnshead = res.head
+                        $.each(columnshead, function (i, v) {
+                            var json = {
+                                field: v.toLowerCase(),
+                                title: v.toUpperCase(),
+                                sortable: true,
+                                searchType: "text"
+                            }
+                            initcolumns.push(json)
+                        });
+                    }
+                })
+
                 $("#table").bootstrapTable({
                     method: 'post',
                     url: "@userC.routes.DataController.getMutationTable()",
@@ -194,307 +226,167 @@
                     contentType: "application/x-www-form-urlencoded",
                     advancedSortable: true,
                     onLoadSuccess: function (data) {
-                        /*   if(count ===0){
-                               count ++;
-                               allTotal=data.total;
-                           }
-                         drawing(data.total);*/
                     },
-                    columns: [{
-                        field: "id",
-                        title: "id",
+                    columns: initcolumns
+                })
+
+                //查询数据库里有哪些试剂盒
+                var kits = []
+                $.ajax({
+                    url: "/pathology/data/searchKit",
+                    type: "get",
+                    success: function (res) {
+                        kits = res
+                        const fields = kits
+                        const titles = kits
+                        $.each(fields, (i, v) => {
+                            if (i == 0) {
+                                $("#filter").append(`
+                                  <div class="radio-inline">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')"> ${titles[i]}
+                                </label>
+
+                            </div>
+`)
+                                @* onclick="setColumns('${v}')"*@
+                            } else {
+                                $("#filter").append(`
+                                  <div class="radio-inline">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')" > ${titles[i]}
+                                </label>
+                            </div>
+`)
+                            }
+                        })
+                    }
+                })
+
+                //选择试剂盒 然后发送ajax请求到后台，查到该试剂盒对应的列，以json格式返回，然后bootstraptable重新渲染
+            })
+
+            var columnsforshow = []
+
+            function showColumns(value) {
+                let v = value.toString()
+                columnsforshow = []
+                $("#showcolumns").empty()
+                $.ajax({
+                    url: "/pathology/data/searchKitdata",
+                    type: "post",
+                    data: v,
+                    contentType: "text/plain; charset=utf-8",
+                    success: function (res) {
+                        let data = res.config
+                        for (let i = data.length - 1; i >= 0; i--) {
+                            var elem = res.config[i]
+                            var kitparam = elem.param
+                            var str = elem.value
+                            var kitcolumns = str.split(",")
+                            $("#showcolumns").append(`
+                                 <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="selectAll('${kitparam}')">全选</button>
+                                 <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="antiselectAll('${kitparam}')">全不选</button>
+                                   <b style="font-size: 20px">${kitparam}:</b>
+                            `)
+                            $("#showcolumns").append(`&nbsp;&nbsp;`)
+                            $.each(kitcolumns, (i, v) => {
+                                $("#showcolumns").append(`
+                                  <div class="checkbox inline" style="margin: 10px">
+                                <label>
+                                    <input type="checkbox" target-name=${kitparam}   value="${v}" onclick="addcolumn(this)" > ${kitcolumns[i]}
+                                </label>
+                                  </div>
+                                `)
+                            })
+                            $("#showcolumns").append(`<hr style="width:auto">`)
+                        }
+                    }
+                })
+            }
+
+            function selectAll(kitparam) {
+                $("[target-name='" + kitparam + "']").each(function () {
+                    $(this).prop('checked', true)
+                    columnsforshow.push(($(this).val()))
+                })
+
+            }
+
+            function antiselectAll(kitparam) {
+                $("[target-name='" + kitparam + "']").each(function () {
+                    $(this).prop('checked', false)
+                    columnsforshow.pop(($(this).val()))
+                })
+            }
+
+            //点击复选框后触发的函数
+            function addcolumn(p) {
+                if ($(p).is(':checked')) {
+                    columnsforshow.push($(p).val())
+                } else {
+                    columnsforshow.pop($(p).val())
+                }
+                console.log(columnsforshow)
+            }
+
+            //  点击试剂盒内部的属性(param) 其属性中的列全部选中，否则全反选
+            function selectparams(v) {
+                // 一个带有value的按钮点击，判断这个value是否checked 是则true，否则false
+                let element = $("[data-name='" + v + "']")
+                if (element.is(":checked")) {
+                    $("[target-name='" + v + "']").prop("checked", true)
+                } else {
+                    $("[target-name='" + v + "']").prop("checked", false)
+                }
+            }
+
+            // 确定要查看的列之后提交
+            function confirm1() {
+                var columns = []
+                $.each(columnsforshow, (i, v) => {
+                    var obj = {
+                        field: v.toLowerCase(),
+                        title: v,
                         sortable: true,
                         searchType: "text"
-                    },
-                        {
-                            field: "sample_id",
-                            title: "sample_id",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "hugo_symbol",
-                            title: "Hugo_Symbol",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "entrez_gene_id",
-                            title: "Entrez_Gene_Id",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "center",
-                            title: "Center",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "ncbi_build",
-                            title: "NCBI_Build",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "chromosome",
-                            title: "Chromosome",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "start_position",
-                            title: "Start_Position",
-                            sortable: true,
-                            searchType: "num"
-                        },
-                        {
-                            field: "end_position",
-                            title: "End_Position",
-                            sortable: true,
-                            searchType: "num"
-                        },
-                        {
-                            field: "strand",
-                            title: "Strand",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "consequence",
-                            title: "Consequence",
-                            sortable: true,
-                            searchType: "text"
-                        }, {
-                            field: "variant_classification",
-                            title: "Variant_Classification",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "variant_type",
-                            title: "Variant_Type",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "reference_allele",
-                            title: "Reference_Allele",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "tumor_seq_allele1",
-                            title: "Tumor_Seq_Allele1",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "tumor_seq_allele2",
-                            title: "Tumor_Seq_Allele2",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "dbsnp_rs",
-                            title: "dbSNP_RS",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "dbsnp_val_status",
-                            title: "dbSNP_Val_Status",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "tumor_sample_barcode",
-                            title: "Tumor_Sample_Barcode",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "matched_norm_sample_barcode",
-                            title: "Matched_Norm_Sample_Barcode",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "match_norm_seq_allele1",
-                            title: "Match_Norm_Seq_Allele1",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "match_norm_seq_allele2",
-                            title: "Match_Norm_Seq_Allele2",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "tumor_validation_allele1",
-                            title: "Tumor_Validation_Allele1",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "tumor_validation_allele2",
-                            title: "Tumor_Validation_Allele2",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "match_norm_validation_allele1",
-                            title: "Match_Norm_Validation_Allele1",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "match_norm_validation_allele2",
-                            title: "Match_Norm_Validation_Allele2",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "verification_status",
-                            title: "Verification_Status",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "validation_status",
-                            title: "Validation_Status",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "mutation_status",
-                            title: "Mutation_Status",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "sequencing_phase",
-                            title: "Sequencing_Phase",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "sequence_source",
-                            title: "Sequence_Source",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "validation_method",
-                            title: "Validation_Method",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "score",
-                            title: "Score",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "bam_file",
-                            title: "BAM_File",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "sequencer",
-                            title: "Sequencer",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "t_ref_count",
-                            title: "t_ref_count",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "t_alt_count",
-                            title: "t_alt_count",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "n_ref_count",
-                            title: "n_ref_count",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "n_alt_count",
-                            title: "n_alt_count",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "hgvsc",
-                            title: "HGVSc",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "hgvsp",
-                            title: "HGVSp",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "hgvsp_short",
-                            title: "HGVSp_Short",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "transcript_ID",
-                            title: "Transcript_ID",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "refseq",
-                            title: "RefSeq",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "protein_position",
-                            title: "Protein_position",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "codons",
-                            title: "Codons",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "hotspot",
-                            title: "Hotspot",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "t_alt_count_percentage",
-                            title: "t_alt_count_percentage",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                    ]
+                    }
+                    columns.push(obj)
                 })
-            })
+                let newarr = arrDistinctByProp(columns, 'field')
+                if (newarr.length > 0) {
+                    $("#table").bootstrapTable(
+                            "refreshOptions",
+                            {
+                                url: "@userC.routes.DataController.getMutationTable()",
+                                columns: newarr
+                            }
+                    )
+                } else {
+                    $("#table").bootstrapTable(
+                            "refreshOptions",
+                            {
+                                url: "@userC.routes.DataController.getMutationTable()",
+                                columns: initcolumns
+                            }
+                    )
+                }
+
+            }
+
+            function arrDistinctByProp(arr, prop) {
+                let obj = {};
+                return arr.reduce(function (preValue, item) {
+                    obj[item[prop]] ? '' : obj[item[prop]] = true && preValue.push(item);
+                    return preValue
+                }, [])
+            }
     </script>
 
     <script>
 
             var drawingData = {}
+
             var result = ""
 
             function drawing() {
@@ -550,7 +442,11 @@
                                 name: '列名',
                                 colorByPoint: true,
                                 data: res.linerData
-                            }]
+                            }],
+                            credits: {
+                                enabled: false
+                            },
+
                         });
 
                         // 制表
@@ -640,13 +536,16 @@
                                 name: '列名',
                                 colorByPoint: true,
                                 data: res.Result
-                            }]
+                            }],
+                            credits: {
+                                enabled: false
+                            }
+
                         });
                         makeTable()
                     }
                 })
             }
-
 
             function makeTable() {
                 var param = $("#test2").val()
@@ -690,167 +589,6 @@
                 })
             }
 
-
-    </script>
-
-
-    <script>
-            var columnsforshow = []
-
-            function showColumns(value) {
-                let v = value.toString()
-                columnsforshow = []
-                $("#showcolumns").empty()
-                $.ajax({
-                    url: "/pathology/user/data/searchKitdata",
-                    type: "post",
-                    data: v,
-                    contentType: "text/plain; charset=utf-8",
-                    success: function (res) {
-                        /*  {"name":"x1xx",
-                                "config":[
-                                    {"param":"a","value":"hgvsc,score,center,codons,refseq,strand"},
-                                    {"param":"b","value":"hgvsc,score,center,codons,refseq,strand"},
-                                    {"param":"c","value":"hgvsc,score,center,codons,refseq,strand,hgvsc,score,center,codons,refseq,strand,hgvsc,score,center,codons,refseq,strand"}]
-                               }
-                        * */
-                        let data = res.config
-                        for (let i = data.length - 1; i >= 0; i--) {
-                            var elem = res.config[i]
-                            var kitparam = elem.param
-                            var str = elem.value
-                            var kitcolumns = str.split(",")
-                            // 展示param   XXX:
-                          /*  $("#showcolumns").append(`
-
-                                        <div class="checkbox inline">
-                                          <label>
-                                        <input type="checkbox" data-name=${kitparam} name="optionsRadios2" id="optionsRadios2" value="${kitparam}" onclick="selectparams('${kitparam}')"> <b>${kitparam}</b>
-                                         </label>
-                                          </div>
-
-                            `)*/
-                            $("#showcolumns").append(`
-                                 <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="selectAll('${kitparam}')">全选</button>
-                                 <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="antiselectAll('${kitparam}')">全不选</button>
-                                   <b style="font-size: 20px">${kitparam}:</b>
-                            `)
-                            $("#showcolumns").append(`&nbsp;&nbsp;`)
-                            $.each(kitcolumns, (i, v) => {
-                                $("#showcolumns").append(`
-                                  <div class="checkbox inline" style="margin: 10px">
-                                <label>
-                                    <input type="checkbox" target-name=${kitparam}   value="${v}" onclick="addcolumn(this)" > ${kitcolumns[i]}
-                                </label>
-                                  </div>
-                                `)
-                            })
-                            $("#showcolumns").append(`<hr style="width:auto">`)
-                        }
-                    }
-                })
-            }
-            function selectAll(kitparam){
-                  /* $("[target-name='" + kitparam + "']").each(function(){
-                           if($(this).is(':checked')){
-                               $(this).prop('checked',false)
-                               columnsforshow.pop($(this).val())
-                           }else{
-                               $(this).prop('checked',true)
-                               columnsforshow.push($(this).val())
-                           }
-
-                   })*/
-                $("[target-name='" + kitparam + "']").each(function(){
-                    $(this).prop('checked',true)
-                    columnsforshow.push(($(this).val()))
-                })
-
-            }
-
-            function antiselectAll(kitparam){
-                $("[target-name='" + kitparam + "']").each(function(){
-                    $(this).prop('checked',false)
-                    columnsforshow.pop(($(this).val()))
-                })
-            }
-            //点击复选框后触发的函数
-            function addcolumn(p) {
-                if($(p).is(':checked')){
-                    columnsforshow.push($(p).val())
-                }else{
-                    columnsforshow.pop($(p).val())
-                }
-                console.log(columnsforshow)
-            }
-            $(function () {
-                //查询数据库里有哪些试剂盒
-                var kits = []
-                $.ajax({
-                    url: "/pathology/user/data/searchKit",
-                    type: "get",
-                    success: function (res) {
-                        kits = res
-                        const fields = kits
-                        const titles = kits
-                        $.each(fields, (i, v) => {
-                            if (i == 0) {
-                                $("#filter").append(`
-                                  <div class="radio-inline">
-                                <label>
-                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')"> ${titles[i]}
-                                </label>
-
-                            </div>
-`)
-                                @* onclick="setColumns('${v}')"*@
-                            } else {
-                                $("#filter").append(`
-                                  <div class="radio-inline">
-                                <label>
-                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')" > ${titles[i]}
-                                </label>
-                            </div>
-`)
-                            }
-                        })
-                    }
-                })
-
-                //选择试剂盒 然后发送ajax请求到后台，查到该试剂盒对应的列，以json格式返回，然后bootstraptable重新渲染
-            })
-            //  点击试剂盒内部的属性(param) 其属性中的列全部选中，否则全反选
-            function selectparams(v) {
-                // 一个带有value的按钮点击，判断这个value是否checked 是则true，否则false
-                let element = $("[data-name='" + v + "']")
-                if (element.is(":checked")) {
-                    $("[target-name='" + v + "']").prop("checked", true)
-                }else{
-                    $("[target-name='" + v + "']").prop("checked", false)
-                }
-            }
-
-
-            // 确定要查看的列之后提交
-            function confirm1() {
-                var columns = []
-                $.each(columnsforshow, (i, v) => {
-                    var obj = {
-                        field: v.toLowerCase(),
-                        title: v,
-                        sortable: true,
-                        searchType: "text"
-                    }
-                    columns.push(obj)
-                })
-                $("#table").bootstrapTable(
-                        "refreshOptions",
-                        {
-                            url: "@userC.routes.DataController.getMutationTable()",
-                            columns: columns
-                        }
-                )
-            }
     </script>
 
 }
