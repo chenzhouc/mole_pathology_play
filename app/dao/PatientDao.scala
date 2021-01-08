@@ -77,4 +77,8 @@ class PatientDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
         db.run(action)
   }
 
+  //查询一条数据 提供表头信息
+  def queryHeadOfPatientTable = {
+    db.run(Patient.result.head)
+  }
 }

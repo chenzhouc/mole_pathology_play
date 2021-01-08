@@ -4,7 +4,7 @@ import dao._
 
 import javax.inject.Inject
 import org.joda.time.DateTime
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc._
 import tool.FormTool
 import models.Tables._
@@ -38,7 +38,7 @@ class AdminController @Inject()(cc: ControllerComponents)(
     val data = FormTool.changePasswordForm.bindFromRequest().get
     accountDao.selectById1.flatMap { x =>
       if (data.password == x.password) {
-        val row = AccountRow(x.id,x.adminname,data.newpassword)
+        val row = AccountRow(x.id, x.adminname, data.newpassword)
         accountDao.update(row).map { y =>
           Redirect(routes.AppController.loginBefore()).flashing("info" -> "密码修改成功!").withNewSession
         }
@@ -52,21 +52,24 @@ class AdminController @Inject()(cc: ControllerComponents)(
   def addUser = Action {
     implicit request =>
       val json = request.body.asJson.get
-      val username = (json \ "username").as[JsValue].toString()
-      val password = (json \ "password").as[JsValue].toString()
-      val kitarea = (json \ "kitarea").as[JsValue]
+      var username = (json \ "username").as[JsValue].toString()
+      var password = (json \ "password").as[JsValue].toString()
+      username = username.substring(1, username.length - 1)
+      password = password.substring(1, password.length - 1)
+      val kitarea = (json \ "kitarea").as[String]
       val filterarea = (json \ "filterarea").as[String]
       val d = System.currentTimeMillis()
-      println(kitarea)
+      val kitstr = kitarea.split(",|，")
+      val kitjson = Json.toJson(kitstr)
       val date = new sql.Date(d)
       val parse_result = tool.parseTool.parseKit(filterarea)
       val value = parse_result.map(x => Json.obj("table" -> x._1.substring(1, x._1.length - 1), "condition" -> Json.toJson(x._2)))
       val v = Json.toJson(value)
       val userrow = models.Tables.UserRow(
         0,
-        username = username, password = password, `create-time` = date, kitvalue = kitarea, filtervalue = v
+        username = username, password = password, `create-time` = date, kitvalue = kitjson, filtervalue = v
       )
-      Await.result(userDao.addUser(userrow),Duration.Inf)
+      Await.result(userDao.addUser(userrow), Duration.Inf)
       Ok("success")
   }
 

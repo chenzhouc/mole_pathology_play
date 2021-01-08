@@ -23,9 +23,12 @@ class UserDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) 
     db.run(User += row)
   }
 
+  // 查询当前用户信息
   def queryCondition(username: String) = {
     val q = User.filter(x => x.username === username)
     db.run(q.result)
   }
+
+
 
 }

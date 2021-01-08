@@ -8,10 +8,11 @@ import play.api.mvc.{AbstractController, ControllerComponents}
 import utils.TableUtils.{mutationRow, pageForm}
 import utils.{TableUtils, Utils}
 import tool.parseTool2._
+
 import scala.collection.mutable
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
-
+import scala.util.parsing.json.JSONArray
 
 
 class DataController @Inject()(cc: ControllerComponents)(
@@ -84,7 +85,6 @@ class DataController @Inject()(cc: ControllerComponents)(
       val conditions = filtervalue \\ "condition"
       val map = tables.zip(conditions).toMap
       // 规则: 如果冒号后面是 A 或者 A,B,C 的形式 直接按逗号分隔 如果是[A,B] 表示区间 如果是Inf表示无穷大 如果是-Inf表示无穷小
-
 
       // mutation表的过滤条件
       val mutation_condition = map.get("Mutation").get.toString()
@@ -323,12 +323,24 @@ class DataController @Inject()(cc: ControllerComponents)(
       Ok("hello")
   }
 
+
   def searchKit = Action {
     implicit request =>
+      //获取当前用户的用户名
+      val username = request.session.get("mole_pathology_user").get
+      //查询过滤条件
+      val value = Await.result(userDao.queryCondition(username), Duration.Inf).map(x => x.kitvalue).head
+      val str = Json.stringify(value)
+      val strings = str.substring(1, str.length - 1).split(",|，").map(x => x.trim).map(x => x.substring(1, x.length - 1)).map(x => x.trim).toList
       val res = Await.result(kitDao.queryKit(), Duration.Inf)
-      val r = res.map(x => (x.data \ "name").as[JsValue])
-      Ok(Json.toJson(r))
+      val r = res.map(x => (x.data \ "name").as[String])
+      val set1 = r.toSet
+      val set2 = strings.toSet
+      val finalset = set1 & set2
+      println(finalset)
+      Ok(Json.toJson(finalset))
   }
+
 
   def searchKitdata = Action {
     implicit request =>
@@ -372,15 +384,31 @@ class DataController @Inject()(cc: ControllerComponents)(
       Ok(Json.toJson(f))
   }
 
-  // 查询表头
-  def searchColumnsOfMutationTable = Action{
+  // 查询突变信息表头
+  def searchColumnsOfMutationTable = Action {
     implicit request =>
-      val heads = Await.result(mutationDao.queryHeadOfMutationTable,Duration.Inf)
+      val heads = Await.result(mutationDao.queryHeadOfMutationTable, Duration.Inf)
       val value = heads.data.as[JsObject].value
       val list = value.map(x => x._1).toList
       Ok(Json.obj("head" -> list))
   }
 
+  // 查询病人表的表头
+  def searchColumnsOfPatientTable = Action {
+    implicit request =>
+      val heads = Await.result(patientDao.queryHeadOfPatientTable, Duration.Inf)
+      val value = heads.data.as[JsObject].value
+      val list = value.map(x => x._1).toList
+      Ok(Json.obj("head" -> list))
+  }
+
+  def searchColumnsOfSampleTable = Action {
+    implicit request =>
+      val heads = Await.result(sampleDao.queryHeadOfSample, Duration.Inf)
+      val value = heads.data.as[JsObject].value
+      val list = value.map(x => x._1).toList
+      Ok(Json.obj("head" -> list))
+  }
 }
 
 

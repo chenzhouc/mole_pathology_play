@@ -139,7 +139,9 @@
     </div>
 
     <script>
-            var datavalue = [
+            var datavalue = []
+
+                    /*[
                 {id: 'hugo_symbol', text: 'Hugo_Symbol'},
                 {id: 'entrez_gene_id', text: 'Entrez_Gene_Id'},
                 {id: "center", text: "Center"},
@@ -187,7 +189,7 @@
                 {id: "hotspot", text: "Hotspot"},
                 {id: "t_alt_count_percentage", text: "t_alt_count_percentage"},
             ]
-
+*/
             let count = 0;
 
             let allTotal = 0;
@@ -212,6 +214,14 @@
                             }
                             initcolumns.push(json)
                         });
+
+                        $.each(columnshead,function (i,v) {
+                            var json2 = {
+                                id : v.toLowerCase(),
+                                text: v.toUpperCase()
+                            }
+                            datavalue.push(json2)
+                        })
                     }
                 })
 

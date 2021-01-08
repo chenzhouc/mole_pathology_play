@@ -118,7 +118,30 @@
 
     <script>
 
+        var columnshead = []
+
+        var initcolumns = []
+
             $(function () {
+
+                $.ajax({
+                    url: "@userC.routes.DataController.searchColumnsOfMutationTable()",
+                    type: "get",
+                    async: false,
+                    success(res) {
+                        columnshead = res.head
+                        $.each(columnshead, function (i, v) {
+                            var json = {
+                                field: v.toLowerCase(),
+                                title: v.toUpperCase(),
+                                sortable: true,
+                                searchType: "text"
+                            }
+                            initcolumns.push(json)
+                        });
+                    }
+                })
+
                 //突变信息表的初始化
                 $("#table").bootstrapTable({
                     method: 'post',
@@ -128,283 +151,7 @@
                     pageList: [15],
                     pageSize: 20,
                     contentType: "application/x-www-form-urlencoded",
-                    columns: [
-                        {
-                            field: "tumor_sample_barcode",
-                            title: "Tumor_Sample_Barcode",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "hugo_symbol",
-                            title: "Hugo_Symbol",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "entrez_gene_id",
-                            title: "Entrez_Gene_Id",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "center",
-                            title: "Center",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "ncbi_build",
-                            title: "NCBI_Build",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "chromosome",
-                            title: "Chromosome",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "start_position",
-                            title: "Start_Position",
-                            sortable: true,
-                            searchType: "num"
-                        },
-                        {
-                            field: "end_position",
-                            title: "End_Position",
-                            sortable: true,
-                            searchType: "num"
-                        },
-                        {
-                            field: "strand",
-                            title: "Strand",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "consequence",
-                            title: "Consequence",
-                            sortable: true,
-                            searchType: "text"
-                        }, {
-                            field: "variant_classification",
-                            title: "Variant_Classification",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "variant_type",
-                            title: "Variant_Type",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "reference_allele",
-                            title: "Reference_Allele",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "tumor_seq_allele1",
-                            title: "Tumor_Seq_Allele1",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "tumor_seq_allele2",
-                            title: "Tumor_Seq_Allele2",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "dbsnp_rs",
-                            title: "dbSNP_RS",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "dbsnp_val_status",
-                            title: "dbSNP_Val_Status",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "matched_norm_sample_barcode",
-                            title: "Matched_Norm_Sample_Barcode",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "match_norm_seq_allele1",
-                            title: "Match_Norm_Seq_Allele1",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "match_norm_seq_allele2",
-                            title: "Match_Norm_Seq_Allele2",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "tumor_validation_allele1",
-                            title: "Tumor_Validation_Allele1",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "tumor_validation_allele2",
-                            title: "Tumor_Validation_Allele2",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "match_norm_validation_allele1",
-                            title: "Match_Norm_Validation_Allele1",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "match_norm_validation_allele2",
-                            title: "Match_Norm_Validation_Allele2",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "verification_status",
-                            title: "Verification_Status",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "validation_status",
-                            title: "Validation_Status",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "mutation_status",
-                            title: "Mutation_Status",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "sequencing_phase",
-                            title: "Sequencing_Phase",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "sequence_source",
-                            title: "Sequence_Source",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "validation_method",
-                            title: "Validation_Method",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "score",
-                            title: "Score",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "bam_file",
-                            title: "BAM_File",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "sequencer",
-                            title: "Sequencer",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "t_ref_count",
-                            title: "t_ref_count",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "t_alt_count",
-                            title: "t_alt_count",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "n_ref_count",
-                            title: "n_ref_count",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "n_alt_count",
-                            title: "n_alt_count",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "hgvsc",
-                            title: "HGVSc",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "hgvsp",
-                            title: "HGVSp",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "hgvsp_short",
-                            title: "HGVSp_Short",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "transcript_ID",
-                            title: "Transcript_ID",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "refseq",
-                            title: "RefSeq",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "protein_position",
-                            title: "Protein_position",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "codons",
-                            title: "Codons",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "hotspot",
-                            title: "Hotspot",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "t_alt_count_percentage",
-                            title: "t_alt_count_percentage",
-                            sortable: true,
-                            searchType: "text"
-                        }
-                    ]
+                    columns: initcolumns
                 })
             })
 

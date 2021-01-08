@@ -70,4 +70,9 @@ class SampleDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider
       val action = q.delete
       db.run(action)
   }
+
+  //查询一条数据 提供表头信息
+  def queryHeadOfSample = {
+    db.run(Sample.result.head)
+  }
 }

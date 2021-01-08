@@ -76,7 +76,31 @@
 
         <script>
 
+                var columnshead = []
+
+                var initcolumns = [ ]
+
                 $(function () {
+
+
+                    $.ajax({
+                        url: "@userC.routes.DataController.searchColumnsOfPatientTable()",
+                        type: "get",
+                        async: false,
+                        success(res) {
+                            columnshead = res.head
+                            $.each(columnshead, function (i, v) {
+                                var json = {
+                                    field: v.toLowerCase(),
+                                    title: v.toUpperCase(),
+                                    sortable: true,
+                                    searchType: "text"
+                                }
+                                initcolumns.push(json)
+                            });
+                        }
+                    })
+
                     //突变信息表的初始化
                     $("#table").bootstrapTable({
                         method: 'post',
@@ -86,72 +110,7 @@
                         pageList: [15],
                         pageSize: 20,
                         contentType: "application/x-www-form-urlencoded",
-                        columns: [
-                            {
-                                field: "patient_id",
-                                title: "patient_id",
-                                sortable: true,
-                                searchType: "text"
-                            },
-                            {
-                                field: "npi",
-                                title: "npi",
-                                sortable: true,
-                                searchType: "text"
-                            },
-                            {
-                                field: "sex",
-                                title: "sex",
-                                sortable: true,
-                                searchType: "text"
-                            },
-                            {
-                                field: "cohort",
-                                title: "cohort",
-                                sortable: true,
-                                searchType: "text"
-                            },
-                            {
-                                field: "er_ihc",
-                                title: "er_ihc",
-                                sortable: true,
-                                searchType: "text"
-                            },
-                            {
-                                field: "intclust",
-                                title: "intclust",
-                                sortable: true,
-                                searchType: "text"
-                            },
-                            {
-                                field: "her2_snp6",
-                                title: "her2_snp6",
-                                sortable: true,
-                                searchType: "text"
-                            },
-                            {
-                                field: "os_months",
-                                title: "os_months",
-                                sortable: true,
-                                searchType: "text"
-                            }, {
-                                field: "os_status",
-                                title: "os_status",
-                                sortable: true,
-                                searchType: "text"
-                            }, {
-                                field: "threegene",
-                                title: "threegene",
-                                sortable: true,
-                                searchType: "text"
-                            },
-                            {
-                                field: "laterality",
-                                title: "laterality",
-                                sortable: true,
-                                searchType: "text"
-                            }
-                        ]
+                        columns: initcolumns
                     })
                 })
 
@@ -177,7 +136,6 @@
                     $patient.parent().find(".btn-sort-primary").click()
                     $("#hideTable").show()
                 }
-
 
         </script>
 

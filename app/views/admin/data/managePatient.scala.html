@@ -77,7 +77,32 @@
 
 
     <script>
+
+            var columnshead = []
+
+            var initcolumns = []
+
             $(function () {
+
+
+                $.ajax({
+                    url: "@userC.routes.DataController.searchColumnsOfPatientTable()",
+                    type: "get",
+                    async: false,
+                    success(res) {
+                        columnshead = res.head
+                        $.each(columnshead, function (i, v) {
+                            var json = {
+                                field: v.toLowerCase(),
+                                title: v.toUpperCase(),
+                                sortable: true,
+                                searchType: "text"
+                            }
+                            initcolumns.push(json)
+                        });
+                    }
+                })
+
                 $("#table").bootstrapTable({
                     method: 'post',
                     url: "@userC.routes.DataController.getPatientTable()",
@@ -86,76 +111,43 @@
                     pageList: [10,20,50,100,200],
                     pageSize: 20,
                     contentType: "application/x-www-form-urlencoded",
-                    columns: [
-                        {
-                            checkbox: true
-                        },
-                        {
-                            field: "patient_id",
-                            title: "patient_id",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "npi",
-                            title: "npi",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "sex",
-                            title: "sex",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "cohort",
-                            title: "cohort",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "er_ihc",
-                            title: "er_ihc",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "intclust",
-                            title: "intclust",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "her2_snp6",
-                            title: "her2_snp6",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "os_months",
-                            title: "os_months",
-                            sortable: true,
-                            searchType: "text"
-                        },{
-                            field: "os_status",
-                            title: "os_status",
-                            sortable: true,
-                            searchType: "text"
-                        },{
-                            field: "threegene",
-                            title: "threegene",
-                            sortable: true,
-                            searchType: "text"
-                        },
-                        {
-                            field: "laterality",
-                            title: "laterality",
-                            sortable: true,
-                            searchType: "text"
-                        }
-                    ]
+                    columns: initcolumns
                 })
+
+                //查询数据库里有哪些试剂盒
+                var kits = []
+                $.ajax({
+                    url: "@userC.routes.DataController.searchPatientKit()",
+                    type: "get",
+                    success: function (res) {
+                        kits = res
+                        const fields = kits
+                        const titles = kits
+                        $.each(fields, (i, v) => {
+                            if (i == 0) {
+                                $("#filter").append(`
+                                  <div class="radio-inline">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')"> ${titles[i]}
+                                </label>
+
+                            </div>
+`)
+                                @* onclick="setColumns('${v}')"*@
+                            } else {
+                                $("#filter").append(`
+                                  <div class="radio-inline">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')" > ${titles[i]}
+                                </label>
+                            </div>
+`)
+                            }
+                        })
+                    }
+                })
+
+                //选择试剂盒 然后发送ajax请求到后台，查到该试剂盒对应的列，以json格式返回，然后bootstraptable重新渲染
             })
 
 
@@ -227,6 +219,7 @@
     <script>
             var columnsforshow = []
 
+
             function showColumns(value) {
                 let v = value.toString()
                 columnsforshow = []
@@ -289,43 +282,6 @@
                 console.log(columnsforshow)
             }
 
-            $(function () {
-                //查询数据库里有哪些试剂盒
-                var kits = []
-                $.ajax({
-                    url: "@userC.routes.DataController.searchPatientKit()",
-                    type: "get",
-                    success: function (res) {
-                        kits = res
-                        const fields = kits
-                        const titles = kits
-                        $.each(fields, (i, v) => {
-                            if (i == 0) {
-                                $("#filter").append(`
-                                  <div class="radio-inline">
-                                <label>
-                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')"> ${titles[i]}
-                                </label>
-
-                            </div>
-`)
-                                @* onclick="setColumns('${v}')"*@
-                            } else {
-                                $("#filter").append(`
-                                  <div class="radio-inline">
-                                <label>
-                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')" > ${titles[i]}
-                                </label>
-                            </div>
-`)
-                            }
-                        })
-                    }
-                })
-
-                //选择试剂盒 然后发送ajax请求到后台，查到该试剂盒对应的列，以json格式返回，然后bootstraptable重新渲染
-            })
-
             //  点击试剂盒内部的属性(param) 其属性中的列全部选中，否则全反选
             function selectparams(v) {
                 // 一个带有value的按钮点击，判断这个value是否checked 是则true，否则false
@@ -366,75 +322,7 @@
                             "refreshOptions",
                             {
                                 url: "@userC.routes.DataController.getPatientTable()",
-                                columns: [
-                                    {
-                                        checkbox: true
-                                    },
-                                    {
-                                        field: "patient_id",
-                                        title: "patient_id",
-                                        sortable: true,
-                                        searchType: "text"
-                                    },
-                                    {
-                                        field: "npi",
-                                        title: "npi",
-                                        sortable: true,
-                                        searchType: "text"
-                                    },
-                                    {
-                                        field: "sex",
-                                        title: "sex",
-                                        sortable: true,
-                                        searchType: "text"
-                                    },
-                                    {
-                                        field: "cohort",
-                                        title: "cohort",
-                                        sortable: true,
-                                        searchType: "text"
-                                    },
-                                    {
-                                        field: "er_ihc",
-                                        title: "er_ihc",
-                                        sortable: true,
-                                        searchType: "text"
-                                    },
-                                    {
-                                        field: "intclust",
-                                        title: "intclust",
-                                        sortable: true,
-                                        searchType: "text"
-                                    },
-                                    {
-                                        field: "her2_snp6",
-                                        title: "her2_snp6",
-                                        sortable: true,
-                                        searchType: "text"
-                                    },
-                                    {
-                                        field: "os_months",
-                                        title: "os_months",
-                                        sortable: true,
-                                        searchType: "text"
-                                    },{
-                                        field: "os_status",
-                                        title: "os_status",
-                                        sortable: true,
-                                        searchType: "text"
-                                    },{
-                                        field: "threegene",
-                                        title: "threegene",
-                                        sortable: true,
-                                        searchType: "text"
-                                    },
-                                    {
-                                        field: "laterality",
-                                        title: "laterality",
-                                        sortable: true,
-                                        searchType: "text"
-                                    }
-                                ]
+                                columns: initcolumns
                             }
                     )
                 }
