@@ -81,4 +81,14 @@ class PatientDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   def queryHeadOfPatientTable = {
     db.run(Patient.result.head)
   }
+
+  def insertOrUpdate(rows: Seq[PatientRow]) = {
+    val action = {
+      val patientIds = rows.map(_.patientid)
+      val delete = Patient.filter(_.patientid.inSetBind(patientIds)).delete
+      val insert = Patient ++= rows
+      delete.flatMap(_ => insert)
+    }.transactionally
+    db.run(action).map(_ => ())
+  }
 }

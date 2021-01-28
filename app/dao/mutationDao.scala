@@ -19,8 +19,24 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
   import utils.MyPostgresProfile.api._
 
   //插入表格，导入数据
-  def insertOrUpdates(rows: Seq[MutationTableRow]) = {
+  def insert(rows: Seq[MutationTableRow]) = {
     db.run(MutationTable ++= rows).map(_ => ())
+  }
+
+  def queryMutationDistinct(rows: Seq[MutationTableRow]) = {
+    val sampleIds = rows.map(_.sampleBarcode)
+    val f = MutationTable.filter(_.sampleBarcode.inSetBind(sampleIds)).result
+    db.run(f)
+  }
+
+  def insertOrUpdate(rows: Seq[MutationTableRow]) = {
+    val action = {
+      val sampleIds = rows.map(_.sampleBarcode)
+      val delete = MutationTable.filter(_.sampleBarcode.inSetBind(sampleIds)).delete
+      val insert = MutationTable ++= rows
+      delete.flatMap(_ => insert)
+    }.transactionally
+    db.run(action).map(_ => ())
   }
 
   //处理前端提交的page里的search字段(没有处理求区间的情况)
@@ -112,7 +128,7 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
         val value = y(1).split(",")
         x.filter(a => {
           val bs = value.map(z => a.data +>> y(0).toLowerCase() === z)
-          bs.reduce((x,y) => x || y)
+          bs.reduce((x, y) => x || y)
         })
       }
     })
@@ -324,13 +340,14 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
 
   //根据id删除mutationtable里的数据
   def deleteUserById(list: List[String]) = {
-      val newlist = list.map(x => x.toInt)
-      val q = MutationTable.filter(_.id.inSetBind(newlist))
-      val action = q.delete
-      db.run(action)
+    val newlist = list.map(x => x.toInt)
+    val q = MutationTable.filter(_.id.inSetBind(newlist))
+    val action = q.delete
+    db.run(action)
   }
 
   def queryHeadOfMutationTable = {
     db.run(MutationTable.result.head)
   }
+
 }

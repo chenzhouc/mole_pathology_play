@@ -125,6 +125,39 @@ GET             /pathology/queryHeadsOfMutationTable                     control
 GET             /pathology/queryHeadOfPatientTable                       controllers.userC.DataController.searchColumnsOfPatientTable
 
 GET             /pathology/queryHeadOfSampleTable                        controllers.userC.DataController.searchColumnsOfSampleTable
+
+GET             /pathology/admin/data/searchMutationKit                       controllers.adminC.DataController.searchMutationKit
+
+GET             /pathology/admin/data/searchPatientKit                        controllers.adminC.DataController.searchPatientKit
+
+GET             /pathology/admin/data/searchSampleKit                         controllers.adminC.DataController.searchSampleKit
+
+POST             /pathology/admin/searchAllUsers                             controllers.AdminController.queryAllUsers
+
+GET              /pathology/admin/modifyUsersBefore/:id                controllers.AdminController.modifyUsersBefore(id:Int)
+
+POST             /pathology/admin/deleteUser                                 controllers.AdminController.deleteUser
+
+GET               /pathology/user/searchSelectedColumnsOfUser                controllers.AdminController.searchSelectedColumnsOfUser
+
+GET               /pathology/user/searchSelectedPatientColumnsOfUser         controllers.AdminController.searchSelectedPatientColumnsOfUser
+
+GET                /pathology/user/searchSelectedSampleColumnsOfUser         controllers.AdminController.searchSelectedSampleColumnsOfUser
+
+POST             /pathology/user/data/saveSelectedColumnsOfUser               controllers.userC.DataController.saveSelectedColumnsOfUser
+
+POST             /pathology/user/data/saveSelectedPatientColumnsOfUser               controllers.userC.DataController.saveSelectedPatientColumnsOfUser
+
+POST             /pathology/user/data/saveSelectedSampleColumnsOfUser           controllers.userC.DataController.saveSelectedSampleColumnsOfUser
+
+POST           /pathology/admin/data/addByFileDistinct                          controllers.adminC.DataController.addMutationFileDistinct
+
+POST            /pathology/admin/data/addSampleFileDistinct                     controllers.adminC.DataController.addSampleFileDistinct
+
+POST            /pathology/admin/data/addPatientFileDistinct                    controllers.adminC.DataController.addPatientFileDistinct
+
+POST            /pathology/admin/data/queryUserData                             controllers.AdminController.queryUserData
+
 # Map static resources from the /public folder to the /assets URL path
 GET             /assets/*file                                             controllers.Assets.at(path="/public", file)
 

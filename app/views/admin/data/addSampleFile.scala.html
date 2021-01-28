@@ -56,9 +56,15 @@
             </div>
 
             <div class="row">
-                <div class="form-group col-sm-12">
+                <div class="form-group col-sm-6">
                     <div class="actions">
-                        <input type="button" id="submit" value="更新"
+                        <input type="button" id="submit" value="覆盖数据"
+                        class="btn btn-primary btn-lg" onclick="coverDataFile()" style="width: 100%">
+                    </div>
+                </div>
+                <div class="form-group col-sm-6">
+                    <div class="actions">
+                        <input type="button" id="submit" value="追加数据"
                         class="btn btn-primary btn-lg" onclick="addDataFile()" style="width: 100%">
                     </div>
                 </div>
@@ -69,6 +75,29 @@
                 。</p>
             <p>注2：数据文件，为Excel文件（Excel 2007以上版本），其中，第一行为表头。</p>
             <p>注3：上传的数据，会完全覆盖数据库中已有的数据。</p>
+        </div>
+
+
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            选择上传数据的方式
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        如果有相同的编号的样本，是否要覆盖数据库原有数据？
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" style="width: 55px" data-dismiss="modal" onclick="coverDataFile()" >yes</button>
+                        <button type="button" class="btn btn-primary" style="width: 55px" data-dismiss="modal" onclick="addDataFile()">no</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
         </div>
     </div>
 
@@ -175,5 +204,60 @@
                 removeLabel: "删除文件",
                 language: "zh"
             });
+
+            function chooseScheme(){
+                $('#myModal').modal('show')
+            }
+
+            function coverDataFile() {
+                let date = new Date()
+                time = date.getTime()
+                var form  = $('#form')
+                let bv = form.data('bootstrapValidator')
+
+                var valid = bv.isValid()
+                if (valid) {
+                    let element = "<div id='content'><span id='info'>文件上传中： </span><span id='progress'></span></div>";
+                    let index = layer.msg(element, {
+                        icon: 16
+                        , shade: 0.01,
+                        time: 20000000
+                    });
+                    var formData = document.getElementById("form")
+                    $.ajax({
+                        url: "@adminC.routes.DataController.addSampleFileDistinct()",
+                        type: "post",
+                        processData: false,
+                        contentType: false,
+                        data: new FormData(form[0]),
+                        xhr: function () { //获取ajaxSettings中的xhr对象，为它的upload属性绑定progress事件的处理函数
+                            myXhr = $.ajaxSettings.xhr();
+                            if (myXhr.upload) { //检查upload属性是否存在
+                                //绑定progress事件的回调函数
+                                myXhr.upload.addEventListener('progress', progressHandlingFunction, false)
+                            }
+                            return myXhr; //xhr对象返回给jQuery使用
+                        },
+                        success: function (res) {
+                            layer.close(index)
+                            swal({
+                                title: "",
+                                text: res.message,
+                                icon: "success",
+                                button: "Aww yiss!",
+                            });
+                        },
+                        error: function (res) {
+                            layer.close(index)
+                            swal({
+                                title: "",
+                                text: res.message,
+                                icoin: "error",
+                                button: "Aww yiss"
+                            })
+                        }
+                    })
+                }
+            }
     </script>
 }

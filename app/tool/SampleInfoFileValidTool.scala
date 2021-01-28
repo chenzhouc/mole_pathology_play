@@ -25,9 +25,7 @@ class DataFileValidTool(lines: List[List[String]]) {
   //检验mutation的表头是否一致
   def validHeadersExist = {
     val noExistHeaders = mutationHeaders.diff(headers)
-    println(headers)
     val valid = (noExistHeaders.isEmpty)
-    println(valid)
     Validated.cond(valid, true, s"${fileInfo}表头不存在！！!")
   }
 

@@ -1,5 +1,7 @@
 package tool
 
+import play.api.libs.json.Json
+
 object parseTool {
   def parseKit(s: String) = {
     val lines = s.split("\r\n|\n|\r").toList
@@ -51,5 +53,28 @@ object parseTool {
     }
     newMap
   }
-
+  def parseKitarea(s: String) = {
+    val lines = s.split("\r\n|\n|\r").toList
+    val newLines = lines.foldLeft(List[String]()) { (x, y) =>
+      val finalList = if (y.contains("=")) {
+        x ::: List(y)
+      } else {
+        x.init ::: List(x.last + (y))
+      }
+      finalList
+    }
+    val l1 = newLines.foldLeft(List[String]()) { (x, y) =>
+      x ::: List(y)
+    }
+    val l2 = l1.map(x => {
+      val s1 = x.split('=')
+      val s2 = s1.map(x => x.trim)
+      val s3 = s2.map(x => x.split(';').map(x => x.trim).mkString(","))
+      val list = List(s3(0), s3(1)).mkString(",")
+      list
+    })
+    val l3 = l2.map(x => List(x.split(",").head,x.split(",").tail.mkString(",")))
+    val res = l3.map(x => Json.obj("table" -> x.head,"value" -> x.tail.mkString(",")))
+    Json.toJson(res)
+  }
 }

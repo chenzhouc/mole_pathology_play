@@ -1,6 +1,7 @@
 package controllers.userC
 
 import dao.{AccountDao, PatientDao, PatientKitDao, SampleDao, SampleKitDao, UserDao, kitDao, mutationDao}
+import models.Tables.UserRow
 
 import javax.inject.Inject
 import play.api.libs.json.{JsObject, JsValue, Json, __}
@@ -97,7 +98,7 @@ class DataController @Inject()(cc: ControllerComponents)(
       val page = pageForm.bindFromRequest.get
       mutationDao.queryAll(page, r).map { case (size, x) =>
         val json = x.map { y =>
-          y.data.as[JsObject] ++ Json.obj("sample_id" -> y.sampleBarcode, "id" -> y.id)
+          y.data.as[JsObject] ++ Json.obj("tumor_sample_barcode" -> y.sampleBarcode, "id" -> y.id)
         }
         Ok(Json.obj("rows" -> json, "total" -> size))
       }
@@ -127,6 +128,7 @@ class DataController @Inject()(cc: ControllerComponents)(
         Ok(Json.obj("rows" -> json, "total" -> size))
       }
   }
+
 
   def draw = Action.async {
     implicit request =>
@@ -324,40 +326,82 @@ class DataController @Inject()(cc: ControllerComponents)(
   }
 
 
+  //搜索每个用户绑定的列筛选(3个表)
   def searchKit = Action {
     implicit request =>
       //获取当前用户的用户名
       val username = request.session.get("mole_pathology_user").get
-      //查询过滤条件
+      //查询用户信息里的列筛选信息
       val value = Await.result(userDao.queryCondition(username), Duration.Inf).map(x => x.kitvalue).head
-      val str = Json.stringify(value)
-      val strings = str.substring(1, str.length - 1).split(",|，").map(x => x.trim).map(x => x.substring(1, x.length - 1)).map(x => x.trim).toList
-      val res = Await.result(kitDao.queryKit(), Duration.Inf)
-      val r = res.map(x => (x.data \ "name").as[String])
-      val set1 = r.toSet
-      val set2 = strings.toSet
-      val finalset = set1 & set2
-      println(finalset)
-      Ok(Json.toJson(finalset))
-  }
-
-
-  def searchKitdata = Action {
-    implicit request =>
-      val param = request.body.asText.getOrElse("")
-      //根据param查询该试剂盒包含哪些列
-      val res = Await.result(kitDao.querykitByName(param), Duration.Inf)
-      val f = res.head.data
-      Ok(Json.toJson(f))
+      val tuple = (value \\ "table").zip(value \\ "value")
+      val map = tuple.toMap.map(x => (x._1.as[String], x._2.as[String]))
+      val mutation_value = map("Mutation")
+      //查询到的试剂盒 比较对象A
+      val list_mutation = mutation_value.split(",").toList
+      //查询mutationKit的信息
+      val res_mutation = Await.result(kitDao.queryKit(), Duration.Inf)
+      // 比较
+      val r_mutation = res_mutation.map(x => (x.data \ "name").as[String])
+      val set_mutation = (r_mutation.toSet) & (list_mutation.toSet)
+      Ok(Json.toJson(set_mutation))
   }
 
 
   def searchPatientKit = Action {
     implicit request =>
+      //获取当前用户的用户名
+      val username = request.session.get("mole_pathology_user").get
+      //查询用户信息里的列筛选信息
+      val value = Await.result(userDao.queryCondition(username), Duration.Inf).map(x => x.kitvalue).head
+      val tuple = (value \\ "table").zip(value \\ "value")
+      val map = tuple.toMap.map(x => (x._1.as[String], x._2.as[String]))
+      val patient_value = map("Patient")
+      //查询到的试剂盒 比较对象A
+      val list_patient = patient_value.split(",").toList
+      //查询mutationKit的信息
+      val res_patient = Await.result(patientKitDao.queryKit(), Duration.Inf)
+      // 比较
+      val r_patient = res_patient.map(x => (x.data \ "name").as[String])
+      val set_patient = r_patient.toSet & list_patient.toSet
+      Ok(Json.toJson(set_patient))
+  }
+
+  def searchSampleKit = Action {
+    implicit request =>
+      //获取当前用户的用户名
+      val username = request.session.get("mole_pathology_user").get
+      //查询用户信息里的列筛选信息
+      val value = Await.result(userDao.queryCondition(username), Duration.Inf).map(x => x.kitvalue).head
+      val tuple = (value \\ "table").zip(value \\ "value")
+      val map = tuple.toMap.map(x => (x._1.as[String], x._2.as[String]))
+      val sample_value = map("Sample")
+      //查询到的试剂盒 比较对象A
+      val list_sample = sample_value.split(",").toList
+      //查询mutationKit的信息
+      val res_sample = Await.result(sampleKitDao.queryKit(), Duration.Inf)
+      // 比较
+      val r_sample = res_sample.map(x => (x.data \ "name").as[String])
+      val set_sample = r_sample.toSet & list_sample.toSet
+      Ok(Json.toJson(set_sample))
+  }
+
+  def searchKitdata = Action {
+    implicit request =>
+      val param = request.body.asText.getOrElse("")
+      //根据param查询该试剂盒包含哪些列
+      println(param)
+      val res = Await.result(kitDao.querykitByName(param), Duration.Inf)
+      println(res)
+      val f = res.head.data
+      Ok(Json.toJson(f))
+  }
+
+  /*def searchPatientKit = Action {
+    implicit request =>
       val res = Await.result(patientKitDao.queryKit(), Duration.Inf)
       val r = res.map(x => (x.data \ "name").as[JsValue])
       Ok(Json.toJson(r))
-  }
+  }*/
 
   def searchPatientKitdata = Action {
     implicit request =>
@@ -368,12 +412,12 @@ class DataController @Inject()(cc: ControllerComponents)(
       Ok(Json.toJson(f))
   }
 
-  def searchSampleKit = Action {
+  /*def searchSampleKit = Action {
     implicit request =>
       val res = Await.result(sampleKitDao.queryKit(), Duration.Inf)
       val r = res.map(x => (x.data \ "name").as[JsValue])
       Ok(Json.toJson(r))
-  }
+  }*/
 
   def searchSampleKitdata = Action {
     implicit request =>
@@ -409,6 +453,68 @@ class DataController @Inject()(cc: ControllerComponents)(
       val list = value.map(x => x._1).toList
       Ok(Json.obj("head" -> list))
   }
+
+  def saveSelectedColumnsOfUser = Action {
+    implicit request =>
+      val data = request.body.asJson.get
+      val username = request.session.get("mole_pathology_user").get
+      val userrow = Await.result(userDao.queryCondition(username), Duration.Inf).head
+      val newRow = UserRow(
+        userrow.id,
+        userrow.username,
+        userrow.password,
+        userrow.`create-time`,
+        userrow.kitvalue,
+        userrow.filtervalue,
+        data,
+        userrow.selectPatientColumns,
+        userrow.selectSampleColumns
+      )
+      Await.result(userDao.insertSelectedColumnsOfUser(username, newRow), Duration.Inf)
+      Ok("success")
+  }
+
+  def saveSelectedPatientColumnsOfUser = Action {
+    implicit request =>
+      val data = request.body.asJson.get
+      val username = request.session.get("mole_pathology_user").get
+      val userrow = Await.result(userDao.queryCondition(username), Duration.Inf).head
+      val newRow = UserRow(
+        userrow.id,
+        userrow.username,
+        userrow.password,
+        userrow.`create-time`,
+        userrow.kitvalue,
+        userrow.filtervalue,
+        userrow.selectColumns,
+        data,
+        userrow.selectSampleColumns
+      )
+      Await.result(userDao.insertSelectedPatientColumnsOfUser(username, newRow), Duration.Inf)
+      Ok("success")
+  }
+
+  def saveSelectedSampleColumnsOfUser = Action {
+    implicit request =>
+      val data = request.body.asJson.get
+      val username = request.session.get("mole_pathology_user").get
+      val userrow = Await.result(userDao.queryCondition(username),Duration.Inf).head
+      val newRow = UserRow(
+        userrow.id,
+        userrow.username,
+        userrow.password,
+        userrow.`create-time`,
+        userrow.kitvalue,
+        userrow.filtervalue,
+        userrow.selectColumns,
+        userrow.selectPatientColumns,
+        data
+      )
+      Await.result(userDao.insertSelectedSampleColumnsOfUser(username,newRow),Duration.Inf)
+      Ok("success")
+  }
+
+
 }
 
 

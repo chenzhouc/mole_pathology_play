@@ -24,10 +24,9 @@
 				<div class="form-group">
 					<label class="control-label col-sm-2">病理号:</label>
 					<div class="col-sm-3">
-						<input class="form-control" name="pathologyId"  onblur="SickCase.idBlur">
-						<span class="help-block">示例：<a href="#" onclick="SickCase.showExample(this,'pathologyId')"><em id="egGeneId">
-							M19-0034</em></a></span>
-
+						<input class="form-control" id="pathologyId" name="pathologyId"  onblur="SickCase.idBlur">
+						<span class="help-block">示例：<a href="#" onclick="showId()"><em id="egGeneId">
+							MB-0002</em></a></span>
 					</div>
 
 				</div>
@@ -35,8 +34,8 @@
 				<div class="form-group">
 					<label class="control-label col-sm-2">姓名:</label>
 					<div class="col-sm-3">
-						<input class="form-control" name="name" >
-						<span class="help-block">示例：<a href="#" onclick="SickCase.showExample(this,'name')"><em id="egGeneId">
+						<input id="name" class="form-control" name="name" >
+						<span class="help-block">示例：<a href="#" onclick="showExample()"><em id="egGeneId">
 							张三</em></a></span>
 					</div>
 
@@ -238,11 +237,18 @@
 
 	<script>
 			$(function () {
-				App.selected("sickCase")
-				SickCase.init
+
 
 
 			})
+
+		function showExample(){
+				$("#name").val('张三')
+		}
+
+		function showId(){
+				$("#pathologyId").val('MB-0002')
+		}
 
 	</script>
 

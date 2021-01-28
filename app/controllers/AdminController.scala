@@ -8,9 +8,11 @@ import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc._
 import tool.FormTool
 import models.Tables._
+import utils.TableUtils.pageForm
 
 import java.sql
 import java.util.Date
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
@@ -48,7 +50,6 @@ class AdminController @Inject()(cc: ControllerComponents)(
     }
   }
 
-
   def addUser = Action {
     implicit request =>
       val json = request.body.asJson.get
@@ -59,19 +60,78 @@ class AdminController @Inject()(cc: ControllerComponents)(
       val kitarea = (json \ "kitarea").as[String]
       val filterarea = (json \ "filterarea").as[String]
       val d = System.currentTimeMillis()
-      val kitstr = kitarea.split(",|，")
-      val kitjson = Json.toJson(kitstr)
       val date = new sql.Date(d)
+
+      //解析能查看的试剂盒
+      val arearesult = tool.parseTool.parseKitarea(kitarea)
+
+
       val parse_result = tool.parseTool.parseKit(filterarea)
       val value = parse_result.map(x => Json.obj("table" -> x._1.substring(1, x._1.length - 1), "condition" -> Json.toJson(x._2)))
       val v = Json.toJson(value)
       val userrow = models.Tables.UserRow(
         0,
-        username = username, password = password, `create-time` = date, kitvalue = kitjson, filtervalue = v
+        username = username, password = password, `create-time` = date, kitvalue = arearesult, filtervalue = v, selectColumns = Json.toJson(""),
+        selectPatientColumns = Json.toJson(""), selectSampleColumns = Json.toJson("")
       )
       Await.result(userDao.addUser(userrow), Duration.Inf)
       Ok("success")
   }
 
+  def queryAllUsers = Action {
+    implicit request =>
+      val page = pageForm.bindFromRequest.get
+      val res = Await.result(userDao.queryAllUser(page), Duration.Inf)
+      /*val json = res.map(x => Json.obj("name" ->  x.username,"password" -> x.password,
+        "columns_filter" -> x.kitvalue, "rows_filter" -> x.filtervalue, "createTime" -> x.`create-time`))*/
+      val count = res._1
+      val json = res._2.map(x => Json.obj("name" -> x.username, "password" -> x.password,
+        "columns_filter" -> Json.stringify(x.kitvalue), "rows_filter" -> Json.stringify(x.filtervalue), "createTime" -> x.`create-time`.toLocalDate,
+        "operation" -> "修改  删除", "id" -> x.id))
+      Ok(Json.obj("total" -> count, "rows" -> Json.toJson(json)))
+  }
+
+  def modifyUsersBefore(id: Int) = Action {
+    implicit request =>
+      println(id)
+      Ok(views.html.admin.modifyUser(id = id))
+  }
+
+  def deleteUser = Action.async {
+    implicit request =>
+      val id = request.body.asJson.get.toString().toShort
+      userDao.deleteUserById(id).map(x => Ok("success"))
+  }
+
+  //搜索用户对突变信息表的搜索记录
+  def searchSelectedColumnsOfUser = Action.async {
+    implicit request =>
+      val username = request.session.get("mole_pathology_user").get
+      val res = userDao.querySelectedColumnsOfUser(username)
+      res.map(x => Ok(Json.toJson(x)))
+  }
+
+  //搜索用户对病人表的搜索记录
+  def searchSelectedPatientColumnsOfUser = Action.async {
+    implicit request =>
+      val username = request.session.get("mole_pathology_user").get
+      val res = userDao.querySelectedPatientColumnsOfUser(username)
+      res.map(x => Ok(Json.toJson(x)))
+  }
+
+  def searchSelectedSampleColumnsOfUser = Action.async {
+    implicit request =>
+      val username = request.session.get("mole_pathology_user").get
+      val res = userDao.querySelectedSampleColumnsOfUser(username)
+      res.map(x => Ok(Json.toJson(x)))
+  }
+
+  //搜索用户数据
+  def queryUserData = Action.async {
+    implicit request =>
+      val value = request.body.asJson.get
+      val id = value.toString().toShort
+      userDao.queryUserById(id).map(x => Ok(Json.obj("username" -> x.username, "password" -> x.password, "kitvalue" -> x.kitvalue, "filtervalue" -> x.filtervalue)))
+  }
 
 }

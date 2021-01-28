@@ -75,4 +75,14 @@ class SampleDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider
   def queryHeadOfSample = {
     db.run(Sample.result.head)
   }
+
+  def insertOrUpdate(rows:Seq[SampleRow]) = {
+    val action = {
+      val sampleIds = rows.map(_.sampleid)
+      val delete = Sample.filter(_.sampleid.inSetBind(sampleIds)).delete
+      val insert = Sample ++= rows
+      delete.flatMap(_ => insert)
+    }.transactionally
+    db.run(action)
+  }
 }

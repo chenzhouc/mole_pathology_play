@@ -1,10 +1,13 @@
 package implicits
 
 import java.io.File
-
 import com.github.tototoshi.csv._
 import implicits.Implicits._
 import org.apache.commons.lang3.StringUtils
+
+import scala.::
+import scala.collection.immutable.SeqMap
+import scala.collection.mutable
 
 /**
  * Created by Administrator on 2019/9/12
@@ -49,9 +52,12 @@ trait CSVTool {
 
     def lineMapNoLower = {
       val headers = lines.head.toLowerCase
-      lines.drop(1).map { tmpColumns =>
-        headers.map(x => x).zip(tmpColumns).toMap
+       lines.drop(1).map { tmpColumns =>
+        val t = headers.map(x => x).zip(tmpColumns)
+        val x = SeqMap.from(t)
+         x
       }
+
     }
 
     def selectOneColumn(columnName: String) = {

@@ -1,0 +1,84 @@
+@(id: Int)(implicit request: play.api.mvc.RequestHeader)
+    @admin.main("用户管理") {
+        <div class="container">
+            <div class="row">
+                <div class="form-group col-sm-12">
+                    <h2 class="page-heading"
+                    style="text-align: left;
+                        border-bottom: 5px solid #e9f3f4">用户修改</h2>
+                </div>
+            </div>
+            <form class="form-horizontal" id="updateForm" action="" data-toggle="validator">
+                <div class="container">
+                    <div class="row-fluid">
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-3">用户名:</label>
+                            <div class="col-sm-6">
+                                <input class="form-control" name="name" id="username"/>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-3">密码:</label>
+                            <div class="col-sm-6">
+                                <input class="form-control" name="password" id="password" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @*<div class="form-group">
+                            <button type="button" class="btn btn-primary" style="position: relative;
+                            right: 487px;
+                            top: 85px;
+                            background-color: white;
+                            color: green;" onclick="filldata3()">输入示例</button>
+                            </div>*@
+                            <label class="control-label col-sm-3">可以查看的试剂盒:</label>
+                            <div class="col-sm-6">
+                                <textarea id="kitarea3" name="kit" class="form-control" rows="3" style="height: 200px"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @*<div class="form-group">
+                            <button type="button" class="btn btn-primary" style="position: relative;
+                            right: 487px;
+                            top: 85px;
+                            background-color: white;
+                            color: green;" onclick="filldata4()">输入示例</button>
+                            </div>*@
+                            <label class="control-label col-sm-3">配置用户可浏览数据范围:</label>
+                            <div class="col-sm-6">
+                                <textarea id="filterarea3" name="filterarea" class="form-control" rows="3" style="height: 400px"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="insertUser()" style="position: relative; left: 837px">确定</button>
+            </form>
+        </div>
+
+        <script>
+                $(function(){
+                    let value = @id
+                    $.ajax({
+                        url: "@routes.AdminController.queryUserData()",
+                        type: "post",
+                        data: JSON.stringify(value),
+                        contentType: 'application/json;charset=UTF-8',
+                        success(res){
+                            $("#username").val(res.username)
+                            $("#password").val(res.password)
+                            for (let i = 0; i < res.kitvalue.length; i++) {
+                                console.log(res.kitvalue[i].table)
+                                console.log(res.kitvalue[i].value)
+                            }
+                        }
+                    })
+
+                });
+        </script>
+    }

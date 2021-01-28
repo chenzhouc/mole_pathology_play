@@ -1,69 +1,69 @@
 @()(implicit request: play.api.mvc.RequestHeader)
-    @main("搜索") {
+@main("搜索") {
 
-        <script src="@routes.Assets.at("dist2/bootstrap-advanced-sortable/js/bootstrap-advanced-sortable.js")" type="text/javascript"></script>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("dist2/bootstrap-advanced-sortable/css/bootstrap-advanced-sortable.css")">
+    <script src="@routes.Assets.at("dist2/bootstrap-advanced-sortable/js/bootstrap-advanced-sortable.js")" type="text/javascript"></script>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("dist2/bootstrap-advanced-sortable/css/bootstrap-advanced-sortable.css")">
 
-        <style>
+    <style>
 
-                .radio, .checkbox {
-                    position: relative;
-                    display: block;
-                    margin-top: 5px;
-                    margin-bottom: 10px;
-                }
+            .radio, .checkbox {
+                position: relative;
+                display: block;
+                margin-top: 5px;
+                margin-bottom: 10px;
+            }
 
-                .form-group {
-                    margin-top: 20px;
-                }
+            .form-group {
+                margin-top: 20px;
+            }
 
-        </style>
+    </style>
 
-        <div class="row">
-            <div class="form-group col-sm-12">
-                <h2 class="page-heading"
-                style="text-align: left;
-                    border-bottom: 5px solid #e9f3f4">搜索</h2>
+    <div class="row">
+        <div class="form-group col-sm-12">
+            <h2 class="page-heading"
+            style="text-align: left;
+                border-bottom: 5px solid #e9f3f4">搜索</h2>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-3">
+            @*role="complementary"*@
+            <div class="bs-docs-sidebar" >
+                @*data-toggle="tab"*@
+                <ul class="nav bs-docs-sidenav">
+                    <li class="active"><a href="@userC.routes.DataController.searchBefore()">Tumor_Sample_Barcode搜索</a></li>
+                    <li class=""><a href="@userC.routes.DataController.searchSampleBefore()">RefGene_Name搜索</a></li>
+                    <li class=""><a href="@userC.routes.DataController.searchPatientBefore()">Patient搜索</a></li>
+                </ul>
             </div>
         </div>
 
-        <div class="row">
+        <div class="col-sm-8 tab-content myform" >
 
-            <div class="col-sm-3">
-                @*role="complementary"*@
-                <div class="bs-docs-sidebar" >
-                    @*data-toggle="tab"*@
-                    <ul class="nav bs-docs-sidenav">
-                        <li class="active"><a href="@userC.routes.DataController.searchBefore()">Tumor_Sample_Barcode搜索</a></li>
-                        <li class=""><a href="@userC.routes.DataController.searchSampleBefore()">RefGene_Name搜索</a></li>
-                        <li class=""><a href="@userC.routes.DataController.searchPatientBefore()">Patient搜索</a></li>
-                    </ul>
-                </div>
+            @*id="barcode"*@
+            <div class="tab-pane active" id="barcode">
+
+                <form class="form-horizontal" method="get" id="keywordForm">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">Tumor_Sample_Barcode:</label>
+                        <div class="col-sm-4">
+                            @* <select name="barcode" id="sampleids" style="" class="checkbox form-control refGene">
+                            </select>*@
+                            <input type="text" name="barcode" id="sampleids" class="checkbox form-control refGene"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="actions col-sm-offset-3 col-sm-3">
+                            <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="searchBarcode()">
+                                搜索</button>
+                        </div>
+                    </div>
+                </form>
+
             </div>
-
-            <div class="col-sm-8 tab-content myform" >
-
-                @*id="barcode"*@
-                <div class="tab-pane active" id="barcode">
-
-                    <form class="form-horizontal" method="get" id="keywordForm">
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Tumor_Sample_Barcode:</label>
-                            <div class="col-sm-4">
-                                @* <select name="barcode" id="sampleids" style="" class="checkbox form-control refGene">
-                                </select>*@
-                                <input type="text" name="barcode" id="sampleids" class="checkbox form-control refGene"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="actions col-sm-offset-3 col-sm-3">
-                                <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="searchBarcode()">
-                                    搜索</button>
-                            </div>
-                        </div>
-                    </form>
-
-                </div>
 
         </div>
 
@@ -77,13 +77,13 @@
         </div>
 
 
-      @*  <div class="row" id="hideTable2" style="display: none">
-            <div class="col-md-12 stretch-card">
-                <div class="card">
-                    <div class="card-body"></div>
-                    <table id="table2" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
-                </div>
-            </div>
+        @*  <div class="row" id="hideTable2" style="display: none">
+        <div class="col-md-12 stretch-card">
+        <div class="card">
+        <div class="card-body"></div>
+        <table id="table2" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
+        </div>
+        </div>
         </div>*@
 
         <script>
@@ -140,25 +140,25 @@
                 }
 
 
-               /* function SearchByGene() {
-                   $("#hugo_symbol-sort-button").click()
-                    let d = $("#")
-                }
+                /* function SearchByGene() {
+                    $("#hugo_symbol-sort-button").click()
+                     let d = $("#")
+                 }
 
-                function searchSampleByPatient() {
-                    let d = $('#patient_id').val()
-                    $.ajax({
-                        url: "/pathology/user/data/searchByPatient",
-                        type: "post",
-                        contentType: "text/plain; charset=utf-8",
-                        success: function (res) {
+                 function searchSampleByPatient() {
+                     let d = $('#patient_id').val()
+                     $.ajax({
+                         url: "/pathology/user/data/searchByPatient",
+                         type: "post",
+                         contentType: "text/plain; charset=utf-8",
+                         success: function (res) {
 
-                        }
-                    })
-                }*/
+                         }
+                     })
+                 }*/
 
 
         </script>
 
 
-    }
+}
