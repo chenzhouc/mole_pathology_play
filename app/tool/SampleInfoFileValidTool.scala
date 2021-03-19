@@ -14,6 +14,7 @@ class DataFileValidTool(lines: List[List[String]]) {
   val mutationHeaders = VarTool.dataHeaders
   val patientHeaders = VarTool.patientHeaders
   val sampleHeaders = VarTool.sampleHeaders
+  val mutationNoNgsHeaders = VarTool.MutationNoNGSHeaders
 
   def validHeadersRepeat = {
     val repeatHeaders = headers.diff(headers.distinct)
@@ -26,21 +27,27 @@ class DataFileValidTool(lines: List[List[String]]) {
   def validHeadersExist = {
     val noExistHeaders = mutationHeaders.diff(headers)
     val valid = (noExistHeaders.isEmpty)
-    Validated.cond(valid, true, s"${fileInfo}表头不存在！！!")
+    Validated.cond(valid, true, s"${fileInfo}表头不存在!!!")
+  }
+
+  def validNoNGSHeadersExist = {
+    val noExistHeadersNoNGS = mutationNoNgsHeaders.diff(headers)
+    val valid = (noExistHeadersNoNGS.isEmpty)
+    Validated.cond(valid,true,s"${fileInfo}表头不存在!!!")
   }
 
   //检验病人信息表的表头和数据是否一致
   def validPatientHeadersExist = {
     val noPatient = patientHeaders.diff(headers)
     val valid = (noPatient).isEmpty
-    Validated.cond(valid,true,s"${fileInfo}表头不存在！！！")
+    Validated.cond(valid,true,s"${fileInfo}表头不存在!!!")
   }
 
   //检验样本信息表的表头和数据是否一致
   def validSampleHeadersExist = {
     val noSample = sampleHeaders.diff(headers)
     val valid = (noSample).isEmpty
-    Validated.cond(valid,true,s"${fileInfo}表头不存在")
+    Validated.cond(valid,true,s"${fileInfo}表头不存在!!!")
   }
 
 
@@ -68,6 +75,19 @@ object DataFileValidTool {
     import fileValidTool._
     validHeadersRepeat.andThen { b =>
       validHeadersExist
+    }.andThen { b =>
+      //检验 一行列的数量和表头的数量是否一致
+      validColumnNum
+    }.leftMap { x =>
+      s"数据文件格式有误!\n${x}"
+    }
+  }
+
+  def validNoNGS(lines: List[List[String]]) = {
+    val fileValidTool = new DataFileValidTool(lines)
+    import fileValidTool._
+    validHeadersRepeat.andThen { b =>
+      validNoNGSHeadersExist
     }.andThen { b =>
       //检验 一行列的数量和表头的数量是否一致
       validColumnNum

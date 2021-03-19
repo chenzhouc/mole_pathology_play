@@ -257,7 +257,7 @@ Utilities
 }
 
 .inline {
-    display: inline;
+    display: inline-block;
 }
 
 .inline-block {
@@ -1031,7 +1031,7 @@ Dropdown Menu Badges
 /***
 Customized Bootstrap Buttons
 ***/
-/* Default buttons */
+/* Default mybody */
 .btn {
     border-width: 0;
     padding: 7px 14px;
@@ -1066,7 +1066,7 @@ Customized Bootstrap Buttons
     padding-right: 0;
 }
 
-/* Bootstrap buttons */
+/* Bootstrap mybody */
 .btn-default {
     color: #333333;
     background-color: white;
@@ -2034,7 +2034,7 @@ Form Layouts
     padding-left: 0;
 }
 
-/* Radio buttons */
+/* Radio mybody */
 .radio-list > label {
     display: block;
 }
@@ -2045,7 +2045,7 @@ Form Layouts
     padding-left: 0;
 }
 
-/* Radio buttons in horizontal forms */
+/* Radio mybody in horizontal forms */
 .form-horizontal .radio-list .radio {
     padding-top: 1px;
 }
@@ -2411,7 +2411,7 @@ label {
 }
 
 /***
-Custom icon buttons
+Custom icon mybody
 ***/
 .icon-btn {
     height: 60px;

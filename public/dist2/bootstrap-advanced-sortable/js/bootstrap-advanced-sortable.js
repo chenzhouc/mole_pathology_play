@@ -162,7 +162,6 @@
             }
 
 
-
             data = calculateObjectValue(this.options, this.options.queryParams, [params], data);
 
 
@@ -456,6 +455,7 @@
                         let height = $(this).height() + 5;
                         let search = that.searchText !== undefined ? JSON.parse(that.searchText) : {};
                         let _searchText = search[field] !== undefined ? search[field].data : "";
+
                         let searchT = _searchType[field];
                         let buttonHtml = `<button type="button" class="btn-sort btn-sort-danger"><font size="2">取消</font></button>
                                           <button type="button" class="btn-sort btn-sort-primary"><font size="2">搜索</font></button>`;
@@ -544,17 +544,53 @@
                                                         })*/
 
                         } else if (searchT === "text") {
+                            /* <div className="sort-model" style="margin-top: ${height}px;">
+                                 <form>
+                                     ${sortHtml}
+                                     <div className="my-multiple-search">
+                                         <input type="text" className="sort-input" id="${field}-search"
+                                                autoComplete="off" style="font-size: 16px">
+                                             ${buttonHtml}
+                                      </div>
+                                 </form>
+                             </div>*/
+                            //选项一
+                            /*  <input type="text" className="sort-input" id="${field}-search" autoComplete="off"
+                                     style="font-size: 10px;margin-top: 10px;height: 30px" placeholder="请输入您要输入的部分内容">*/
+                            //选项二
                             let html = `<div class="sort-model" style="margin-top: ${height}px;">
                                     <form>
                                          ${sortHtml}
                                         <div class="my-multiple-search">
-                                            <input type="text" class="sort-input" id="${field}-search" autoComplete="off" style="font-size: 16px">
+                                            <b style="font-size: 10px">文本搜索</b>
+                                            <br>
+                                            <select class="basic1" id="select1" name="textType" style="width: 100%;" onchange="changeSearch(this)">
+                                            <option value="fuzzy">模糊搜索</option>
+                                            <option value="exact">精确搜索</option>
+                                            </select>
+                                            <br>
+                                            <div class="section1">
+                                             <input type="text" className="sort-input" id="${field}-search-1"  placeholder="请输入您要搜索的部分内容" class="section1Input"
+                                                autoComplete="off" style="font-size: 16px;width: 100%;margin-top: 10px;height:28px">
+</div>
+                                            <div class="section2" style="display: none">
+                                         <textarea rows="30" cols="30" className="sort-input" id="${field}-search-2"  placeholder="用英文','分开，举例如下:\n例1:\nGeneID1\nGeneID2\nGeneID3\n例2:\nGeneID1,GeneID2,GeneID3"
+                                           class="section2Input"  autoComplete="off" style="font-size: 16px;width: 100%;margin-top: 10px;height:170px"></textarea>   
+</div>
                                             ${buttonHtml}
                                         </div>
                                     </form>
                                 </div>`
                             sort_box.append(html);
-                            $("#" + field + "-search").val(_searchText);
+                            $('.basic1').select2({
+                                minimumResultsForSearch: -1
+                            })
+
+                            let fuzzy = _searchText !== "" ? _searchText["fuzzy"] : "";
+                            let exact = _searchText !== "" ? _searchText["exact"] : "";
+
+                            $("#" + field + "-search-1").val(fuzzy);
+                            $("#" + field + "-search-2").val(exact);
                         } else {
                             let html = `<div class="sort-model" style="margin-top: ${height}px;">
                                     <form>
@@ -642,7 +678,13 @@
                 }
 
                 if (searchType === undefined || searchType === "radio" || searchType === "checkbox" || searchType === "text") {
-                    value["data"] = $("#" + field + "-search").val()
+                    //  读取如果是exact 发送exact:"" 如果是fuzzy 发送fuzzy:""
+                    // 确定是精准还是模糊 如果是选择了精确搜索 把模糊搜索的内容给删掉 反之删精确的
+                    //
+                    value["data"] = {
+                          fuzzy : $("#" + field + "-search-1").val(),
+                        exact: $("#" + field + "-search-2").val()
+                    }
                 } else if (searchType === "date" || searchType === "num") {
                     value["data"] = {
                         min: $("#" + field + "-search-min").val(),
@@ -662,7 +704,14 @@
                         let min = js.min;
                         position = "Min : " + min + ",Max : " + max
                     } else {
-                        position = json["data"];
+                        let js = json["data"]
+                        let exact = js.exact
+                        let fuzzy = js.fuzzy
+                        if(exact == ""){
+                            position = fuzzy
+                        }else{
+                            position = exact
+                        }
                     }
 
                     let btn = `<buuton class="btn-sort btn-remove-search btn-sort-position" value="${f}" style="font-size: 13px">${title} : ${position}   ${closeIcon}</buuton>`
@@ -742,3 +791,17 @@
     };
 
 })(jQuery);
+
+function changeSearch(obj) {
+    var clazz = $(obj).parent(".my-multiple-search")
+    //console.log($(obj).val())
+    if ($(obj).val() === "fuzzy") {
+        clazz.find(".section1").show()
+        clazz.find(".section2").hide()
+        clazz.find(".section2Input").val("")
+    } else {
+        clazz.find(".section1").hide()
+        clazz.find(".section2").show()
+        clazz.find(".section1Input").val("")
+    }
+}

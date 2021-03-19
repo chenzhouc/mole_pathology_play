@@ -21,6 +21,8 @@ POST          /pathology/admin/changePassword                           controll
 
 GET           /pathology/admin/data/addByFileBefore                     controllers.adminC.DataController.addByFileBefore
 
+GET           /pathology/admin/data/addByFileNoNGSBefore                      controllers.adminC.DataController.addByFileNoNGSBefore
+
 GET           /pathology/admin/data/manageBefore                        controllers.adminC.DataController.manageBefore
 
 GET           /pathology/admin/data/addByKitBefore                      controllers.adminC.DataController.addKitBefore
@@ -29,11 +31,15 @@ GET           /pathology/admin/data/addPatientKitBefore                 controll
 
 GET           /pathology/admin/data/addSampleKitBefore                  controllers.adminC.DataController.addSampleKitBefore
 
+GET           /pathology/admin/data/addMutationNoNGSKitBefore           controllers.adminC.DataController.addMutationNoNGSKitBefore
+
 POST           /pathology/admin/data/saveKit                            controllers.adminC.DataController.saveKit
 
 POST           /pathology/admin/data/saveSampleKit                      controllers.adminC.DataController.saveSampleKit
 
 POST           /pathology/admin/data/savePatientKit                     controllers.adminC.DataController.savePatientKit
+
+POST            /pathology/admin/data/saveMutationNoNGSKit              controllers.adminC.DataController.saveMutationNoNGSKit
 
 GET           /pathology/tool/downloadExampleFile                       controllers.ToolController.downloadExampleFile
 
@@ -49,6 +55,8 @@ GET            /pathology/user/data/viewSampleBefore                    controll
 
 GET            /pathology/user/data/viewPatientBefore                   controllers.userC.DataController.viewPatientBefore
 
+GET            /pathology/user/data/viewMutationNoNGS                   controllers.userC.DataController.viewMutationNoNGSBefore
+
 POST           /pathology/user/data/getMutationData                     controllers.userC.DataController.getMutationData
 
 GET           /pathology/user/data/searchBefore                         controllers.userC.DataController.searchBefore
@@ -57,11 +65,18 @@ GET           /pathology/user/data/searchSampleBefore                   controll
 
 GET            /pathology/user/data/searchPatientBefore                 controllers.userC.DataController.searchPatientBefore
 
+
 GET           /pathology/user/logout                                    controllers.UserController.logout
 
 POST           /pathology/admin/data/addByFile                          controllers.adminC.DataController.addByFile
 
+POST           /pathology/admin/data/addByFileNoNGS                     controllers.adminC.DataController.addByFileNoNGS
+
+POST           /pathology/admin/data/addByFileNoNGSDistinct             controllers.adminC.DataController.addByFileNoNGSDistinct
+
 POST            /pathology/data/queryAll                            controllers.userC.DataController.getMutationTable
+
+POST            /pathology/data/queryAllMutationTableNoNGS          controllers.userC.DataController.getMutationTableNoNGS
 
 #12.29  17.40
 POST            /pathology/data/queryAllPatient                    controllers.userC.DataController.getPatientTable
@@ -90,6 +105,10 @@ GET            /pathology/data/searchPatientKit                            contr
 
 POST             /pathology/data/searchPatientKitdata                      controllers.userC.DataController.searchPatientKitdata
 
+GET               /pathology/data/searchMutationTableNoNGSKit               controllers.userC.DataController.searchMutationTableNoNGSKit
+
+POST            /pathology/data/searchMutationTableNoNGSKitdata             controllers.userC.DataController.searchMutationTableNoNGSKitdata
+
 GET            /pathology/data/searchSampleKit                            controllers.userC.DataController.searchSampleKit
 
 POST             /pathology/data/searchSampleKitdata                      controllers.userC.DataController.searchSampleKitdata
@@ -112,13 +131,29 @@ POST            /pathology/admin/data/deletePatient                      control
 
 POST            /pathology/admin/data/deleteSample                       controllers.adminC.DataController.deleteSampleTableByIds
 
+POST            /pathology/admin/data/deleteMutationTableNoNGS           controllers.adminC.DataController.deleteMutationTableNoNGSByIds
+
+POST            /pathology/admin/data/deleteMutationKit                  controllers.adminC.DataController.deleteMutationKit
+
+POST            /pathology/admin/data/deletePatientKit                   controllers.adminC.DataController.deletePatientKit
+
+POST            /pathology/admin/data/deleteSampleKit                    controllers.adminC.DataController.deleteSampleKit
+
+POST            /pathology/admin/data/deleteMutationNoNGSKit             controllers.adminC.DataController.deleteMutationNoNGSKit
+
 GET             /pathology/admin/data/managePatientBefore                controllers.adminC.DataController.managePatientBefore
 
 GET             /pathology/admin/data/manageSampleBefore                 controllers.adminC.DataController.manageSampleBefore
 
+GET             /pathology/admin/data/manageMutationTableNoNGSBefore     controllers.adminC.DataController.manageMutationTableNoNGSBefore
+
 POST            /pathology/admin/addUser                                 controllers.AdminController.addUser
 
+POST            /pathology/admin/updateUser                              controllers.AdminController.updateUser
+
 POST             /pathology/admin/queryAllmutations                       controllers.adminC.DataController.getMutationTable
+
+
 
 GET             /pathology/queryHeadsOfMutationTable                     controllers.userC.DataController.searchColumnsOfMutationTable
 
@@ -126,11 +161,15 @@ GET             /pathology/queryHeadOfPatientTable                       control
 
 GET             /pathology/queryHeadOfSampleTable                        controllers.userC.DataController.searchColumnsOfSampleTable
 
+GET             /pathology/queryHeadOfMutationTableNoNGS                 controllers.userC.DataController.searchColumnsOfMutationNoNGSTable
+
 GET             /pathology/admin/data/searchMutationKit                       controllers.adminC.DataController.searchMutationKit
 
 GET             /pathology/admin/data/searchPatientKit                        controllers.adminC.DataController.searchPatientKit
 
 GET             /pathology/admin/data/searchSampleKit                         controllers.adminC.DataController.searchSampleKit
+
+GET             /pathology/admin/data/searchMutationTableNoNGSKit             controllers.adminC.DataController.searchMutationNoNGSKit
 
 POST             /pathology/admin/searchAllUsers                             controllers.AdminController.queryAllUsers
 
@@ -144,11 +183,15 @@ GET               /pathology/user/searchSelectedPatientColumnsOfUser         con
 
 GET                /pathology/user/searchSelectedSampleColumnsOfUser         controllers.AdminController.searchSelectedSampleColumnsOfUser
 
+GET                /pathology/user/searchSelectedMutatinNoNGSColumnsOfUser   controllers.AdminController.searchSelectedMutationNoNGSColumnsOfUser
+
 POST             /pathology/user/data/saveSelectedColumnsOfUser               controllers.userC.DataController.saveSelectedColumnsOfUser
 
 POST             /pathology/user/data/saveSelectedPatientColumnsOfUser               controllers.userC.DataController.saveSelectedPatientColumnsOfUser
 
 POST             /pathology/user/data/saveSelectedSampleColumnsOfUser           controllers.userC.DataController.saveSelectedSampleColumnsOfUser
+
+POST             /pathology/user/data/saveSelectedMutationNoNGSColumnsOfUser    controllers.userC.DataController.saveSelectedMutationNoNGSColumnsOfUser
 
 POST           /pathology/admin/data/addByFileDistinct                          controllers.adminC.DataController.addMutationFileDistinct
 
@@ -158,6 +201,62 @@ POST            /pathology/admin/data/addPatientFileDistinct                    
 
 POST            /pathology/admin/data/queryUserData                             controllers.AdminController.queryUserData
 
+GET           /pathology/admin/data/addSearchCondition                          controllers.adminC.DataController.addSearchCondition
+
+GET             /pathology/admin/data/addSearchSampleCondition                  controllers.adminC.DataController.addSearchSampleCondition
+
+GET             /pathology/admin/data/addSearchPatientCondition                 controllers.adminC.DataController.addSearchPatientCondition
+
+GET             /pathology/admin/data/addSearchMutationNoNGSCondition           controllers.adminC.DataController.addSearchMutationNoNGSCondition
+
+GET             /pathology/admin/data/addAliasCondition                         controllers.adminC.DataController.addAliasConditionBefore
+
+GET             /pathology/admin/data/addAliasConditionMutationNoNGS            controllers.adminC.DataController.addAliasConditionNoNGSBefore
+
+GET             /pathology/admin/data/addAliasConditionPatient                  controllers.adminC.DataController.addAliasConditionPatientBefore
+
+GET             /pathology/admin/data/addAliasConditionSample                   controllers.adminC.DataController.addAliasConditionSampleBefore
+
+POST             /pathology/admin/data/queryKitdata                              controllers.adminC.DataController.queryKitdata
+
+#POST
+POST             /pathology/admin/data/querySampleKitdata                       controllers.adminC.DataController.querySampleKitdata
+
+#POST
+POST             /pathology/admin/data/queryPatientKitdata                       controllers.adminC.DataController.queryPatientKitdata
+
+POST             /pathology/admin/data/queryMutationNoNGSKitdata                controllers.adminC.DataController.queryMutationNoNGSKitData
+
+POST             /pathology/admin/data/addMutationAlias                          controllers.adminC.DataController.addMutationAlias
+
+POST             /pathology/admin/data/addMutationNoNGSAlias                     controllers.adminC.DataController.addMutationNoNGSAlias
+
+POST             /pathology/admin/data/addPatientAlias                           controllers.adminC.DataController.addPatientAlias
+
+POST             /pathology/admin/data/addSampleAlias                            controllers.adminC.DataController.addSampleAlias
+
+POST              /pathology/admin/data/getMutationAlias                          controllers.adminC.DataController.queryAllMutationAlias
+
+POST              /pathology/admin/data/getPatientAlias                         controllers.adminC.DataController.queryAllPatientAlias
+
+POST              /pathology/admin/data/getSampleAlias                           controllers.adminC.DataController.queryAllSampleAlias
+
+POST              /pathology/admin/data/getMutationNoNGSAlias                    controllers.adminC.DataController.queryAllMutationNoNGSAlias
+
+POST              /pathology/admin/data/deleteMutationAlias                       controllers.adminC.DataController.deleteSelectedMutationAlias
+
+#字段的相关请求
+
+POST              /pathology/admin/data/addMutationSearchField                   controllers.adminC.DataController.addMutationField
+
+POST              /pathology/admin/data/addMutationNoNGSSearchField               controllers.adminC.DataController.addPatientField
+
+POST              /pathology/admin/data/addPatientSearchField                     controllers.adminC.DataController.
+
+POST              /pathology/admin/data/addSampleSearchField                      controllers.adminC.DataController
+
+
+GET              /pathology/admin/data/devlogs                                   controllers.adminC.DataController.devlogs
 # Map static resources from the /public folder to the /assets URL path
 GET             /assets/*file                                             controllers.Assets.at(path="/public", file)
 

@@ -18,7 +18,6 @@ import implicits.Implicits._
 trait MyXlxsTool {
 
   implicit class MyXlxsFile(file: File) {
-
     def xlsxLines(sheetIndex: Int = 0) = {
       val is = new FileInputStream(file.getAbsolutePath)
       val xssfWorkbook = new XSSFWorkbook(is)
@@ -54,16 +53,11 @@ trait MyXlxsTool {
       xssfWorkbook.close()
       lines.filter(x => x.exists(y => StringUtils.isNotBlank(y)))
     }
-
     def xlsx2Txt(txtFile: File) = {
       val lines = file.xlsxLines()
       lines.toFile(txtFile)
     }
-
-
   }
-
-
 }
 
 

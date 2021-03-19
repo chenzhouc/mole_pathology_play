@@ -1,353 +1,349 @@
 @()(implicit request: play.api.mvc.RequestHeader)
-@admin.main("用户管理") {
-    @* <link rel="stylesheet" href="@routes.Assets.at("/formvalidation/dist/css/formValidation.min.css")"/>
-    <script src="@routes.Assets.at("/formvalidation/dist/js/FormValidation.js")"></script>*@
-    @*<link rel="stylesheet" href="@routes.Assets.at("/origin-bootstraptable/bootstrap-table.css")"/>
-    <script src="@routes.Assets.at("/origin-bootstraptable/bootstrap-table.js")"></script>*@
-    <script src="@routes.Assets.at("dist2/bootstrap-advanced-sortable/js/bootstrap-advanced-sortable.js")" type="text/javascript"></script>
-    <link rel="stylesheet" media="screen" href="@routes.Assets.at("dist2/bootstrap-advanced-sortable/css/bootstrap-advanced-sortable.css")">
+    @admin.main("用户管理") {
+        @* <link rel="stylesheet" href="@routes.Assets.at("/formvalidation/dist/css/formValidation.min.css")"/>
+        <script src="@routes.Assets.at("/formvalidation/dist/js/FormValidation.js")"></script>*@
+        @*<link rel="stylesheet" href="@routes.Assets.at("/origin-bootstraptable/bootstrap-table.css")"/>
+        <script src="@routes.Assets.at("/origin-bootstraptable/bootstrap-table.js")"></script>*@
+        <script src="@routes.Assets.at("dist2/bootstrap-advanced-sortable/js/bootstrap-advanced-sortable.js")" type="text/javascript"></script>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("dist2/bootstrap-advanced-sortable/css/bootstrap-advanced-sortable.css")">
 
-    <div class="container">
-        <div class="row">
-            <div class="form-group col-sm-12">
-                <h2 class="page-heading"
-                style="text-align: left;
-                    border-bottom: 5px solid #e9f3f4">
-                    用户管理
-                </h2>
-            </div>
-        </div>
-
-        <div id="toolbar">
-            <button type="button" class="btn btn-primary" id="deleteButton" data-toggle="modal" data-target="#addModal" style="margin-bottom: 30px">
-                <i class="fa fa-plus"></i>&nbsp;新增用户
-            </button>
-        </div>
-
-        <div class="table-responsive" id="tableContent">
-            <table class="display table table-bordered" id="table" data-advanced-sortable="true" data-pagination="true" >
-                <thead>
-                    <tr>
-                        <th data-field="operation">operation</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-
-        <div id="addModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog" style="width: 800px">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                        <h4 class="modal-title">
-                            <i class="fa fa-plus"></i>
-                            <span id="lblAddTitle" style="font-weight: bold">新增用户</span>
-                        </h4>
-                    </div>
-                    <form class="form-horizontal" id="form" action="" data-toggle="validator" enctype="multipart/form-data">
-                        <div class="modal-body">
-                            <div class="row-fluid">
-
-                                <div class="form-group">
-                                    <label class="control-label col-sm-3">用户名:</label>
-                                    <div class="col-sm-6">
-                                        <input class="form-control" name="username1" id="username1"/>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="control-label col-sm-3">密码:</label>
-                                    <div class="col-sm-6">
-                                        <input class="form-control" name="password1" id="password1" />
-                                    </div>
-                                </div>
-                                <div class="form-group" style="margin-top: -41px;">
-                                    <div class="form-group">
-                                        <button type="button" class="btn btn-primary" style="position: relative;
-                                            right: 487px;
-                                            top: 85px;
-                                            background-color: white;
-                                            color: green;" onclick="filldata()">输入示例</button>
-                                    </div>
-                                    <label class="control-label col-sm-3">可以查看的试剂盒:</label>
-                                    <div class="col-sm-6">
-                                        <textarea id="kitarea" name="kit1" class="form-control" rows="3" style="height: 200px"></textarea>
-                                    </div>
-                                </div>
-
-                                <div class="form-group" style="margin-top: -41px;">
-                                    <div class="form-group">
-                                        <button type="button" class="btn btn-primary" style="position: relative;
-                                            right: 487px;
-                                            top: 85px;
-                                            background-color: white;
-                                            color: green;" onclick="filldata2()">输入示例</button>
-                                    </div>
-                                    <label class="control-label col-sm-3">配置用户可浏览数据范围:</label>
-                                    <div class="col-sm-6">
-                                        <textarea id="filterarea" name="filterarea1" class="form-control" rows="3" style="height: 400px"></textarea>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="modal-footer bg-info">
-                            <input type="hidden" id="ID" name="ID" />
-                            <button type="button" class="btn blue" onclick="addUser()">确定</button>
-                            <button type="button" class="btn green" data-dismiss="modal">取消</button>
-                        </div>
-                    </form>
+        <div class="container">
+            <div class="row">
+                <div class="form-group col-sm-12">
+                    <h2 class="page-heading"
+                    style="text-align: left;
+                        border-bottom: 5px solid #e9f3f4">
+                        用户管理
+                    </h2>
                 </div>
             </div>
-        </div>
 
-        <div id="updateModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog" style="width: 800px">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                        <h4 class="modal-title">
-                            <i class="fa fa-repeat"></i>
-                            <span id="lblAddTitle" style="font-weight: bold">修改用户数据</span>
-                        </h4>
-                    </div>
-                    <form class="form-horizontal" id="updateForm" action="" data-toggle="validator">
-                        <div class="modal-body">
-                            <div class="row-fluid">
+            <div id="toolbar">
+                <button type="button" class="btn btn-primary" id="deleteButton" data-toggle="modal" data-target="#addModal" style="margin-bottom: 30px">
+                    <i class="fa fa-plus"></i>&nbsp;新增用户
+                </button>
+            </div>
 
-                                <div class="form-group">
-                                    <label class="control-label col-sm-3">用户名:</label>
-                                    <div class="col-sm-6">
-                                        <input class="form-control" name="name"/>
+            <div class="table-responsive" id="tableContent">
+                <table class="display table table-bordered" id="table" data-advanced-sortable="true" data-pagination="true" >
+                    <thead>
+                        <tr>
+                            <th data-field="operation">operation</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <div id="addModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog" style="width: 800px">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                            <h4 class="modal-title">
+                                <i class="fa fa-plus"></i>
+                                <span id="lblAddTitle" style="font-weight: bold">新增用户</span>
+                            </h4>
+                        </div>
+                        <form class="form-horizontal" id="form" action="" data-toggle="validator" enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <div class="row-fluid">
+
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-3">用户名:</label>
+                                        <div class="col-sm-6">
+                                            <input class="form-control" name="username1" id="username1"/>
+                                        </div>
                                     </div>
-                                </div>
-
-
-                                <div class="form-group">
-                                    <label class="control-label col-sm-3">密码:</label>
-                                    <div class="col-sm-6">
-                                        <input class="form-control" name="password" />
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-3">密码:</label>
+                                        <div class="col-sm-6">
+                                            <input class="form-control" name="password1" id="password1" />
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="form-group">
-                                    @*<div class="form-group">
-                                    <button type="button" class="btn btn-primary" style="position: relative;
-                                    right: 487px;
-                                    top: 85px;
-                                    background-color: white;
-                                    color: green;" onclick="filldata3()">输入示例</button>
-                                    </div>*@
-                                    <label class="control-label col-sm-3">可以查看的试剂盒:</label>
-                                    <div class="col-sm-6">
-                                        <textarea id="kitarea3" name="kit" class="form-control" rows="3" style="height: 200px"></textarea>
+                                    <div class="form-group" style="margin-top: -41px;">
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-primary" style="position: relative;
+                                                right: 487px;
+                                                top: 85px;
+                                                background-color: white;
+                                                color: green;" onclick="filldata()">输入示例</button>
+                                        </div>
+                                        <label class="control-label col-sm-3">可以查看的试剂盒:</label>
+                                        <div class="col-sm-6">
+                                            <textarea id="kitarea" name="kit1" class="form-control" rows="3" style="height: 200px"></textarea>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    @*<div class="form-group">
-                                    <button type="button" class="btn btn-primary" style="position: relative;
-                                    right: 487px;
-                                    top: 85px;
-                                    background-color: white;
-                                    color: green;" onclick="filldata4()">输入示例</button>
-                                    </div>*@
-                                    <label class="control-label col-sm-3">配置用户可浏览数据范围:</label>
-                                    <div class="col-sm-6">
-                                        <textarea id="filterarea3" name="filterarea" class="form-control" rows="3" style="height: 400px"></textarea>
+                                    <div class="form-group" style="margin-top: -41px;">
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-primary" style="position: relative;
+                                                right: 487px;
+                                                top: 85px;
+                                                background-color: white;
+                                                color: green;" onclick="filldata2()">输入示例</button>
+                                        </div>
+                                        <label class="control-label col-sm-3">配置用户可浏览数据范围:</label>
+                                        <div class="col-sm-6">
+                                            <textarea id="filterarea" name="filterarea1" class="form-control" rows="3" style="height: 400px"></textarea>
+                                        </div>
                                     </div>
-                                </div>
 
+                                </div>
                             </div>
-                        </div>
-                        <div class="modal-footer bg-info">
-                            <input type="hidden" id="id" name="id" />
-                            <button type="button" class="btn blue" onclick="insertUser()">
-                                确定</button>
-                            <button type="button" class="btn green" data-dismiss="modal">
-                                取消</button>
-                        </div>
-                    </form>
+                            <div class="modal-footer bg-info">
+                                <input type="hidden" id="ID" name="ID" />
+                                <button type="button" class="btn blue" onclick="addUser()">确定</button>
+                                <button type="button" class="btn green" data-dismiss="modal">取消</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
+
+            <div id="updateModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog" style="width: 800px">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                            <h4 class="modal-title">
+                                <i class="fa fa-repeat"></i>
+                                <span id="lblAddTitle" style="font-weight: bold">修改用户数据</span>
+                            </h4>
+                        </div>
+                        <form class="form-horizontal" id="updateForm" action="" data-toggle="validator">
+                            <div class="modal-body">
+                                <div class="row-fluid">
+
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-3">用户名:</label>
+                                        <div class="col-sm-6">
+                                            <input class="form-control" name="name"/>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-3">密码:</label>
+                                        <div class="col-sm-6">
+                                            <input class="form-control" name="password" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        @*<div class="form-group">
+                                        <button type="button" class="btn btn-primary" style="position: relative;
+                                        right: 487px;
+                                        top: 85px;
+                                        background-color: white;
+                                        color: green;" onclick="filldata3()">输入示例</button>
+                                        </div>*@
+                                        <label class="control-label col-sm-3">可以查看的试剂盒:</label>
+                                        <div class="col-sm-6">
+                                            <textarea id="kitarea3" name="kit" class="form-control" rows="3" style="height: 200px"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        @*<div class="form-group">
+                                        <button type="button" class="btn btn-primary" style="position: relative;
+                                        right: 487px;
+                                        top: 85px;
+                                        background-color: white;
+                                        color: green;" onclick="filldata4()">输入示例</button>
+                                        </div>*@
+                                        <label class="control-label col-sm-3">配置用户可浏览数据范围:</label>
+                                        <div class="col-sm-6">
+                                            <textarea id="filterarea3" name="filterarea" class="form-control" rows="3" style="height: 400px"></textarea>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-info">
+                                <input type="hidden" id="id" name="id" />
+                                <button type="button" class="btn blue" onclick="insertUser()">
+                                    确定</button>
+                                <button type="button" class="btn green" data-dismiss="modal">
+                                    取消</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="graph"></div>
+
+
         </div>
 
-        <div id="graph"></div>
 
+        <script>
 
-    </div>
-
-
-    <script>
-
-            $(function () {
-                $('#table').bootstrapTable({
-                    method: 'post',
-                    url: '@routes.AdminController.queryAllUsers()',
-                    sidePagination: "server",
-                    pageNumber: 1,
-                    pagination: true,
-                    contentType: "application/x-www-form-urlencoded",
-                    columns: [
-                        {
-                            title: "id",
-                            field: "id"
-                        },
-                        {
-                            title: "name",
-                            field: "name"
-                        },
-                        {
-                            title: "password",
-                            field: "password"
-                        },
-                        /* {
-                             title: "行过滤配置",
-                             field:"rows_filter"
-                         },
-                         {
-                             title: "列过滤配置",
-                             field:"columns_filter"
-                         },*/
-                        {
-                            title: "create_time",
-                            field: "createTime"
-                        },
-                        {
-                            title: 'operation',
-                            align: 'center',
-                            formatter: function (value, row, index) {
-                                var actions = [];
-                                actions.push('<a class="btn btn-success btn-xs ' + row.id + '" href="/pathology/admin/modifyUsersBefore/' + parseInt(row.id) + '"><i class="fa fa-edit"></i>修改</a> ');
-                                actions.push('<a class="btn btn-danger btn-xs ' + row.id + '" href="#" onclick="deleteUser(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
-                                return actions.join('');
+                $(function () {
+                    $('#table').bootstrapTable({
+                        method: 'post',
+                        url: '@routes.AdminController.queryAllUsers()',
+                        sidePagination: "server",
+                        pageNumber: 1,
+                        pagination: true,
+                        contentType: "application/x-www-form-urlencoded",
+                        columns: [
+                            {
+                                title: "id",
+                                field: "id"
+                            },
+                            {
+                                title: "name",
+                                field: "name"
+                            },
+                            {
+                                title: "password",
+                                field: "password"
+                            },
+                            {
+                                title: "create_time",
+                                field: "createTime"
+                            },
+                            {
+                                title: 'operation',
+                                align: 'center',
+                                formatter: function (value, row, index) {
+                                    var actions = [];
+                                    actions.push('<a class="btn btn-success btn-xs ' + row.id + '" href="/pathology/admin/modifyUsersBefore/' + parseInt(row.id) + '"><i class="fa fa-edit"></i>修改</a> ');
+                                    actions.push('<a class="btn btn-danger btn-xs ' + row.id + '" href="#" onclick="deleteUser(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                                    return actions.join('');
+                                }
                             }
-                        }
-                    ]
+                        ]
+                    })
                 })
-            })
 
-            function insertUser() {
 
-            }
-
-            function filldata() {
-                let str = `Mutation=试剂盒A;试剂盒B;试剂盒C;试剂盒D
+                function filldata() {
+                    let str = `Mutation=试剂盒A;试剂盒B;试剂盒C;试剂盒D
 Patient=配置A;配置B;配置C
-Sample=配置A;配置B;配置C`
-                $('#kitarea').val(str)
-            }
-
-            function filldata2() {
-                let str = `[Patient]
-sex=Female
-age=(40,90)
-her2_snp6=NEUTRAL;LOSS;GAIN
-[Sample]
-Sample_type=Primary
-Tumor_Size=(5,Inf）
-[Mutation]
-Start_Position=(5000000,10000000)
-End_Position=(-Inf,10000000)
-Hugo_Symbol=TP53;NT5E;AHNAK`
-                $('#filterarea').val(str)
-            }
-
-            function filldata3() {
-                let str = `Mutation=试剂盒A;试剂盒B;试剂盒C;试剂盒D
-Patient=配置A;配置B;配置C
-Sample=配置A;配置B;配置C`
-                $('#kitarea3').val(str)
-            }
-
-            function filldata4() {
-                let str = `[Patient]
-sex=Female
-age=(40,90)
-her2_snp6=NEUTRAL;LOSS;GAIN
-[Sample]
-Sample_type=Primary
-Tumor_Size=(5,Inf）
-[Mutation]
-Start_Position=(5000000,10000000)
-End_Position=(-Inf,10000000)
-Hugo_Symbol=TP53;NT5E;AHNAK`
-                $('#filterarea3').val(str)
-            }
-
-
-            function addUser() {
-                $("#addModal").modal('hide');
-                let username = $("#username1").val()
-                let password = $("#password1").val()
-                let kitarea = $("#kitarea").val()
-                let filterarea = $("#filterarea").val()
-                let json = {
-                    "username": username,
-                    "password": password,
-                    "kitarea": kitarea,
-                    "filterarea": filterarea
+Sample=配置A;配置B;配置C
+MutationNoNGS=KitA;KitB;KitC`
+                    $('#kitarea').val(str)
                 }
 
-                $.ajax({
-                    url: "@routes.AdminController.addUser()",
-                    type: "post",
-                    data: JSON.stringify(json),
-                    contentType: 'application/json;charset=UTF-8',
-                    success(res) {
-                         //手动关闭
-                        swal({
-                            title: "",
-                            text: "\n添加成功！\n",
-                            type: "success",
-                            confirmButtonText: "确定",
-                        }, function () {
-                            location.reload()
-                        })
+                function filldata2() {
+                    let str = `[Patient]
+sex=Female
+age=(40,90)
+her2_snp6=NEUTRAL;LOSS;GAIN
+[Sample]
+Sample_type=Primary
+Tumor_Size=(5,Inf）
+[Mutation]
+Start_Position=(5000000,10000000)
+End_Position=(-Inf,10000000)
+Hugo_Symbol=TP53;NT5E;AHNAK`
+                    $('#filterarea').val(str)
+                }
+
+                function filldata3() {
+                    let str = `Mutation=试剂盒A;试剂盒B;试剂盒C;试剂盒D
+Patient=配置A;配置B;配置C
+Sample=配置A;配置B;配置C`
+                    $('#kitarea3').val(str)
+                }
+
+                function filldata4() {
+                    let str = `[Patient]
+sex=Female
+age=(40,90)
+her2_snp6=NEUTRAL;LOSS;GAIN
+[Sample]
+Sample_type=Primary
+Tumor_Size=(5,Inf）
+[Mutation]
+Start_Position=(5000000,10000000)
+End_Position=(-Inf,10000000)
+Hugo_Symbol=TP53;NT5E;AHNAK`
+                    $('#filterarea3').val(str)
+                }
+
+
+                function addUser() {
+                    $("#addModal").modal('hide');
+                    let username = $("#username1").val()
+                    let password = $("#password1").val()
+                    let kitarea = $("#kitarea").val()
+                    let filterarea = $("#filterarea").val()
+                    let json = {
+                        "username": username,
+                        "password": password,
+                        "kitarea": kitarea,
+                        "filterarea": filterarea
                     }
-                })
-            }
 
-          /* function edit(id) {
-              @* $.ajax({
-                   url: "@routes.AdminController.modifyUsers()",
-                   method:'post',
-                   contentType: 'application/json',
-                   data: id
-               })*@
-               window.location.href="http://localhost:9000/pathology/admin/modifyUsersBefore?id=" + id
-            }*/
+                    $.ajax({
+                        url: "@routes.AdminController.addUser()",
+                        type: "post",
+                        data: JSON.stringify(json),
+                        contentType: 'application/json;charset=UTF-8',
+                        success(res) {
+                            //手动关闭
+                            swal({
+                                title: "",
+                                text: "\n添加成功！\n",
+                                type: "success",
+                                confirmButtonText: "确定",
+                            }, function () {
+                                location.reload()
+                            })
+                        }
+                    })
+                }
 
-            function deleteUser(id) {
+                function deleteUser(id) {
+                    swal({
+                                title: "",
+                                text: "确定删除？\n",
+                                type: "warning",
+                                showCancelButton: true,
+                                showConfirmButton: true,
+                                confirmButtonClass: "btn-danger",
+                                confirmButtonText: "确定",
+                                closeOnConfirm: false,//设置为false才可以触发双重swal
+                                cancelButtonClass: "btn-outline-danger",
+                                cancelButtonText: "取消"
+                            },
+                            function () {
+                                $.ajax({
+                                    url: "@routes.AdminController.deleteUser()",
+                                    method: 'post',
+                                    contentType: 'application/json',
+                                    data: id,
+                                    success(res) {
+                                        swal({
+                                            title: "",
+                                            text: "\n删除成功！\n",
+                                            type: "success",
+                                            confirmButtonText: "确定",
+                                        }, function () {
+                                            location.reload()
+                                        })
+                                    },
+                                    error(res) {
+                                        swal({
+                                                    title: "",
+                                                    text: "\n删除失败！\n",
+                                                    type: "error",
+                                                    confirmButtonText: "确定"
+                                                }, function () {
+                                                    location.reload()
+                                                }
+                                        )
+                                    }
+                                })
+                            }
+                    )
 
-                $.ajax({
-                    url: "@routes.AdminController.deleteUser()",
-                    method: 'post',
-                    contentType: 'application/json',
-                    data: id,
-                    success(res) {
-                        swal({
-                            title: "",
-                            text: "\n删除成功！\n",
-                            type: "success",
-                            confirmButtonText: "确定",
-                        }, function () {
-                            location.reload()
-                        })
-                    },
-                    error(res) {
-                        swal({
-                                    title: "",
-                                    text: "\n删除失败！\n",
-                                    type: "error",
-                                    confirmButtonText: "确定"
-                                }, function () {
-                                    location.reload()
-                                }
-                        )
-                    }
-                })
-            }
 
-    </script>
+                }
 
-}
+        </script>
+
+    }

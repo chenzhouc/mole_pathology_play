@@ -5,6 +5,7 @@ import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.api.libs.json.{JsObject, JsValue, Json}
 import slick.driver.JdbcProfile
 import slick.jdbc.JdbcProfile
+import tool.ParseToolForExactQuery.parse
 import utils.PageData
 import utils.Utils.{processSection, processSort}
 
@@ -25,7 +26,10 @@ class PatientDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     db.run(Patient.result)
   }
 
+
+  //(patientId,("","sagb"))  (patientid,(1,3))
   def queryAll(page: PageData) = {
+
     val value = processSection(page)
     val sortfields = processSort(page)
     val order = page.order
@@ -34,14 +38,21 @@ class PatientDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       Patient.filter { y =>
         val bs = value.map(x => {
           //val rs = y.data +>> (x._1)
-          if (x._2.length == 1) {
-            y.data +>> (x._1) === x._2(0)
+          //原本的逻辑 如果x._2的长度为1 表示是搜索 是2表示是 大小区间 现在要改变
+          if (x._2 == "text") {
+            // 如果是长度是1 表示是搜索  找字段==x._2(0)的（完全匹配）
+            val fuzzy = x._3(0)
+            val exact = x._3(1)
+            val arrs = parse(exact).toList
+            if(fuzzy == "") y.data +>> x._1 inSetBind(arrs)
+            else (y.data +>> x._1 like s"%$fuzzy%")
           } else {
+            // 分支2 data里是最小值和最大值
             var min: Long = 0
             var max: Long = 0
             try {
-              min = x._2(0).toLong
-              max = x._2(1).toLong
+              min = x._3(0).toLong
+              max = x._3(1).toLong
             } catch {
               case ex: NumberFormatException =>
                 min = Long.MinValue
@@ -70,11 +81,11 @@ class PatientDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     db.run(f)
   }
 
-  def deleteUserById(list:List[String]) = {
-        val newlist = list.map(x => x.toInt)
-        val q = Patient.filter(_.id.inSetBind(newlist))
-        val action = q.delete
-        db.run(action)
+  def deleteUserById(list: List[String]) = {
+    val newlist = list.map(x => x.toInt)
+    val q = Patient.filter(_.id.inSetBind(newlist))
+    val action = q.delete
+    db.run(action)
   }
 
   //查询一条数据 提供表头信息
@@ -90,5 +101,11 @@ class PatientDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       delete.flatMap(_ => insert)
     }.transactionally
     db.run(action).map(_ => ())
+  }
+
+  def queryPatientDistinct(rows: Seq[PatientRow]) = {
+    val patientIds = rows.map(_.patientid.toString())
+    val f = Patient.filter(_.patientid.inSetBind(patientIds)).result
+    db.run(f)
   }
 }

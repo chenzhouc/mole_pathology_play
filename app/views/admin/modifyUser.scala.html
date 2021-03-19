@@ -19,7 +19,6 @@
                             </div>
                         </div>
 
-
                         <div class="form-group">
                             <label class="control-label col-sm-3">密码:</label>
                             <div class="col-sm-6">
@@ -28,13 +27,6 @@
                         </div>
 
                         <div class="form-group">
-                            @*<div class="form-group">
-                            <button type="button" class="btn btn-primary" style="position: relative;
-                            right: 487px;
-                            top: 85px;
-                            background-color: white;
-                            color: green;" onclick="filldata3()">输入示例</button>
-                            </div>*@
                             <label class="control-label col-sm-3">可以查看的试剂盒:</label>
                             <div class="col-sm-6">
                                 <textarea id="kitarea3" name="kit" class="form-control" rows="3" style="height: 200px"></textarea>
@@ -42,13 +34,6 @@
                         </div>
 
                         <div class="form-group">
-                            @*<div class="form-group">
-                            <button type="button" class="btn btn-primary" style="position: relative;
-                            right: 487px;
-                            top: 85px;
-                            background-color: white;
-                            color: green;" onclick="filldata4()">输入示例</button>
-                            </div>*@
                             <label class="control-label col-sm-3">配置用户可浏览数据范围:</label>
                             <div class="col-sm-6">
                                 <textarea id="filterarea3" name="filterarea" class="form-control" rows="3" style="height: 400px"></textarea>
@@ -57,11 +42,43 @@
 
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary" onclick="insertUser()" style="position: relative; left: 837px">确定</button>
+                <button type="button" class="btn btn-primary" onclick="updateUser()" style="position: relative; left: 837px">确定</button>
             </form>
         </div>
 
         <script>
+                function updateUser(){
+                    let id = @id
+                    let username = $("#username").val()
+                    let password = $("#password").val()
+                    let kitarea = $("#kitarea3").val()
+                    let filterarea = $("#filterarea3").val()
+                    let value = {
+                        "userId" : id,
+                        "username": username,
+                        "password": password,
+                        "kitareaRaw": kitarea,
+                        "filterareaRaw": filterarea
+                    }
+                    $.ajax({
+                        url:"@routes.AdminController.updateUser()",
+                        type:"post",
+                        data:JSON.stringify(value),
+                        contentType: 'application/json;charset=UTF-8',
+                        success(res) {
+                            //手动关闭
+                            swal({
+                                title: "",
+                                text: "\n添加成功！\n",
+                                type: "success",
+                                confirmButtonText: "确定",
+                            }, function () {
+                                window.location.href="/pathology/admin/userManageBefore";
+                            })
+                        }
+                    })
+                }
+
                 $(function(){
                     let value = @id
                     $.ajax({
@@ -72,13 +89,15 @@
                         success(res){
                             $("#username").val(res.username)
                             $("#password").val(res.password)
-                            for (let i = 0; i < res.kitvalue.length; i++) {
+                            $("#kitarea3").val(res.kitvalue)
+                            $("#filterarea3").val(res.filtervalue)
+                            console.log(res.kitvalue)
+                            /*for (let i = 0; i < res.kitvalue.length; i++) {
                                 console.log(res.kitvalue[i].table)
                                 console.log(res.kitvalue[i].value)
-                            }
+                            }*/
                         }
                     })
-
                 });
         </script>
     }

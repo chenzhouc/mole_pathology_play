@@ -6,14 +6,19 @@ object VarTool {
   val idStr = "mole_pathology_id"
 
   val dataHeaders = List(
-    "Tumor_Sample_Barcode"
+    "SAMPLE_ID"
     )
 
   val patientHeaders = List(
-      "PATIENT_ID"
+      "PATIENT_ID",
+      "PATIENT_NAME"
   )
 
   val sampleHeaders = List(
+    "SAMPLE_ID",
+  )
+
+  val MutationNoNGSHeaders = List(
     "SAMPLE_ID"
   )
 

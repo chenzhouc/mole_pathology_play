@@ -25,6 +25,8 @@ object FileTool {
     DataFileValidTool.valid(file.xlsxLines())
   }
 
-
+  def MutationNoNGSFileCheck(file: File) = {
+    DataFileValidTool.validNoNGS(file.xlsxLines())
+  }
 
 }

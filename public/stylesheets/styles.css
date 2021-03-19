@@ -9073,9 +9073,9 @@ label.styles-module__labeledCheckbox__jTAe1 > input[type="checkbox"] {
  *               Component in general.
  *
  * "Main Button" : the button that is always in view. Hovering or clicking on it
- *                 will reveal the child buttons.
+ *                 will reveal the child mybody.
  *
- * "Child buttons" : if you've read the previous point you know what they are.
+ * "Child mybody" : if you've read the previous point you know what they are.
  *                   Did you read the previous point? :)
  *
  * "Label(s)" : the tooltip that fades in when hovering over a button.
@@ -9170,7 +9170,7 @@ label.styles-module__labeledCheckbox__jTAe1 > input[type="checkbox"] {
 
 /**
  * This is the unordered list for the list items that contain
- * the child buttons.
+ * the child mybody.
  *
  */
 .mfb-component__list {
@@ -9273,7 +9273,7 @@ label.styles-module__labeledCheckbox__jTAe1 > input[type="checkbox"] {
 \*------------------------------------*/
 /**
  * SLIDE IN + FADE
- * When hovering the main button, the child buttons slide out from beneath
+ * When hovering the main button, the child mybody slide out from beneath
  * the main button while transitioning from transparent to opaque.
  *
  */
@@ -9359,7 +9359,7 @@ label.styles-module__labeledCheckbox__jTAe1 > input[type="checkbox"] {
 
 /**
  * SLIDE IN SPRING
- * When hovering the main button, the child buttons slide out from beneath
+ * When hovering the main button, the child mybody slide out from beneath
  * the main button while transitioning from transparent to opaque.
  *
  */
@@ -9445,7 +9445,7 @@ label.styles-module__labeledCheckbox__jTAe1 > input[type="checkbox"] {
 
 /**
  * ZOOM-IN
- * When hovering the main button, the child buttons grow
+ * When hovering the main button, the child mybody grow
  * from zero to normal size.
  *
  */
@@ -9591,7 +9591,7 @@ label.styles-module__labeledCheckbox__jTAe1 > input[type="checkbox"] {
 
 /**
  * FOUNTAIN
- * When hovering the main button the child buttons
+ * When hovering the main button the child mybody
  * jump into view from outside the viewport
  */
 .mfb-component--tl.mfb-fountain .mfb-component__list li,

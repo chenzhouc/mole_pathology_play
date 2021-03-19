@@ -71,6 +71,11 @@ class UserDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) 
     db.run(q)
   }
 
+  def insertSelectedMutationNoNGSColumnsOfUser(username:String,user: UserRow) = {
+    val q = User.filter(_.username === username).update(user)
+    db.run(q)
+  }
+
   def queryUserById(id: Short) = {
     val f = User.filter(_.id === id).result.head
     db.run(f)
@@ -86,4 +91,8 @@ class UserDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) 
     db.run(q)
   }
 
+  def querySelectedMutationNoNGSColumnsOfUser(username: String) = {
+    val q = User.filter(_.username === username).result.map(x => x.map(y => y.selectMutationnongsColumns))
+    db.run(q)
+  }
 }

@@ -3,6 +3,7 @@ package dao
 import models.Tables.{Patient, Sample, SampleRow}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
+import tool.ParseToolForExactQuery.parse
 import utils.PageData
 import utils.Utils.{processSection, processSort}
 
@@ -18,6 +19,11 @@ class SampleDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider
     db.run(Sample ++= rows).map(_ => ())
   }
 
+  def queryAll() = {
+    db.run(Sample.result)
+  }
+
+
   def queryAll(page: PageData) = {
     val value = processSection(page)
     val sortfields = processSort(page)
@@ -27,14 +33,18 @@ class SampleDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider
       Sample.filter { y =>
         val bs = value.map(x => {
           //val rs = y.data +>> (x._1)
-          if (x._2.length == 1) {
-            y.data +>> (x._1) === x._2(0)
+          if (x._2 == "text") {
+            val fuzzy = x._3(0)
+            val exact = x._3(1)
+            val arrs = parse(exact).toList
+            if(fuzzy == "") y.data +>> x._1 inSetBind(arrs)
+            else (y.data +>> x._1 like s"%$fuzzy%")
           } else {
             var min: Long = 0
             var max: Long = 0
             try {
-              min = x._2(0).toLong
-              max = x._2(1).toLong
+              min = x._3(0).toLong
+              max = x._3(1).toLong
             } catch {
               case ex: NumberFormatException =>
                 min = Long.MinValue
@@ -84,5 +94,11 @@ class SampleDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider
       delete.flatMap(_ => insert)
     }.transactionally
     db.run(action)
+  }
+
+  def queryDistinctSample(rows: Seq[SampleRow]) = {
+    val sampleIds = rows.map(_.sampleid)
+    val f = Sample.filter(_.sampleid.inSetBind(sampleIds)).result
+    db.run(f)
   }
 }

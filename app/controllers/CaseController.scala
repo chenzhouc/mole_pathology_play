@@ -29,7 +29,6 @@ class CaseController @Inject()(cc:ControllerComponents) extends AbstractControll
     val (columnNames, array) = Utils.getInfoByXlsxFile(file,1)
     val json = Json.obj("columnNames" -> columnNames, "array" -> array)
     Ok(json)
-
   }
 
   def getKnpb = Action { implicit request =>
@@ -45,7 +44,6 @@ class CaseController @Inject()(cc:ControllerComponents) extends AbstractControll
     val (columnNames, array) = Utils.getInfoByXlsxFile(file,1)
     val json = Json.obj("columnNames" -> columnNames, "array" -> array)
     Ok(json)
-
   }
 
   def get68Snp = Action { implicit request =>
@@ -53,7 +51,6 @@ class CaseController @Inject()(cc:ControllerComponents) extends AbstractControll
     val (columnNames, array) = Utils.getInfoByXlsxFile(file,0)
     val json = Json.obj("columnNames" -> columnNames, "array" -> array)
     Ok(json)
-
   }
 
   def get68Cnv = Action { implicit request =>
@@ -61,7 +58,6 @@ class CaseController @Inject()(cc:ControllerComponents) extends AbstractControll
     val (columnNames, array) = Utils.getInfoByXlsxFile(file,0)
     val json = Json.obj("columnNames" -> columnNames, "array" -> array)
     Ok(json)
-
   }
 
   def getBasic=Action { implicit request =>
@@ -69,8 +65,5 @@ class CaseController @Inject()(cc:ControllerComponents) extends AbstractControll
     val (columnNames, array) = Utils.getInfoByXlsxFile(file,0)
     val json = Json.obj("columnNames" -> columnNames, "array" -> array)
     Ok(json)
-
   }
-
-
 }

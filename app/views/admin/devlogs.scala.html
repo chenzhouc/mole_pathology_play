@@ -1,0 +1,70 @@
+@()(implicit request: play.api.mvc.RequestHeader)
+@admin.main("配置突变信息表列筛选") {
+    <style>
+            .form-control {
+                display: block;
+                width: 100%;
+                height: 34px;
+                padding: 6px 12px;
+                font-size: 14px;
+                line-height: 1.42857143;
+                color: #555;
+                background: #fff none;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+                -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+                -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+                transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            }
+            .position-relative {
+                position: relative!important;
+            }
+    </style>
+
+    <div class="container" style="margin-bottom: -22px">
+        <div class="row">
+            <div class="form-group col-sm-12">
+                <h2 class="page-heading"
+                style="text-align: left;
+                    border-bottom: 5px solid #e9f3f4">更新日志</h2>
+            </div>
+        </div>
+        @* <div class="form-group" style=" position: relative;
+        top: 60px;
+        ">
+        <pre id="text1" class="form-control" rows="3" style="height: 500px;" readonly ></pre>
+        </div>*@
+    </div>
+    <div class="row justify-content-center">
+        <div class="met-log-body col-xl-9 pl-md-5" style="margin-left: 50px;
+            margin-top: 50px">
+            <ul class="met-log-list list-unstyled pl-md-5 ml-md-5">
+                <h2 class="my-2">2021</h2>
+                <li class="position-relative pl-3 pl-md-4 py-3 py-md-4" style="padding-left: 5px !important;
+                    border-left: #9095975e 3.5px solid;">
+                    <h3 class="h6 position-absolute text-muted" style="font-weight: 500">2021.03.05</h3>
+                  @*  <img src="/assets/images/dot-circle.png" style="left: -22px;
+                        position: relative !important;
+                        background-color: #e1e2f5;"/>*@
+                    <div>
+                        <dl class="mb-0">
+                            <dt><h4 class="h5">分子病理 1.2.5 更新日志</h4></dt>
+                            <dd class="card mb-0 mt-3 bg-light">
+                                <div class="met-editor font-size-14 text-muted oya met-scrollbar" style="padding-right: 10px">
+                                    <p>1、新增：RandomForest随机森林分析；</p>
+                                    <p>2、优化：Picrust,添加选填参数：max_nsti、min_reads、min_samples、m、min_align、skip_norm。对seq.fasta输入文件OTU名称进行处理；</p>
+                                    <p>3、修复：Circos图，修复输入文件中数值较小导致画图失败的问题；</p>
+                                    <p>4、修复：修复饼图比例计算错误，导致绘图与数据不匹配的问题；</p>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    </div>
+
+}

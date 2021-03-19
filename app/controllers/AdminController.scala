@@ -3,16 +3,12 @@ package controllers
 import dao._
 
 import javax.inject.Inject
-import org.joda.time.DateTime
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc._
 import tool.FormTool
 import models.Tables._
 import utils.TableUtils.pageForm
-
 import java.sql
-import java.util.Date
-import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
@@ -59,6 +55,10 @@ class AdminController @Inject()(cc: ControllerComponents)(
       password = password.substring(1, password.length - 1)
       val kitarea = (json \ "kitarea").as[String]
       val filterarea = (json \ "filterarea").as[String]
+      val rawkitarea = (json \ "kitarea").as[JsValue]
+      val rawfilterarea = (json \ "filterarea").as[JsValue]
+      //增加原始数据
+
       val d = System.currentTimeMillis()
       val date = new sql.Date(d)
 
@@ -72,7 +72,7 @@ class AdminController @Inject()(cc: ControllerComponents)(
       val userrow = models.Tables.UserRow(
         0,
         username = username, password = password, `create-time` = date, kitvalue = arearesult, filtervalue = v, selectColumns = Json.toJson(""),
-        selectPatientColumns = Json.toJson(""), selectSampleColumns = Json.toJson("")
+        selectPatientColumns = Json.toJson(""), selectSampleColumns = Json.toJson(""), rawkitarea, rawfilterarea,selectMutationnongsColumns = Json.toJson("")
       )
       Await.result(userDao.addUser(userrow), Duration.Inf)
       Ok("success")
@@ -93,7 +93,6 @@ class AdminController @Inject()(cc: ControllerComponents)(
 
   def modifyUsersBefore(id: Int) = Action {
     implicit request =>
-      println(id)
       Ok(views.html.admin.modifyUser(id = id))
   }
 
@@ -102,6 +101,7 @@ class AdminController @Inject()(cc: ControllerComponents)(
       val id = request.body.asJson.get.toString().toShort
       userDao.deleteUserById(id).map(x => Ok("success"))
   }
+
 
   //搜索用户对突变信息表的搜索记录
   def searchSelectedColumnsOfUser = Action.async {
@@ -126,12 +126,45 @@ class AdminController @Inject()(cc: ControllerComponents)(
       res.map(x => Ok(Json.toJson(x)))
   }
 
-  //搜索用户数据
+  def searchSelectedMutationNoNGSColumnsOfUser = Action.async{
+    implicit request =>
+      val username = request.session.get("mole_pathology_user").get
+      val res = userDao.querySelectedMutationNoNGSColumnsOfUser(username)
+      res.map(x => Ok(Json.toJson(x)))
+  }
+
+  //搜索用户数据 (缺少原始数据)
   def queryUserData = Action.async {
     implicit request =>
       val value = request.body.asJson.get
       val id = value.toString().toShort
-      userDao.queryUserById(id).map(x => Ok(Json.obj("username" -> x.username, "password" -> x.password, "kitvalue" -> x.kitvalue, "filtervalue" -> x.filtervalue)))
+      userDao.queryUserById(id).map(x => Ok(Json.obj("username" -> x.username, "password" -> x.password, "kitvalue" -> x.kitvalueRaw, "filtervalue" -> x.filtervalueRaw)))
+  }
+
+  def updateUser = Action {
+    implicit request =>
+      val value = request.body.asJson.get
+      val userID = (value \ "userId").as[JsValue].toString().toShort
+      val username = (value \ "username").as[String]
+      val password = (value \ "password").as[String]
+      val kitarea = (value \ "kitareaRaw").as[String]
+      val filterarea = (value \ "filterareaRaw").as[String]
+      val kitareaRaw = (value \ "kitareaRaw").as[JsValue]
+      val filterareaRaw = (value \ "filterareaRaw").as[JsValue]
+      val d = System.currentTimeMillis()
+      val date = new sql.Date(d)
+      val arearesult = tool.parseTool.parseKitarea(kitarea)
+      val parse_result = tool.parseTool.parseKit(filterarea)
+      val v1 = parse_result.map(x => Json.obj("table" -> x._1.substring(1, x._1.length - 1), "condition" -> Json.toJson(x._2)))
+      val v2 = Json.toJson(v1)
+      Await.result(userDao.deleteUserById(userID), Duration.Inf)
+      val userrow = models.Tables.UserRow(
+        userID,
+        username = username, password = password, `create-time` = date, kitvalue = arearesult, filtervalue = v2, selectColumns = Json.toJson(""),
+        selectPatientColumns = Json.toJson(""), selectSampleColumns = Json.toJson(""), kitareaRaw, filterareaRaw,selectMutationnongsColumns = Json.toJson("")
+      )
+      Await.result(userDao.addUser(userrow), Duration.Inf)
+      Ok("success")
   }
 
 }

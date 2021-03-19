@@ -1,0 +1,30 @@
+<div class="container">
+    <div class="row">
+        <div class="form-group col-sm-12">
+            <h2 class="page-heading"
+            style="text-align: left;
+                border-bottom: 5px solid #e9f3f4">数据管理</h2>
+        </div>
+    </div>
+
+    @admin.data.manage.nav()
+
+    <div id="container">
+        <div class="row">
+            <div class="col-md-12 stretch-card">
+                <div class="card">
+                    <div id="toolbar">
+                        <button type="button" class="btn btn-primary" id="deleteButton" onclick="deleteUserList()" style="margin-bottom: 20px;">
+                            <i class="glyphicon glyphicon-trash"></i>&nbsp;删除
+                        </button>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" style="margin-bottom: 20px">
+                                选择
+                        </button>
+                    </div>
+                    <table id="table" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

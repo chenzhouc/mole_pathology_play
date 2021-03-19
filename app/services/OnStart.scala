@@ -10,9 +10,6 @@ import scala.concurrent.duration.Duration
 @Singleton
 class OnStart @Inject()(mutationDao: mutationDao)(implicit exec: ExecutionContext) {
 
-
-
-
   println("success")
 
 }

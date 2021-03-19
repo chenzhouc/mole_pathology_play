@@ -1,0 +1,265 @@
+@()(implicit request: play.api.mvc.RequestHeader)
+@admin.main("配置突变信息表列筛选") {
+    <script src="@routes.Assets.at("layer-3.1.1/dist/layer.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("dist2/bootstrap-advanced-sortable/js/bootstrap-advanced-sortable.js")" type="text/javascript"></script>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("dist2/bootstrap-advanced-sortable/css/bootstrap-advanced-sortable.css")">
+    <style>
+            .form-control {
+                display: block;
+                width: 100%;
+                height: 34px;
+                padding: 6px 12px;
+                font-size: 14px;
+                line-height: 1.42857143;
+                color: #555;
+                background: #fff none;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+                -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+                -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+                transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            }
+    </style>
+
+  @*  <div class="container" style="margin-bottom: -22px">
+        <div class="row">
+            <div class="form-group col-sm-12">
+                <h2 class="page-heading"
+                style="text-align: left;
+                    border-bottom: 5px solid #e9f3f4">配置突变信息表Kit</h2>
+            </div>
+        </div>
+
+        @admin.data.addKit.nav()
+    </div>
+
+
+    <div class="container-fluid" style="height: 900px;
+        width: 1232px;
+        margin-top: 85px">
+        <button type="button" class="btn btn-primary" id="deleteButton" onclick="deleteKitList()" style="margin-bottom: 20px;">
+            <i class="glyphicon glyphicon-trash"></i>&nbsp;删除选中数据
+        </button>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" style="margin-bottom: 20px">
+            添加试剂盒
+        </button>
+        <table id="table" class="table table-bordered" data-advanced-sortable="true" data-pagination="true"></table>
+
+    </div>*@
+
+    @admin.data.addKit.body()
+
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel" id="staticBackdrop">
+        <div class="modal-dialog modal-xl  modal-dialog-centered modal-dialog-scrollable" style="position: relative;
+            right: 90px">
+            <div class="modal-content" style="width: 800px">
+                <div class="modal-header bg-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">
+                        <i class="fa fa-plus"></i>
+                        <span id="lblAddTitle" style="font-weight: bold">新增试剂盒</span>
+                    </h4>
+                </div>
+                <form class="form-horizontal" id="form" action="" data-toggle="validator" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="row-fluid" style="margin: 20px">
+
+                            <form role="form">
+                                <div class="form-group">
+                                    <label>请输入您的试剂盒配置，格式参照示例:</label>
+                                    <textarea id="textarea1" class="form-control" rows="3" style="height: 300px;
+                                        margin-bottom: 10px"></textarea>
+                                    <span class="example" >eg.,
+                                        <a href="javascript:filldata();">
+                                            <em id="egCrics">示例文件</em>
+                                        </a>
+                                    </span>
+                                </div>
+                                @*<div class="form-group">
+                                <button type="button" class="btn btn-primary" onclick="submit1()" style="width: 200px">提交</button>
+                                </div>*@
+                            </form>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-info">
+                        <input type="hidden" id="ID" name="ID" />
+                        <button type="button" class="btn blue" onclick="submit1()">确定</button>
+                        <button type="button" class="btn green" data-dismiss="modal">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            //展示示例输入
+            function filldata() {
+
+                let str = `[试剂盒A]
+科室1 = SAMPLE_ID;Entrez_Gene_Id;Chromosome;End_position
+科室2 = Variant_Classification;Tumor_Seq_Allele1;
+[试剂盒B]
+科室1 = X.1.y;Protein_Change;病理号;亚型
+`
+                $('#textarea1').val(str)
+            }
+
+            function submit1() {
+                var datavalue = $('#textarea1').val()
+                var param = {
+                    v: datavalue
+                }
+                $('#staticBackdrop').modal('hide')
+                console.log(datavalue)
+                $.ajax({
+                    url: "@adminC.routes.DataController.saveKit()",
+                    type: "post",
+                    data: param,
+                    success: function (res) {
+                        console.log(res.list)
+                        if (res.list == undefined) {
+                            swal({
+                                title: "",
+                                text: res,
+                                icon: "success",
+                                button: "Aww yiss!",
+                            }, function () {
+                                $("#table").bootstrapTable(
+                                        "refresh",
+                                )
+                            });
+                        } else {
+                            swal({
+                                title: "",
+                                text: res.list + "在数据库中重名，请修改后再提交！",
+                                icon: "error",
+                                button: "Aww yiss!",
+                            }, function () {
+                                $("#table").bootstrapTable(
+                                        "refresh",
+                                )
+                            })
+                        }
+
+                    },
+                    error: function (res) {
+                        swal({
+                            title: "",
+                            text: "提交失败，请检查您的格式是否正确",
+                            icon: "error",
+                            button: "Aww yiss!",
+                        });
+                    }
+                })
+            }
+
+            function deleteKitList() {
+                swal({
+                            title: "",
+                            text: "确定删除？\n",
+                            type: "warning",
+                            showCancelButton: true,
+                            showConfirmButton: true,
+                            confirmButtonClass: "btn-danger",
+                            confirmButtonText: "确定",
+                            closeOnConfirm: false,//设置为false才可以触发双重swal
+                            cancelButtonClass: "btn-outline-danger",
+                            cancelButtonText: "取消"
+                        },
+                        function () {
+                            var index = layer.load(1, {
+                                shade: [0.1, '#fff']
+                            });
+                            var rows = $("#table").bootstrapTable('getSelections')
+                            let ids = '';
+                            for (var i = 0; i < rows.length; i++) {
+                                ids += rows[i]['name'] + ","
+                            }
+                            ids = ids.substring(0, ids.length - 1)
+                            console.log(ids)
+                            if (ids == "") {
+                                layer.close(index)
+                                swal({
+                                    title: "",
+                                    text: "\n请至少选择一项！\n",
+                                    type: "error",
+                                    confirmButtonText: "确定",
+                                }, function () {
+                                    $("#table").bootstrapTable(
+                                            "refresh",
+                                    )
+                                })
+                            } else {
+                                $.ajax({
+                                    url: "@adminC.routes.DataController.deleteMutationKit()",
+                                    type: "post",
+                                    data: ids,
+                                    contentType: "text/plain;charset=utf-8",
+                                    success: function () {
+                                        layer.close(index)
+                                        swal({
+                                            title: "",
+                                            text: "\n删除成功！\n",
+                                            type: "success",
+                                            confirmButtonText: "确定",
+                                        }, function () {
+                                            $("#table").bootstrapTable(
+                                                    "refresh",
+                                            )
+                                        })
+                                    }
+                                });
+                            }
+                        });
+            }
+
+            $(function () {
+
+                $("#Mutation").addClass("active")
+
+                $("#table").bootstrapTable({
+                    method: 'post',
+                    url: "@adminC.routes.DataController.queryKitdata()",
+                    sidePagination: "server",
+                    pageNumber: 1,
+                    pageList: [10, 20, 50, 100, 200],
+                    pageSize: 20,
+                    contentType: "application/x-www-form-urlencoded",
+                    onLoadSuccess: function () {
+                        $(".bs-checkbox").css({
+                            'text-align': 'center',
+                            'vertical-align': 'middle'
+                        })
+                    },
+                    columns: [
+                        {
+                            checkbox: true,
+                        },
+                        {
+                            field: "name",
+                            title: "NAME",
+                            sortable: false,
+                            searchType: "text",
+                            valign: "middle",
+                        },
+                        {
+                            field: "config",
+                            title: "Config",
+                            sortable: false,
+                            searchType: "text",
+                            valign: "middle",
+                            formatter: function (v, row) {
+                                lenme = row.config.map
+                                let name = row.config.map(x => `${x.param}  :  ${x.value}`).join("<br>")
+                                /* `${x.param}  :  ${x.value}<br>`*/
+                                return `${name}`
+                            },
+                        }
+                    ]
+                })
+            })
+    </script>
+}

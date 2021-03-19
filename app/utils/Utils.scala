@@ -83,7 +83,8 @@ object Utils {
   def execFuture[T](f: Future[T]): T = {
     Await.result(f, Duration.Inf)
   }
-  def jsonToMap(json:String) = {
+
+  def jsonToMap(json: String) = {
     JSON.parseFull(json).get.asInstanceOf[Map[String, String]]
   }
 
@@ -139,16 +140,18 @@ object Utils {
     val value = fields.map(x => {
       val searchType = (x \ "searchType").as[String]
       if (searchType == "num") {
-
         val field = (x \ "field").as[String]
+        val searchType = (x \ "searchType").as[String]
         val Jsobject2 = (x \ "data").as[JsValue]
-        val min = (Jsobject2 \ "min").as[String]
-        val max = (Jsobject2 \ "max").as[String]
-        (field, List(min, max))
+        val min = if((Jsobject2 \ "min").isDefined)   (Jsobject2 \ "min").as[String] else ""
+        val max = if((Jsobject2 \ "max").isDefined)   (Jsobject2 \ "max").as[String] else ""
+        (field, searchType, List(min, max))
       } else {
         val field = (x \ "field").as[String]
-        val data = (x \ "data").as[String]
-        (field, List(data))
+        val data = (x \ "data").as[JsValue]
+        val exact = if((data \ "exact").isDefined) (data \ "exact").as[String] else ""
+        val fuzzy = if((data \ "fuzzy").isDefined) (data \ "fuzzy").as[String] else ""
+        (field, searchType, List(fuzzy, exact))
       }
     })
     value

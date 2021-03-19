@@ -2,7 +2,7 @@ name := "mole_pathology_play"
 
 version := "1.0"
 
-lazy val `mole_pathology_play` = (project in file(".")).enablePlugins(PlayScala)
+lazy val `mole_pathology_play` = (project in file(".")).enablePlugins(PlayScala,LauncherJarPlugin)
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
@@ -37,7 +37,6 @@ libraryDependencies ++= Seq(
   "com.aliyun" % "aliyun-java-sdk-core" % "3.7.1",
   "com.aliyun" % "aliyun-java-sdk-dysmsapi" % "1.1.0",
   "org.apache.commons" % "commons-lang3" % "3.6"
-
 )
 libraryDependencies ++= Seq(
   "com.github.tminglei" %% "slick-pg" % "0.19.0",

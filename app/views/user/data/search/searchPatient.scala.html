@@ -1,0 +1,119 @@
+@()(implicit request: play.api.mvc.RequestHeader)
+    @main("搜索") {
+
+        <script src="@routes.Assets.at("dist2/bootstrap-advanced-sortable/js/bootstrap-advanced-sortable.js")" type="text/javascript"></script>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("dist2/bootstrap-advanced-sortable/css/bootstrap-advanced-sortable.css")">
+
+        <style>
+
+                .radio, .checkbox {
+                    position: relative;
+                    display: block;
+                    margin-top: 5px;
+                    margin-bottom: 10px;
+                }
+
+                .form-group {
+                    margin-top: 20px;
+                }
+
+        </style>
+
+        <div class="row">
+            <div class="form-group col-sm-12">
+                <h2 class="page-heading"
+                style="text-align: left;
+                    border-bottom: 5px solid #e9f3f4">搜索</h2>
+            </div>
+        </div>
+
+        <div class="row">
+
+            @user.data.search.nav()
+
+            <div class="col-sm-8 tab-content myform" >
+                <div class="tab-pane active" id="PatientId">
+
+                    <form class="form-horizontal" method="get" id="keywordForm">
+                        <div class="form-group">
+                            <label class="control-label col-sm-3">Patient_ID:</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="refGene" id="patient_id" style="width: 100%" class="checkbox form-control refGene"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="actions col-sm-offset-3 col-sm-3">
+                                <button type="button" class="btn btn-primary" style="width: 90%;" id="search" onclick="searchSampleByPatient()">
+                                    搜索</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row" id="hideTable" style="display: none">
+            <div class="col-md-12 stretch-card">
+                <div class="card">
+                    <div class="card-body"></div>
+                    <table id="table" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+
+                var columnshead = []
+
+                var initcolumns = [ ]
+
+                $(function () {
+
+                    $("#Patient").addClass("active")
+
+                    $.ajax({
+                        url: "@userC.routes.DataController.searchColumnsOfPatientTable()",
+                        type: "get",
+                        async: false,
+                        success(res) {
+                            columnshead = res.head
+                            $.each(columnshead, function (i, v) {
+                                var json = {
+                                    field: v.toLowerCase(),
+                                    title: v.toUpperCase(),
+                                    sortable: true,
+                                    searchType: "text"
+                                }
+                                initcolumns.push(json)
+                            });
+                        }
+                    })
+
+                    //突变信息表的初始化
+                    $("#table").bootstrapTable({
+                        method: 'post',
+                        url: "@userC.routes.DataController.getPatientTable()",
+                        sidePagination: "server",
+                        pageNumber: 1,
+                        pageList: [15],
+                        pageSize: 20,
+                        contentType: "application/x-www-form-urlencoded",
+                        columns: initcolumns
+                    })
+                })
+
+                function searchSampleByPatient() {
+                    $("#patient_id-sort-button").click()
+                    let d = $('#patient_id').val()
+                    $("th").find("#patient_id")
+                    let $patient = $("#patient_id-search")
+                    $patient.val(d)
+                    $patient.parent().find(".btn-sort-primary").click()
+                    $("#hideTable").show()
+                }
+
+        </script>
+    }

@@ -1,5 +1,6 @@
 package dao
 
+
 import javax.inject.Inject
 import models.Tables.{MutationTable, MutationTableRow}
 import play.api.db.DatabaseConfig
@@ -10,6 +11,8 @@ import slick.jdbc.JdbcProfile
 import utils.PageData
 import utils.MyPostgresProfile.api._
 import play.api.libs.json._
+import utils.Utils.processSection
+import tool.ParseToolForExactQuery.parse
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -54,7 +57,7 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
   }
 
   //  判断searchType 然后返回过滤条件 如果是num 返回(field,(min,max))  如果是text 返回(field,data)
-  def processSection(page: PageData) = {
+ /* def processSection(page: PageData) = {
     val jsObject = Json.parse(page.search.getOrElse("{\"\":{\"field\":\"\",\"searchType\":\"text\",\"data\":\"\"}}"))
     val fields = jsObject.as[JsObject].fields.map(x => x._2)
     val value = fields.map(x => {
@@ -73,7 +76,7 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
       }
     })
     value
-  }
+  }*/
 
   //处理前端提交的page里的sort（顺序or逆序）
   def processSort(page: PageData) = {
@@ -94,8 +97,14 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
       MutationTable.filter { y =>
         val bs = value.map(x => {
           //val rs = y.data +>> (x._1)
-          if (x._2.length == 1) {
-            y.data +>> (x._1) === x._2(0)
+          if (x._2 == "text") {
+            //此处要分两种情况 是模糊搜索还是精确搜索
+            //(fuzzy,exact)第一个是模糊查询的值 第二个是精确查询的值，哪个是非空值，就表示是哪种查询
+            val fuzzy = x._3(0)
+            val exact = x._3(1)
+            val arrs = parse(exact).toList
+            if(fuzzy == "") y.data +>> x._1 inSetBind(arrs)
+            else (y.data +>> x._1 like s"%$fuzzy%")
           } else {
             var min: Long = 0
             var max: Long = 0
@@ -136,7 +145,8 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
     else filterData2.sortBy { x =>
       x.data.+>>(sortfields).asc
     }
-    /* val xx = filterData.sortBy { x =>
+    /*
+      val xx = filterData.sortBy { x =>
       x.data.+>>(sortfields).desc
     }*/
     val finalData = sortData
@@ -159,14 +169,18 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
       MutationTable.filter { y =>
         val bs = value.map(x => {
           //val rs = y.data +>> (x._1)
-          if (x._2.length == 1) {
-            y.data +>> (x._1) === x._2(0)
+          if (x._2 == "text") {
+            val fuzzy = x._3(0)
+            val exact = x._3(1)
+            val arrs = parse(exact).toList
+            if(fuzzy == "") y.data +>> x._1 inSetBind(arrs)
+            else (y.data +>> x._1 like s"%$fuzzy%")
           } else {
             var min: Long = 0
             var max: Long = 0
             try {
-              min = x._2(0).toLong
-              max = x._2(1).toLong
+              min = x._3(0).toLong
+              max = x._3(1).toLong
             } catch {
               case ex: NumberFormatException =>
                 min = Long.MinValue
@@ -328,7 +342,7 @@ class mutationDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
 
   // 根据sampleid 查询数据
   def queryByBarcode(barcode: String) = {
-    val data = MutationTable.filter(x => x.data +>> "tumor_sample_barcode" === barcode)
+    val data = MutationTable.filter(x => x.data +>> "sample_id" === barcode)
     val count = data.length.result
     val f = data.result.zip(count)
     db.run(f)

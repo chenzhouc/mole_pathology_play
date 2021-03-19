@@ -1,0 +1,600 @@
+@()(implicit request: play.api.mvc.RequestHeader)
+@main("mutation_table") {
+    <script src="@routes.Assets.at("dist2/bootstrap-advanced-sortable/js/bootstrap-advanced-sortable.js")" type="text/javascript"></script>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("dist2/bootstrap-advanced-sortable/css/bootstrap-advanced-sortable.css")">
+
+
+    <style>
+            .form-check-label {
+                cursor: pointer;
+            }
+
+            .bootstrap-table .fixed-table-container .table td {
+                white-space: nowrap;
+            }
+
+            .modal-content {
+                right: 200px;
+            }
+
+            .form-check-label {
+                min-height: 29px;
+                margin-left: 1.75rem;
+                font-size: 1.5rem;
+                line-height: 1.5;
+            }
+
+            input.form-check-input {
+                margin-right: 15px;
+            }
+
+            .sweet-alert {
+                z-index: 999999999999;
+                border: 1px solid wheat;
+            }
+
+            .fixed-table-container tbody td {
+                border-left: 1px solid #ddd;
+                word-break: keep-all;
+                white-space: nowrap;
+            }
+
+
+
+    </style>
+
+
+    @*<div class="container" style="margin-bottom: 55px">
+        <ul class="nav nav-tabs" style="position: relative;
+            top: 25px">
+            <li role="presentation" ><a href="@userC.routes.DataController.viewPatientBefore()">浏览病人/临床信息</a></li>
+            <li role="presentation" class="active"><a href="@userC.routes.DataController.viewSampleBefore()">浏览病理信息</a></li>
+            <li role="presentation"><a href="@userC.routes.DataController.viewBefore()">浏览分子信息(NGS)</a></li>
+            <li role="presentation"><a href="@userC.routes.DataController.viewMutationNoNGSBefore()">浏览分子信息(其它)</a> </li>
+        </ul>
+    </div>*@
+
+    @user.data.viewData.nav()
+
+    <div class="container">
+        <div class="row">
+            <div class="form-group col-sm-12" style="margin-top: -38px;">
+                <h2 class="page-heading"
+                style="text-align: left;
+                    border-bottom: 5px solid #e9f3f4">数据一览</h2>
+            </div>
+        </div>
+
+        <div id="container">
+            <div class="row">
+                <div class="col-md-12 stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" style="margin-bottom: 20px">
+                                请选择试剂盒
+                            </button>
+                        </div>
+                        <table id="table" class="table table-bordered" data-advanced-sortable="true" data-pagination="true" style="width: 1200px"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel" id="staticBackdrop">
+        <div class="modal-dialog modal-xl  modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="width: 1000px">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">筛选</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: relative;
+                        top: -16px">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="height: auto">
+                    <div class="col-sm-12 row" id="filter">
+                        @*<div class="radio" id="radiofilter">
+                        *@@*这里会填充试剂盒名称*@@*
+                        </div>*@
+                    </div>
+                </div>
+                @*分割线*@
+                <hr style="margin-bottom: 39px">
+                <div class="modal-body" style="height: 460px;
+                    padding: 0px">
+                    <div class="col-sm-12 row" id="showcolumns" style=" margin-top: -21px;
+                        padding-left: 15px;
+                        position: relative;
+                        left: 15px;
+                    ">
+                        @*这里会填充试剂盒的内容*@
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="btn btn-primary" class="btn btn-default" onclick="confirm1()">确认</button>
+                    <button type="btn btn-primary" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel" id="staticBackdrop">
+        <div class="modal-dialog modal-xl  modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="width: 1000px">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">筛选</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: relative;
+                        top: -16px">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="height: auto">
+                    <div class="col-sm-12 row" id="filter">
+                        @*<div class="radio" id="radiofilter">
+                        *@@*这里会填充试剂盒名称*@@*
+                        </div>*@
+                    </div>
+                </div>
+                @*分割线*@
+                <hr style="margin-bottom: 39px">
+                <div class="modal-body" style="height: 460px;
+                    padding: 0px">
+                    <div class="col-sm-12 row" id="showcolumns" style=" margin-top: -21px;
+                        padding-left: 15px;
+                        position: relative;
+                        left: 15px;
+                    ">
+                        @*这里会填充试剂盒的内容*@
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="confirm1()">确认</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+
+            var columnshead = []
+
+            var initcolumns = []
+
+            function searchColumns1() {
+                $.ajax({
+                    url: "/pathology/data/searchSampleKit",
+                    type: "get",
+                    async: false,
+                    success: function (res) {
+                        kits = res
+                        const fields = kits
+                        const titles = kits
+                        $.each(fields, (i, v) => {
+                            if (i == 0) {
+                                $("#filter").append(`
+                                  <div class="radio-inline" id="firstRadio">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')"> ${titles[i]}
+                                </label>
+                            </div>
+`)
+                            } else {
+                                $("#filter").append(`
+                                  <div class="radio-inline">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios2" value="${v}" onclick="showColumns('${v}')" > ${titles[i]}
+                                </label>
+                            </div>
+`)
+                            }
+                        })
+                        $("input[name='optionsRadios']:first").attr("checked", true)
+                        showColumns2(fields[0]);
+                    }
+                })
+            }
+
+            function searchColumns2() {
+                $.ajax({
+                    url: "/pathology/data/searchSampleKit",
+                    type: "get",
+                    async: false,
+                    success: function (res) {
+                        kits = res
+                        const fields = kits
+                        const titles = kits
+                        $.each(fields, (i, v) => {
+                            if (i == 0) {
+                                $("#filter").append(`
+                                  <div class="radio-inline" id="firstRadio">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')"> ${titles[i]}
+                                </label>
+                            </div>
+`)
+                            } else {
+                                $("#filter").append(`
+                                  <div class="radio-inline">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios2" value="${v}" onclick="showColumns('${v}')" > ${titles[i]}
+                                </label>
+                            </div>
+`)
+                            }
+                        })
+                    }
+                })
+            }
+
+            $(function () {
+
+                $("#Sample").addClass("active")
+
+                // 初始化表格
+                $("#table").bootstrapTable({
+                    method: 'post',
+                    url: "@userC.routes.DataController.getSampleTable()",
+                    sidePagination: "server",
+                    pageNumber: 1,
+                    pagination: true,
+                    pageList: [15],
+                    pageSize: 20,
+                    contentType: "application/x-www-form-urlencoded",
+                    advancedSortable: true,
+                    onLoadSuccess: function (data) {
+                    },
+                    columns: []
+                })
+
+                $.ajax({
+                    url: "@routes.AdminController.searchSelectedSampleColumnsOfUser()",
+                    type: "get",
+                    async: false,
+                    success(res) {
+                        if (res[0].length < 2) {
+                            console.log("用户无记录")
+                            columnsforshow = []
+                            initcolumns = []
+                            searchColumns1()
+                            initcolumns = columnsforshow.slice(0, columnsforshow.length)
+                            confirm1()
+                        } else {
+                            console.log("用户有记录")
+                            columnsforshow = []
+                            initcolumns = []
+                            searchColumns2()
+                            //先确定是哪个试剂盒，然后给它选中,然后确定试剂盒下的子选项
+                            let res_json = res[0]
+                            let box = res_json.shift().box.toString()
+                            // 选中试剂盒
+                            $("input[name='optionsRadios'][value=" + box + "]").attr("checked", true)
+                            showColumns(box);
+                            //
+                            $.each(res_json, (index, value) => {
+                                // {value:"strand",target_name:"科室3"}
+                                let s = value.value
+                                let f = value.target_name
+                                // $("input[value=" + s + "][target-name=" + f + "]").attr("checked", true)
+                                //$(":checkbox[target-name='" + f + "'][value='" + s + "']").prop("checked", true)
+                                $(":checkbox[target-name='" + f + "'][value='" + s + "']").each(function () {
+                                    $(this).prop('checked', true)
+                                    columnsforshow.push(($(this).val()))
+                                })
+                            })
+                            initcolumns = columnsforshow.slice(0, columnsforshow.length)
+                            confirm1()
+                        }
+                    }
+                })
+
+                @*var kits = []
+                $.ajax({
+                    url: "@userC.routes.DataController.searchSampleKit()",
+                    type: "get",
+                    success: function (res) {
+                        kits = res
+                        const fields = kits
+                        const titles = kits
+                        $.each(fields, (i, v) => {
+                            if (i == 0) {
+                                $("#filter").append(`
+                                  <div class="radio-inline">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')"> ${titles[i]}
+                                </label>
+
+                            </div>
+`)
+                            } else {
+                                $("#filter").append(`
+                                  <div class="radio-inline">
+                                <label>
+                                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="${v}" onclick="showColumns('${v}')" > ${titles[i]}
+                                </label>
+                            </div>
+`)
+                            }
+                        })
+                    }
+                })*@
+            })
+    </script>
+
+
+    <script>
+            var columnsforshow = []
+
+            function showColumns(value) {
+                let v = value.toString()
+                columnsforshow = []
+                $.ajax({
+                    url: "@userC.routes.DataController.searchSampleKitdata()",
+                    type: "post",
+                    data: v,
+                    async: false,
+                    contentType: "text/plain; charset=utf-8",
+                    success: function (res) {
+                        //所有试剂盒 json格式
+                        let data = res.config
+                        // 单选框集合 [试剂盒A 试剂盒B 试剂盒C]
+                        let options = $("input[name='optionsRadios']")
+                        // 状态为checked的试剂盒
+                        let checke = $("input[name='optionsRadios']:checked")
+                        $.each(options, (index, value) => {
+                                    if ($(value).val() == checke.val()) {
+                                        //如果该试剂盒的子内容为空
+                                        if ($("#showcolumns" + index).length === 0) {
+                                            $("#showcolumns").append(`<div class="show-columns" id="showcolumns${index}" style="display: none"></div>`)
+                                            for (let i = data.length - 1; i >= 0; i--) {
+                                                var elem = res.config[i]
+                                                //(例子中为科室名称)
+                                                var kitparam = elem.param
+                                                var kitname = $(value).val()
+                                                var markAll = [kitname, kitparam]
+                                                var str = elem.value
+                                                var kitcolumns = str.split(",")
+                                                $("#showcolumns" + index).append(`
+                                                    <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="selectAll('${markAll}')">全选</button>
+                                                    <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="antiselectAll('${markAll}')">全不选</button>
+                                                      <b style="font-size: 20px">${kitparam}:</b>
+                                               `)
+                                                $("#showcolumns" + index).append(`&nbsp;&nbsp;`)
+                                                $.each(kitcolumns, (i, v) => {
+                                                    $("#showcolumns" + index).append(`
+                                                    <div class="checkbox inline" style="margin: 10px">
+                                                    <label> <input type="checkbox" target-name=${kitparam} kitmark = "${kitname}"  value="${v}" onclick="addcolumn(this)" mark = "secondary"> ${kitcolumns[i]}</label>
+                                                 </div>`)
+                                                })
+                                                $("#showcolumns" + index).append(`<hr style="width:auto">`)
+                                            }
+                                        }
+                                        $(".show-columns").hide()
+                                        $("#showcolumns" + index).show()
+                                    }
+                                }
+                        )
+                    }
+                })
+            }
+
+            function showColumns2(value) {
+                let v = value.toString()
+                columnsforshow = []
+                $.ajax({
+                            url: "@userC.routes.DataController.searchSampleKitdata()",
+                            type: "post",
+                            data: v,
+                            async: false,
+                            contentType: "text/plain; charset=utf-8",
+                            success: function (res) {
+                                let data = res.config
+                                let options = $("input[name='optionsRadios']")
+                                let checke = $("input[name='optionsRadios']:checked")
+                                $.each(options, (index, value) => {
+                                            if ($(value).val() == checke.val()) {
+                                                if ($("#showcolumns" + index).length === 0) {
+                                                    $("#showcolumns").append(`<div class="show-columns" id="showcolumns${index}" style="display: none"></div>`)
+                                                    for (let i = data.length - 1; i >= 0; i--) {
+                                                        var elem = res.config[i]
+                                                        //(例子中为科室名称)
+                                                        var kitparam = elem.param
+                                                        var kitname = $(value).val()
+                                                        var markAll = [kitname, kitparam]
+                                                        var str = elem.value
+                                                        var kitcolumns = str.split(",")
+                                                        $("#showcolumns" + index).append(`
+                                                    <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="selectAll('${markAll}')">全选</button>
+                                                    <button type="button" class="btn btn-primary btn-xs" style="position: relative;top: -2px" onclick="antiselectAll('${markAll}')">全不选</button>
+                                                      <b style="font-size: 20px">${kitparam}:</b>
+                                               `)
+                                                        $("#showcolumns" + index).append(`&nbsp;&nbsp;`)
+                                                        $.each(kitcolumns, (i, v) => {
+                                                            $("#showcolumns" + index).append(`
+                                                    <div class="checkbox inline" style="margin: 10px">
+                                                    <label> <input type="checkbox" target-name=${kitparam} kitmark = "${kitname}"  value="${v}" onclick="addcolumn(this)" mark = "secondary"> ${kitcolumns[i]}</label>
+                                                 </div>`)
+                                                        })
+                                                        $("#showcolumns" + index).append(`<hr style="width:auto">`)
+                                                    }
+                                                    if (index === 0) {
+                                                        let kitparam = (res.config[data.length - 1]).param
+                                                        let kitmark = $(value).val()
+                                                        let v = kitmark.toString() + "," + kitparam.toString()
+                                                        selectAll(v)
+                                                    }
+                                                }
+                                                $(".show-columns").hide()
+                                                $("#showcolumns" + index).show()
+                                            }
+                                        }
+                                )
+                            }
+                        }
+                )
+            }
+
+            function selectAll(v) {
+                let array = v.split(",")
+                let kitname = array[0]
+                let kitparam = array[1]
+                $("[target-name='" + kitparam + "'][kitmark='" + kitname + "']").each(function () {
+                    $(this).prop('checked', true)
+                    columnsforshow.push(($(this).val()))
+                })
+            }
+
+
+            function antiselectAll(v) {
+                let array = v.split(",")
+                let kitname = array[0]
+                let kitparam = array[1]
+                $("[target-name='" + kitparam + "'][kitmark='" + kitname + "']").each(function () {
+                    $(this).prop('checked', false)
+                    columnsforshow.pop(($(this).val()))
+                })
+            }
+
+            //点击复选框后触发的函数
+            function addcolumn(p) {
+                if ($(p).is(':checked')) {
+                    columnsforshow.push($(p).val())
+                } else {
+                    columnsforshow.pop($(p).val())
+                }
+                console.log(columnsforshow)
+            }
+
+            //  点击试剂盒内部的属性(param) 其属性中的列全部选中，否则全反选
+            function selectparams(v) {
+                // 一个带有value的按钮点击，判断这个value是否checked 是则true，否则false
+                let element = $("[data-name='" + v + "']")
+                if (element.is(":checked")) {
+                    $("[target-name='" + v + "']").prop("checked", true)
+                } else {
+                    $("[target-name='" + v + "']").prop("checked", false)
+                }
+            }
+
+            function saveFavourite() {
+                //找到当前页面 单选框选中的对象 以及复选框选中的对象
+                let primaryParam = []
+                let secondaryParam = []
+                let checkedObject = $("input[name='optionsRadios']:checked")
+                let secondaryChecked = $("input[mark='secondary']:checked")
+                $.each(checkedObject, (index, value) => primaryParam.push($(value).val()))
+                $.each(secondaryChecked, (index, value) => secondaryParam.push($(value).val()))
+
+                let datatarget = []
+                let box = primaryParam[0]
+                let box_json = {box: box}
+                datatarget.push(box_json)
+                //datatarget.push(JSON.stringify(newbox))
+                $.each(secondaryChecked, (index, value) => {
+                    let param = {
+                        "target_name": $(value).attr("target-name"),
+                        "value": $(value).val()
+                    }
+                    datatarget.push(param)
+                })
+                let datatarget_json = JSON.stringify(datatarget)
+                $.ajax({
+                    url: "@userC.routes.DataController.saveSelectedSampleColumnsOfUser()",
+                    method: "post",
+                    data: datatarget_json,
+                    contentType: "application/json",
+                    success: function (res) {
+                    }
+                })
+            }
+
+            // 确定要查看的列之后提交
+            function confirm1() {
+                // 先确定是哪个试剂盒 目的： 在确定提交后去掉其它试剂盒的勾
+                let primaryParam = []
+                let checkedObject = $("input[name='optionsRadios']:checked")
+                $.each(checkedObject, (index, value) => primaryParam.push($(value).val()))
+                let kitname = primaryParam[0]
+
+                var columns = []
+                $.each(columnsforshow, (i, v) => {
+                    var obj = {
+                        field: v.toLowerCase(),
+                        title: v,
+                        sortable: true,
+                        searchType: "text"
+                    }
+                    columns.push(obj)
+                })
+                let patient_id = {
+                    field: "patient_id",
+                    title: "PATIENT_ID",
+                    sortable: true,
+                    searchType: "text"
+                }
+                let sample_id = {
+                    field: "sample_id",
+                    title: "SAMPLE_ID",
+                    sortable: true,
+                    searchType: "text"
+                }
+                columns.forEach(function (item, index, arr) {
+                    if (item.field === "patient_id") {
+                        arr.splice(index, 1)
+                    }
+                })
+                columns.forEach(function (item, index, arr) {
+                    if (item.field === "sample_id") {
+                        arr.splice(index, 1)
+                    }
+                })
+                columns.unshift(patient_id)
+                columns.unshift(sample_id)
+
+                let newarr = arrDistinctByProp(columns, 'field')
+                /*let arrforJudge = newarr.slice(0, newarr.length)
+                arrforJudge.forEach(function (item, index, arr) {
+                    if (item.field === "sample_id") {
+                        console.log("sample_id 已删除")
+                        arr.splice(index, 1)
+                    }
+                })
+                arrforJudge.forEach((item, index, arr) => {
+                    if (item.field === "patient_id") {
+                        console.log("patient_id已删除")
+                        arr.splice(index, 1)
+                    }
+                })*/
+                if (newarr.length > 2) {
+                    $("#table").bootstrapTable(
+                            "refreshOptions",
+                            {
+                                url: "@userC.routes.DataController.getSampleTable()",
+                                columns: newarr
+                            }
+                    )
+                    saveFavourite()
+                    $('.modal').modal("hide");
+                } else {
+                    swal({
+                        title: "",
+                        text: "请至少选择一项(不包括Sample_ID和Patient_ID)！",
+                        icon: "error",
+                        button: "Aww yiss!",
+                    })
+                }
+                $("input[mark='secondary'][kitmark != '" + kitname + "']").attr("checked", false)
+            }
+
+            function arrDistinctByProp(arr, prop) {
+                let obj = {};
+                return arr.reduce(function (preValue, item) {
+                    obj[item[prop]] ? '' : obj[item[prop]] = true && preValue.push(item);
+                    return preValue
+                }, [])
+            }
+    </script>
+}

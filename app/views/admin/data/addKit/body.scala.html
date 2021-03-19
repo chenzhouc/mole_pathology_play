@@ -1,0 +1,25 @@
+<div class="container" style="margin-bottom: -22px">
+    <div class="row">
+        <div class="form-group col-sm-12">
+            <h2 class="page-heading"
+            style="text-align: left;
+                border-bottom: 5px solid #e9f3f4">配置试剂盒</h2>
+        </div>
+    </div>
+
+    @admin.data.addKit.nav()
+</div>
+
+
+<div class="container-fluid" style="height: 900px;
+    width: 1232px;
+    margin-top: 85px">
+    <button type="button" class="btn btn-primary" id="deleteButton" onclick="deleteKitList()" style="margin-bottom: 20px;">
+        <i class="glyphicon glyphicon-trash"></i>&nbsp;删除
+    </button>
+    <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" style="margin-bottom: 20px">
+            添加
+    </button>
+    <table id="table" class="table table-bordered" data-advanced-sortable="true" data-pagination="true"></table>
+
+</div>
